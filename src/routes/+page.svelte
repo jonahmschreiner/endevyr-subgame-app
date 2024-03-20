@@ -352,11 +352,14 @@
             //get variables needed
             let spacedrepetitioncadence = [0, 1, 2, 4, 9, 21, 48, 106, 227, 475, 978, 1992];
             let lastcompleted = new Date();
+            let next = new Date(lastcompleted);
             let nextcompletiondate;
             if (currgame.basecaserepetitions > 0) {
-                nextcompletiondate = lastcompleted + spacedrepetitioncadence[currgame.basecaserepetitions];
+                next.setDate(lastcompleted.getDate() + spacedrepetitioncadence[currgame.basecaserepetitions])
+                nextcompletiondate = next;
             } else {
-                nextcompletiondate = new Date().setHours(lastcompleted.getHours() + 5);
+                next.setHours(lastcompleted.getHours() + 5);
+                nextcompletiondate = next;
             }
             let basecaserepetitions = currgame.basecaserepetitions + 1;
 
@@ -376,6 +379,7 @@
                     processStage = 1;
                 }
             }
+            indrill = false;
             //set db
             await fetch('/api/updateGame', {
                 method: 'POST',
@@ -501,7 +505,7 @@
         <h2>Drill execution</h2>
         <textarea id="drill-execution-textarea" class="input" type="text" spellcheck="false" autocomplete="off" placeholder="How to execute drill" bind:value={currgame.basecasedrillexecution} on:keydown={handleKeyDownDrill} />
         {#if currgame.basecasedrillexecution != null && currgame.basecasedrillexecution.trim() != '' && currgame.basecasedrillsetup != null && currgame.basecasedrillsetup.trim() != ''}
-            <button class="page-button" style="{!currgame.basecasedrillactivated ? 'color: #FFF; background-color: #000' : 'color: #000; background-color: #FFF'}" on:click={handleBottomButtonClick}>{#if processStage == 0}Completed{:else if !currgame.basecasedrillactivated}Activate{:else}Turn Off{/if}</button>
+            <button class="page-button" style="{currgame.basecasedrillactivated ? 'color: #FFF; background-color: #000' : 'color: #000; background-color: #FFF'}" on:click={handleBottomButtonClick}>{#if processStage == 0}Completed{:else if !currgame.basecasedrillactivated}Activate{:else}Turn Off{/if}</button>
         {:else}
             <button disabled class="page-button" style="{!currgame.basecasedrillactivated ? 'color: #0000004D; border-color: #0000004D;' : 'color: #FFFFFF4D; border-color: #0000004D; background: #0000004D; background-clip: padding-box;'}">Activate</button>
         {/if}
@@ -607,7 +611,7 @@
         {#if processStage == 0}
             <h1>Today's Drills</h1>
             {#each drillsdue as drill}
-                <button>
+                <button on:click={() => {goToDrill(drill)}}>
                     <h2>{drill.name}</h2>
                     <p>{drill.superparentgame.name}</p>
                 </button>

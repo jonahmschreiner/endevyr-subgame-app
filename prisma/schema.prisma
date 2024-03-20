@@ -21,11 +21,14 @@ model Game {
   subgames      Game[]      @relation("subgame")
   parentgameid  Int?
   parentgame    Game?       @relation("subgame", fields: [parentgameid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  superparentgameid Int?
+  superparentgame Game?     @relation("supergamesubgames", fields: [superparentgameid], references: [id], onDelete: NoAction, onUpdate: NoAction)
   parentgamesubgamesindex Int?
   isbasecase    Int         @default(0)
   basecasedrillsetup  String?   @db.VarChar(1000)
   basecasedrillexecution  String?   @db.VarChar(1000)
   basecaselastcompleted     DateTime?
+  basecasenextcompletiondate  DateTime?
   basecaserepetitions       Int       @default(0)
   basecasedrillactivated  Int   @default(0)
   creationdate   DateTime   @default(now())
@@ -34,6 +37,8 @@ model Game {
   user           User       @relation(fields: [userid], references: [id], onDelete: Cascade)
   @@index([parentgameid])
   @@index([userid])
+  @@index([superparentgameid])
+  supergamesubgames Game[]  @relation("supergamesubgames")
 }
 
 model User {

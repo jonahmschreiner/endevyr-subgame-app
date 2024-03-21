@@ -200,6 +200,10 @@
         let responseJSON = await response.json();
         user.games.push(responseJSON.newgame);
         currgame.subgames = getSubgamesOfGame(currgame);
+        editingSubGameTitle = currgame.subgames[currgame.subgames.length - 1];
+        currgame.subgames[currgame.subgames.length - 1].name = null;
+        await tick();
+        document.getElementById("subgamenameinput" + (currgame.subgames.length - 1)).focus();
     }
 
     let ingame = false;
@@ -590,7 +594,7 @@
             <button disabled class="page-button" style="{!currgame.basecasedrillactivated ? 'color: #0000004D; border-color: #0000004D;' : 'color: #FFFFFF4D; border-color: #0000004D; background: #0000004D; background-clip: padding-box;'} {viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : ''}">Activate</button>
         {/if}
     {:else if ingame}
-        <div style="display: flex; width: 100%; justify-content: flex-end; margin-right: -10px;">
+        <div style="display: flex; width: 100%; justify-content: flex-end;">
             <button on:click={closeGame}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="10" viewBox="0 0 11 11" fill="none">
                     <line y1="-1" x2="11.5486" y2="-1" transform="matrix(0.692722 0.721204 -0.692722 0.721204 1 2)" stroke="black" stroke-width="2"/>
@@ -618,7 +622,7 @@
             {/if}
         </div>
         {#each currgame.subgames as subgame, index}
-            <div style="display: flex;">
+            <div style="display: flex; margin-top: 15px;">
                 {#if editingSubGameTitle != null && editingSubGameTitle.id == subgame.id}
                     <input id="subgamenameinput{index}" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Insert game title" bind:value={subgame.name}>
                     <button style="padding-left: 15px;" on:click={submitSubGameTitleChanges}>
@@ -646,6 +650,8 @@
                                 <path d="M17.51 12.85 6.5 19.15"/>
                             </svg>
                         </button>
+                    {:else}
+                        <div style="width: 26px; height: 41px; margin-left: 15px;"></div>
                     {/if}
                     {#if subgame.isbasecase == 0}
                         <button style="margin-left: 15px;" on:click={() => {goToGame(subgame)}}>

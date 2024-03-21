@@ -284,7 +284,7 @@
     let editingTitle = false;
     async function toggleEditingTitle () {
         editingTitle = !editingTitle;
-        if (currgame.name == "Example Sub-Game Name") {
+        if (currgame.name == "Example Name") {
             currgame.name = null;
         }
         await tick();
@@ -304,7 +304,7 @@
 
     let editingSubGameTitle = null;
     async function setEditingSubGameTitle (subgame, index) {
-        if (subgame.name == "Example Sub-Game Name") {
+        if (subgame.name == "Example Name") {
             subgame.name = null;
         }
         editingSubGameTitle = subgame;
@@ -628,7 +628,7 @@
                     </button>  
                 {:else}
                     <div style="{viewportWidth < 430 ? 'width: ' + (viewportWidth - 265) +'px; max-width: ' + (viewportWidth - 265) + 'px;' : 'width: 200px; max-width: 200px;'} display: flex; align-items: center;">
-                        <button style="font-weight: 700; font-size: 16px; color: black;" on:click={() => {navigateToSubGame(subgame)}}>{subgame.name}</button>
+                        <button style="font-weight: 700; font-size: 16px; color: black; text-align: left;" on:click={() => {navigateToSubGame(subgame)}}>{subgame.name}</button>
                     </div>
                     <button style="margin-left: 15px;" on:click={() => {setEditingSubGameTitle(subgame, index)}}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="15" height="38" viewBox="0 0 20 20" fill="none">

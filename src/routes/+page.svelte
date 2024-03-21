@@ -19,7 +19,7 @@
         height: 36px;
         border-radius: 5px;
         color: black;
-        font-size: 15px;
+        font-size: 16px;
         font-style: normal;
         font-weight: 600;
         line-height: normal;

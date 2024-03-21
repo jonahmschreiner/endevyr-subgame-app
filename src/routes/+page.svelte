@@ -578,7 +578,7 @@
         </div>
         <div style="display: flex; margin-bottom: 30px;">
             {#if !editingTitle}
-                <h1 style="margin: 0;">{currgame.name}</h1>
+                <h1 style="margin: 0; max-width: 100%;">{currgame.name}</h1>
                 <button style="margin-left: 15px;" on:click={toggleEditingTitle}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="38" viewBox="0 0 20 20" fill="none">
                             <line x1="4.58579" y1="15.0985" x2="14.0989" y2="5.58533" stroke="#D9D9D9" stroke-width="4"/>
@@ -605,7 +605,7 @@
                         </svg>
                     </button>  
                 {:else}
-                    <div style="{viewportWidth < 430 ? 'width: ' + (viewportWidth - 245) +'px; max-width: ' + (viewportWidth - 245) + 'px;' : 'width: 200px; max-width: 200px;'} display: flex; align-items: center;">
+                    <div style="{viewportWidth < 430 ? 'width: ' + (viewportWidth - 265) +'px; max-width: ' + (viewportWidth - 265) + 'px;' : 'width: 200px; max-width: 200px;'} display: flex; align-items: center;">
                         <button style="font-weight: 700; font-size: 16px;" on:click={() => {navigateToSubGame(subgame)}}>{subgame.name}</button>
                     </div>
                     <button style="margin-left: 15px;" on:click={() => {setEditingSubGameTitle(subgame)}}>
@@ -667,7 +667,7 @@
         {#if processStage == 0}
             <h1>Today's Drills</h1>
             {#each drillsdue as drill}
-                <button style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 300px; max-width: 300px;'} border-radius: 5px; border-color: black; border-width: 2px; border-style: solid; padding: 15px; margin-top: 30px;" on:click={() => {goToDrill(drill)}}>
+                <button style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 300px; max-width: 300px;'} border-radius: 5px; border-color: black; border-width: 2px; border-style: solid; padding: 15px; margin-top: 30px; color: black;" on:click={() => {goToDrill(drill)}}>
                     <h2>{truncateString(drill.name, 22)}</h2>
                     <p class="super-parent-text">{drill.superparentgame.name}</p>
                 </button>
@@ -675,7 +675,7 @@
         {:else if processStage == 1}
             <h1>Add Drills ({3 - user.todaynewfinitegamebehaviorcount})</h1>
             {#each primaryGames as primaryGame}
-                <button style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 300px; max-width: 300px;'} border-radius: 5px; border-color: black; border-width: 2px; border-style: solid; padding: 15px; margin-top: 30px;" on:click={() => {goToGame(primaryGame)}}>
+                <button style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 300px; max-width: 300px;'} border-radius: 5px; border-color: black; border-width: 2px; border-style: solid; padding: 15px; margin-top: 30px; color: black;" on:click={() => {goToGame(primaryGame)}}>
                     <h2>{truncateString(primaryGame.name, 22)}</h2>
                 </button>
             {/each}

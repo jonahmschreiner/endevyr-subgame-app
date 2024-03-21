@@ -94,7 +94,7 @@ export const load = async ({ url, cookies }) => {
             },
         },
     });
-
+    
     let drillsdue = await prisma.Game.findMany({
         where: {
             AND: [

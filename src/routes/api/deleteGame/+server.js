@@ -8,6 +8,7 @@ export async function POST({ request }) {
             id: gameid,
         },
     });
+
     deleteChildren(response);
     try {
         await prisma.Game.delete({        

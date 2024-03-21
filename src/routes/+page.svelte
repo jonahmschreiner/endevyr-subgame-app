@@ -4,6 +4,7 @@
         padding: 0;
         border: none;
         cursor: pointer;
+        font-family: 'Inter';
         -webkit-tap-highlight-color: transparent;
         -webkit-touch-callout: none;
         -webkit-user-select: none;
@@ -38,11 +39,10 @@
     textarea {
         box-sizing: border-box;
         width: 90%;
-        height: 72px;
+        height: 150px;
         flex-shrink: 0;
         border-radius: 5px;
         border: 2px solid #000;
-        margin-top: 20px;
         color: #000;
         font-family: 'Inter';
         font-size: 16px;
@@ -53,6 +53,7 @@
         padding-top: 10px;
         max-width: 960px;
         resize: none;
+        margin-top: 5px;
     }
     
     textarea::placeholder {
@@ -88,13 +89,44 @@
         max-width: 960px;
         cursor: pointer;
     }
+
+    h1 {
+        flex-shrink: 0;
+        color: #000;
+        text-align: left;
+        font-family: 'Inter';
+        font-size: 32px;
+        font-style: normal;
+        font-weight: 900;
+        line-height: 1.2;
+        margin-top: 0px;
+        margin-bottom: 0px;
+        letter-spacing: -0.01em;
+    }
+
+    .drill-input-title {
+        font-size: 16px;
+        font-family: 'Inter';
+        color: #6F6D6D;
+        margin: 0;
+        letter-spacing: -0.01em;
+        line-height: 1.2;
+        font-weight: 900;
+        margin-top: 20px;
+    }
+
+    .super-parent-text {
+        font-size: 16px;
+        font-family: 'Inter';
+        color: #6F6D6D;
+        letter-spacing: -0.01em;
+    }
 </style>
 
 <script>
-    import { tick } from "svelte";
+    import { tick, onMount } from "svelte";
     export let data;
     let { user, drillsdue } = data;
-
     let processStage = 0;
     if (drillsdue == null || drillsdue == undefined || drillsdue.length == 0) {
         processStage = 1;
@@ -108,6 +140,18 @@
     function getSubgamesOfGame (gameIn) {
         return user.games.filter(obj => obj.parentgameid == gameIn.id).sort((a, b) => a.parentgamesubgamesindex - b.parentgamesubgamesindex);
     }
+
+    let viewportWidth;
+    const updateWidth = () => {
+        viewportWidth = window.innerWidth;
+    };
+    onMount(() => {
+        updateWidth();
+        window.addEventListener('resize', updateWidth);
+        return () => {
+            window.removeEventListener('resize', updateWidth);
+        };
+    });
 
 
     async function addPrimaryGame () {
@@ -473,9 +517,11 @@
             clear = true;
             closeGame();
         }
-        user.games = user.games.filter(obj => !(obj.id == subgameIn.id || obj.parent));
+        user.games = user.games.filter(obj => !(obj.id == subgameIn.id || obj.parentgameid == subgameIn.id));
         if (clear) {
             user.games.find(obj => obj.id == storecurrgame.id).subgames = null;
+        } else {
+            currgame.subgames = currgame.subgames.filter(obj => !(obj.id == subgameIn.id || obj.parentgameid == subgameIn.id));
         }
         
 
@@ -487,6 +533,14 @@
             },
             body: JSON.stringify({ gameid: subgameIn.id }),
         });
+    }
+
+    function truncateString(primaryGameName, maxCharacterNum) {
+        if (primaryGameName.length > maxCharacterNum) {
+            return primaryGameName.substring(0, maxCharacterNum - 3) + '...';
+        } else {
+            return primaryGameName;
+        }
     }
 </script>
 
@@ -504,14 +558,14 @@
             </button>
         </div>
         <h1>{currgame.name}</h1>
-        <h2>Drill set up</h2>
-        <textarea id="drill-setup-textarea" class="input" type="text" spellcheck="false" autocomplete="off" placeholder="How to set up drill" bind:value={currgame.basecasedrillsetup} on:keydown={handleKeyDownDrill} />
-        <h2>Drill execution</h2>
-        <textarea id="drill-execution-textarea" class="input" type="text" spellcheck="false" autocomplete="off" placeholder="How to execute drill" bind:value={currgame.basecasedrillexecution} on:keydown={handleKeyDownDrill} />
+        <h2 class="drill-input-title">Drill set up</h2>
+        <textarea id="drill-setup-textarea" style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : ''}" class="input" type="text" spellcheck="false" autocomplete="off" placeholder="How to set up drill" bind:value={currgame.basecasedrillsetup} on:keydown={handleKeyDownDrill} />
+        <h2 class="drill-input-title">Drill execution</h2>
+        <textarea id="drill-execution-textarea" style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : ''}" class="input" type="text" spellcheck="false" autocomplete="off" placeholder="How to execute drill" bind:value={currgame.basecasedrillexecution} on:keydown={handleKeyDownDrill} />
         {#if currgame.basecasedrillexecution != null && currgame.basecasedrillexecution.trim() != '' && currgame.basecasedrillsetup != null && currgame.basecasedrillsetup.trim() != ''}
-            <button class="page-button" style="{(currgame.basecasedrillactivated && processStage == 0) || (!currgame.basecasedrillactivated && processStage == 1) ? 'color: #FFF; background-color: #000' : 'color: #000; background-color: #FFF'}" on:click={handleBottomButtonClick}>{#if processStage == 0}Completed{:else if !currgame.basecasedrillactivated}Activate{:else}Turn Off{/if}</button>
+            <button class="page-button" style="{(currgame.basecasedrillactivated && processStage == 0) || (!currgame.basecasedrillactivated && processStage == 1) ? 'color: #FFF; background-color: #000;' : 'color: #000; background-color: #FFF;'} {viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : ''}" on:click={handleBottomButtonClick}>{#if processStage == 0}Completed{:else if !currgame.basecasedrillactivated}Activate{:else}Turn Off{/if}</button>
         {:else}
-            <button disabled class="page-button" style="{!currgame.basecasedrillactivated ? 'color: #0000004D; border-color: #0000004D;' : 'color: #FFFFFF4D; border-color: #0000004D; background: #0000004D; background-clip: padding-box;'}">Activate</button>
+            <button disabled class="page-button" style="{!currgame.basecasedrillactivated ? 'color: #0000004D; border-color: #0000004D;' : 'color: #FFFFFF4D; border-color: #0000004D; background: #0000004D; background-clip: padding-box;'} {viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : ''}">Activate</button>
         {/if}
     {:else if ingame}
         <div style="display: flex; width: 100%; justify-content: flex-end; margin-right: -10px;">
@@ -522,7 +576,7 @@
                 </svg>
             </button>
         </div>
-        <div style="display: flex;">
+        <div style="display: flex; margin-bottom: 30px;">
             {#if !editingTitle}
                 <h1 style="margin: 0;">{currgame.name}</h1>
                 <button style="margin-left: 15px;" on:click={toggleEditingTitle}>
@@ -542,56 +596,54 @@
             {/if}
         </div>
         {#each currgame.subgames as subgame, index}
-            <div style="display: flex; justify-content: space-between;">
-                <div style="display: flex;">
-                    {#if editingSubGameTitle != null && editingSubGameTitle.id == subgame.id}
-                        <input spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Insert game title" bind:value={subgame.name}>
-                        <button style="padding-left: 15px;" on:click={submitSubGameTitleChanges}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 6 9 17l-5-5"/>
-                            </svg>
-                        </button>  
-                    {:else}
-                        <button on:click={() => {navigateToSubGame(subgame)}}>{subgame.name}</button>
-                        <button style="margin-left: 15px;" on:click={() => {setEditingSubGameTitle(subgame)}}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="38" viewBox="0 0 20 20" fill="none">
-                                <line x1="4.58579" y1="15.0985" x2="14.0989" y2="5.58533" stroke="#D9D9D9" stroke-width="4"/>
-                                <rect x="14" y="2.82812" width="4" height="4" transform="rotate(-45 14 2.82812)" fill="#D9D9D9"/>
-                                <path d="M1.41391 18.243L2.31049 14.8969L4.75998 17.3464L1.41391 18.243Z" fill="#D9D9D9"/>
-                            </svg>
-                        </button>
-                        {#if subgame.subgames == null || subgame.subgames.length == 0}
-                            <button style="margin-left: 15px;" on:click={() => {goToDrill(subgame);}}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="{subgame.isbasecase == 1 && subgame.basecasedrillactivated == 0 ? 'red' : subgame.isbasecase == 1 && subgame.basecasedrillactivated == 1 ? '#53E720' : 'black'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="m12 8 6-3-6-3v10"/>
-                                    <path d="m8 11.99-5.5 3.14a1 1 0 0 0 0 1.74l8.5 4.86a2 2 0 0 0 2 0l8.5-4.86a1 1 0 0 0 0-1.74L16 12"/>
-                                    <path d="m6.49 12.85 11.02 6.3"/>
-                                    <path d="M17.51 12.85 6.5 19.15"/>
-                                </svg>
-                            </button>
-                        {/if}
-                        {#if subgame.isbasecase == 0}
-                            <button style="margin-left: 15px;" on:click={() => {goToGame(subgame)}}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26" fill="none">
-                                    <circle cx="13" cy="13" r="12" fill="black" stroke="black" stroke-width="2"/>
-                                    <rect x="12.6973" y="5.44141" width="1.2093" height="15.7209" fill="white"/>
-                                    <rect x="5.44141" y="13.9072" width="1.2093" height="15.7209" transform="rotate(-90 5.44141 13.9072)" fill="white"/>
-                                </svg>
-                            </button>
-                        {/if}
-                        <button style="margin-left: 15px;" on:click={() => {deleteGame(subgame)}}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M3 6h18"/>
-                                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
-                                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
-                                <line x1="10" x2="10" y1="11" y2="17"/>
-                                <line x1="14" x2="14" y1="11" y2="17"/>
+            <div style="display: flex;">
+                {#if editingSubGameTitle != null && editingSubGameTitle.id == subgame.id}
+                    <input spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Insert game title" bind:value={subgame.name}>
+                    <button style="padding-left: 15px;" on:click={submitSubGameTitleChanges}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 6 9 17l-5-5"/>
+                        </svg>
+                    </button>  
+                {:else}
+                    <div style="{viewportWidth < 430 ? 'width: ' + (viewportWidth - 245) +'px; max-width: ' + (viewportWidth - 245) + 'px;' : 'width: 200px; max-width: 200px;'} display: flex; align-items: center;">
+                        <button style="font-weight: 700; font-size: 16px;" on:click={() => {navigateToSubGame(subgame)}}>{subgame.name}</button>
+                    </div>
+                    <button style="margin-left: 15px;" on:click={() => {setEditingSubGameTitle(subgame)}}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="38" viewBox="0 0 20 20" fill="none">
+                            <line x1="4.58579" y1="15.0985" x2="14.0989" y2="5.58533" stroke="#D9D9D9" stroke-width="4"/>
+                            <rect x="14" y="2.82812" width="4" height="4" transform="rotate(-45 14 2.82812)" fill="#D9D9D9"/>
+                            <path d="M1.41391 18.243L2.31049 14.8969L4.75998 17.3464L1.41391 18.243Z" fill="#D9D9D9"/>
+                        </svg>
+                    </button>
+                    {#if subgame.subgames == null || subgame.subgames.length == 0}
+                        <button style="margin-left: 15px;" on:click={() => {goToDrill(subgame);}}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="{subgame.isbasecase == 1 && subgame.basecasedrillactivated == 0 ? 'red' : subgame.isbasecase == 1 && subgame.basecasedrillactivated == 1 ? '#53E720' : 'black'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="m12 8 6-3-6-3v10"/>
+                                <path d="m8 11.99-5.5 3.14a1 1 0 0 0 0 1.74l8.5 4.86a2 2 0 0 0 2 0l8.5-4.86a1 1 0 0 0 0-1.74L16 12"/>
+                                <path d="m6.49 12.85 11.02 6.3"/>
+                                <path d="M17.51 12.85 6.5 19.15"/>
                             </svg>
                         </button>
                     {/if}
-                </div>
-                <div style="display: flex;">
-                    <button on:click={() => {moveGameDown(index)}}>
+                    {#if subgame.isbasecase == 0}
+                        <button style="margin-left: 15px;" on:click={() => {goToGame(subgame)}}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26" fill="none">
+                                <circle cx="13" cy="13" r="12" fill="black" stroke="black" stroke-width="2"/>
+                                <rect x="12.6973" y="5.44141" width="1.2093" height="15.7209" fill="white"/>
+                                <rect x="5.44141" y="13.9072" width="1.2093" height="15.7209" transform="rotate(-90 5.44141 13.9072)" fill="white"/>
+                            </svg>
+                        </button>
+                    {/if}
+                    <button style="margin-left: 15px;" on:click={() => {deleteGame(subgame)}}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 6h18"/>
+                            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                            <line x1="10" x2="10" y1="11" y2="17"/>
+                            <line x1="14" x2="14" y1="11" y2="17"/>
+                        </svg>
+                    </button>
+                    <button style="margin-left: 15px;" on:click={() => {moveGameDown(index)}}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="m6 9 6 6 6-6"/>
                         </svg>
@@ -601,10 +653,10 @@
                             <path d="m18 15-6-6-6 6"/>
                         </svg>
                     </button>
-                </div>
+                {/if}
             </div>
         {/each}
-        <button on:click={addSubGame}>
+        <button style="margin-top: 15px;" on:click={addSubGame}>
             <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26" fill="none">
                 <circle cx="13" cy="13" r="12" fill="black" stroke="black" stroke-width="2"/>
                 <rect x="12.6973" y="5.44141" width="1.2093" height="15.7209" fill="white"/>
@@ -615,20 +667,20 @@
         {#if processStage == 0}
             <h1>Today's Drills</h1>
             {#each drillsdue as drill}
-                <button on:click={() => {goToDrill(drill)}}>
-                    <h2>{drill.name}</h2>
-                    <p>{drill.superparentgame.name}</p>
+                <button style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 300px; max-width: 300px;'} border-radius: 5px; border-color: black; border-width: 2px; border-style: solid; padding: 15px; margin-top: 30px;" on:click={() => {goToDrill(drill)}}>
+                    <h2>{truncateString(drill.name, 22)}</h2>
+                    <p class="super-parent-text">{drill.superparentgame.name}</p>
                 </button>
             {/each}
         {:else if processStage == 1}
             <h1>Add Drills ({3 - user.todaynewfinitegamebehaviorcount})</h1>
             {#each primaryGames as primaryGame}
-                <button on:click={() => {goToGame(primaryGame)}}>
-                    <h2>{primaryGame.name}</h2>
+                <button style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 300px; max-width: 300px;'} border-radius: 5px; border-color: black; border-width: 2px; border-style: solid; padding: 15px; margin-top: 30px;" on:click={() => {goToGame(primaryGame)}}>
+                    <h2>{truncateString(primaryGame.name, 22)}</h2>
                 </button>
             {/each}
 
-            <button on:click={addPrimaryGame}>
+            <button style="margin-top: 30px;" on:click={addPrimaryGame}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26" fill="none">
                     <circle cx="13" cy="13" r="12" fill="black" stroke="black" stroke-width="2"/>
                     <rect x="12.6973" y="5.44141" width="1.2093" height="15.7209" fill="white"/>

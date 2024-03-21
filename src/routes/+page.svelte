@@ -586,7 +586,7 @@
         </div>
         <div style="display: flex; margin-bottom: 30px;">
             {#if !editingTitle}
-                <h1 style="margin: 0; max-width: 100%;">{currgame.name}</h1>
+                <h1 style="margin: 0; max-width: 90%;">{currgame.name}</h1>
                 <button style="margin-left: 15px;" on:click={toggleEditingTitle}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="38" viewBox="0 0 20 20" fill="none">
                             <line x1="4.58579" y1="15.0985" x2="14.0989" y2="5.58533" stroke="#D9D9D9" stroke-width="4"/>
@@ -614,7 +614,7 @@
                     </button>  
                 {:else}
                     <div style="{viewportWidth < 430 ? 'width: ' + (viewportWidth - 265) +'px; max-width: ' + (viewportWidth - 265) + 'px;' : 'width: 200px; max-width: 200px;'} display: flex; align-items: center;">
-                        <button style="font-weight: 700; font-size: 16px;" on:click={() => {navigateToSubGame(subgame)}}>{subgame.name}</button>
+                        <button style="font-weight: 700; font-size: 16px; color: black;" on:click={() => {navigateToSubGame(subgame)}}>{subgame.name}</button>
                     </div>
                     <button style="margin-left: 15px;" on:click={() => {setEditingSubGameTitle(subgame)}}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="15" height="38" viewBox="0 0 20 20" fill="none">

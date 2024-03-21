@@ -26,6 +26,10 @@
         padding-left: 10px;
     }
 
+    input:focus {
+        outline: none;
+    }
+
     input::placeholder {
         color: #7C7B7B;
         font-family: 'Inter';
@@ -278,8 +282,13 @@
     }
 
     let editingTitle = false;
-    function toggleEditingTitle () {
+    async function toggleEditingTitle () {
         editingTitle = !editingTitle;
+        if (currgame.name == "Example Sub-Game Name") {
+            currgame.name = null;
+        }
+        await tick();
+        document.getElementById("currgametitleinput").focus();
     }
 
     async function submitTitleChanges () {
@@ -294,8 +303,13 @@
     }
 
     let editingSubGameTitle = null;
-    function setEditingSubGameTitle (subgame) {
+    async function setEditingSubGameTitle (subgame, index) {
+        if (subgame.name == "Example Sub-Game Name") {
+            subgame.name = null;
+        }
         editingSubGameTitle = subgame;
+        await tick();
+        document.getElementById("subgamenameinput" + index).focus();
     }
 
     async function submitSubGameTitleChanges () {
@@ -595,7 +609,7 @@
                         </svg>
                 </button>
             {:else}
-                <input spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Insert game title" bind:value={currgame.name}>
+                <input id="currgametitleinput" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Insert game title" bind:value={currgame.name}>
                 <button style="margin-left: 15px;" on:click={submitTitleChanges}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M20 6 9 17l-5-5"/>
@@ -606,7 +620,7 @@
         {#each currgame.subgames as subgame, index}
             <div style="display: flex;">
                 {#if editingSubGameTitle != null && editingSubGameTitle.id == subgame.id}
-                    <input spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Insert game title" bind:value={subgame.name}>
+                    <input id="subgamenameinput{index}" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Insert game title" bind:value={subgame.name}>
                     <button style="padding-left: 15px;" on:click={submitSubGameTitleChanges}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M20 6 9 17l-5-5"/>
@@ -616,7 +630,7 @@
                     <div style="{viewportWidth < 430 ? 'width: ' + (viewportWidth - 265) +'px; max-width: ' + (viewportWidth - 265) + 'px;' : 'width: 200px; max-width: 200px;'} display: flex; align-items: center;">
                         <button style="font-weight: 700; font-size: 16px; color: black;" on:click={() => {navigateToSubGame(subgame)}}>{subgame.name}</button>
                     </div>
-                    <button style="margin-left: 15px;" on:click={() => {setEditingSubGameTitle(subgame)}}>
+                    <button style="margin-left: 15px;" on:click={() => {setEditingSubGameTitle(subgame, index)}}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="15" height="38" viewBox="0 0 20 20" fill="none">
                             <line x1="4.58579" y1="15.0985" x2="14.0989" y2="5.58533" stroke="#D9D9D9" stroke-width="4"/>
                             <rect x="14" y="2.82812" width="4" height="4" transform="rotate(-45 14 2.82812)" fill="#D9D9D9"/>

@@ -125,8 +125,16 @@
 
 <script>
     import { tick, onMount } from "svelte";
+    import LogRocket from 'logrocket';
     export let data;
     let { user, drillsdue } = data;
+    if (user.name != "jonahmschreiner@gmail.com"){
+        LogRocket.init('1ok2hy/endevyr-app');
+        LogRocket.identify(user.id, {
+            name: user.name,
+            email: user.email,
+        });
+    }
     let processStage = 0;
     if (drillsdue == null || drillsdue == undefined || drillsdue.length == 0) {
         processStage = 1;

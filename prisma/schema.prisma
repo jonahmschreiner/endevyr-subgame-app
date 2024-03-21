@@ -48,4 +48,5 @@ model User {
   joindate      DateTime      @default(now())
   games         Game[]
   todaynewfinitegamebehaviorcount   Int     @default(0)
+  lastfinitegamebehaviorcountreset  DateTime?
 }

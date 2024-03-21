@@ -50,10 +50,16 @@ export const load = async ({ url, cookies }) => {
       },
     });
     if (existsresponse == null || existsresponse == undefined){
+      let today = new Date();
+      today.setHours(3);
+      today.setMinutes(0);
+      today.setSeconds(0);
+      today.setMilliseconds(0);
       existsresponse = await prisma.User.create({
         data: {
           email: userObj.email,
           name: userObj.firstName + " " + userObj.lastName,
+          lastfinitegamebehaviorcountreset: today,
         },
       });
     }
@@ -93,9 +99,6 @@ export const load = async ({ url, cookies }) => {
         where: {
             AND: [
                 {userid: response.id},
-                {basecaselastcompleted: {
-                    lt: prisma.game.fields.basecasenextcompletiondate,
-                }},
                 {basecasenextcompletiondate: {
                     lte: new Date(),
                 }},
@@ -106,6 +109,25 @@ export const load = async ({ url, cookies }) => {
             superparentgame: true,
         },
     });
+    let today = new Date();
+    today.setHours(3);
+    today.setMinutes(0);
+    today.setSeconds(0);
+    today.setMilliseconds(0);
+    let next = new Date(today.getTime() - (24 * 60 * 60 * 1000));
+    if (response.lastfinitegamebehaviorcountreset <= next) {
+      await prisma.User.update({
+        where: {
+          id: response.id,
+        },
+        data: {
+          lastfinitegamebehaviorcountreset: today,
+          todaynewfinitegamebehaviorcount: 0,
+        },
+      });
+      response.lastfinitegamebehaviorcountreset = today;
+      response.todaynewfinitegamebehaviorcount = 0;
+    }
 
     return {
         user: response,

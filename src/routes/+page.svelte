@@ -356,6 +356,10 @@
             let nextcompletiondate;
             if (currgame.basecaserepetitions > 0) {
                 next.setDate(lastcompleted.getDate() + spacedrepetitioncadence[currgame.basecaserepetitions])
+                next.setHours(3);
+                next.setMinutes(0);
+                next.setSeconds(0);
+                next.setMilliseconds(0);
                 nextcompletiondate = next;
             } else {
                 next.setHours(lastcompleted.getHours() + 5);
@@ -505,7 +509,7 @@
         <h2>Drill execution</h2>
         <textarea id="drill-execution-textarea" class="input" type="text" spellcheck="false" autocomplete="off" placeholder="How to execute drill" bind:value={currgame.basecasedrillexecution} on:keydown={handleKeyDownDrill} />
         {#if currgame.basecasedrillexecution != null && currgame.basecasedrillexecution.trim() != '' && currgame.basecasedrillsetup != null && currgame.basecasedrillsetup.trim() != ''}
-            <button class="page-button" style="{currgame.basecasedrillactivated ? 'color: #FFF; background-color: #000' : 'color: #000; background-color: #FFF'}" on:click={handleBottomButtonClick}>{#if processStage == 0}Completed{:else if !currgame.basecasedrillactivated}Activate{:else}Turn Off{/if}</button>
+            <button class="page-button" style="{(currgame.basecasedrillactivated && processStage == 0) || (!currgame.basecasedrillactivated && processStage == 1) ? 'color: #FFF; background-color: #000' : 'color: #000; background-color: #FFF'}" on:click={handleBottomButtonClick}>{#if processStage == 0}Completed{:else if !currgame.basecasedrillactivated}Activate{:else}Turn Off{/if}</button>
         {:else}
             <button disabled class="page-button" style="{!currgame.basecasedrillactivated ? 'color: #0000004D; border-color: #0000004D;' : 'color: #FFFFFF4D; border-color: #0000004D; background: #0000004D; background-clip: padding-box;'}">Activate</button>
         {/if}

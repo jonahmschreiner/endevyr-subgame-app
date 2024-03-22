@@ -125,6 +125,47 @@
         color: #6F6D6D;
         letter-spacing: -0.01em;
     }
+
+    .tooltip-modal {
+        border-radius: 15px;
+        border: 1px solid #EFEFEF;
+        background: #FFF;
+        box-shadow: 0px 5px 4px 0px rgba(0, 0, 0, 0.68);
+        box-sizing: border-box;
+        width: 85%;
+        padding: 5px;
+        z-index: 1000;
+        position: absolute;
+        max-width: 360px;
+    }
+
+    .tooltip-modal-content {
+        color: #000;
+        text-align: center;
+        font-family: 'Inter';
+        font-size: 15px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: 1.4;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 10px;
+        margin-bottom: 17px;
+    }
+
+    .navigationSection{
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    @media (max-width: 430px) {
+        .tooltip-modal {
+            left: 50%;
+            transform: translateX(-50%);
+            width: 92%;
+        }
+    }
 </style>
 
 <script>
@@ -568,6 +609,12 @@
             return primaryGameName;
         }
     }
+
+    let todaysdrillstooltipopen = false;
+    let todaysdrillstooltipmodal;
+    function toggletodaysdrillstooltipopen () {
+        todaysdrillstooltipopen = !todaysdrillstooltipopen;
+    }
 </script>
 
 
@@ -693,9 +740,32 @@
         </button>
     {:else}
         {#if processStage == 0}
+        <div style="display: flex; justify-content: space-between; width: 100%; max-width: 360px;">
             <h1>Today's Drills</h1>
+            <button on:click={toggletodaysdrillstooltipopen}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                    <path d="M12 17h.01"/>
+                </svg>
+            </button>
+            {#if todaysdrillstooltipopen && !indrill && !ingame}
+                <div class="tooltip-modal" bind:this={todaysdrillstooltipmodal}>
+                    <div class="navigationSection">
+                        <button on:click={toggletodaysdrillstooltipopen}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="10" viewBox="0 0 11 10" fill="none">
+                                <line x1="1.70711" y1="1.29289" x2="9.70711" y2="9.29289" stroke="black" stroke-width="2"/>
+                                <line y1="-1" x2="11.3137" y2="-1" transform="matrix(-0.707107 0.707107 0.707107 0.707107 10 2)" stroke="black" stroke-width="2"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <p class="tooltip-modal-content">Complete the following drills to ensure they remain in long term memory<br><br>(time between a drill's repetitions<br>increases exponentially)</p>
+                </div>
+            {/if}
+        </div>
+            
             {#each drillsdue as drill}
-                <button style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 300px; max-width: 300px;'} border-radius: 5px; border-color: black; border-width: 2px; border-style: solid; padding: 15px; margin-top: 30px; color: black;" on:click={() => {goToDrill(drill)}}>
+                <button style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 360px; max-width: 360px;'} border-radius: 5px; border-color: black; border-width: 2px; border-style: solid; padding: 15px; margin-top: 30px; color: black;" on:click={() => {goToDrill(drill)}}>
                     <h2>{truncateString(drill.name, 22)}</h2>
                     <p class="super-parent-text">{drill.superparentgame.name}</p>
                 </button>
@@ -703,7 +773,7 @@
         {:else if processStage == 1}
             <h1>Add Drills ({3 - user.todaynewfinitegamebehaviorcount})</h1>
             {#each primaryGames as primaryGame}
-                <button style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 300px; max-width: 300px;'} border-radius: 5px; border-color: black; border-width: 2px; border-style: solid; padding: 15px; margin-top: 30px; color: black;" on:click={() => {goToGame(primaryGame)}}>
+                <button style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 360px; max-width: 360px;'} border-radius: 5px; border-color: black; border-width: 2px; border-style: solid; padding: 15px; margin-top: 30px; color: black;" on:click={() => {goToGame(primaryGame)}}>
                     <h2>{truncateString(primaryGame.name, 22)}</h2>
                 </button>
             {/each}

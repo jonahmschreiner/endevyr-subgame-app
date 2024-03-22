@@ -49,4 +49,7 @@ model User {
   games         Game[]
   todaynewfinitegamebehaviorcount   Int     @default(0)
   lastfinitegamebehaviorcountreset  DateTime?
+  premiumsubscriber Int   @default(0)
+  premiumsubscriberexpirationdate DateTime?
+  stripecustomerid    String?     @unique
 }

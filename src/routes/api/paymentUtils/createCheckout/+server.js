@@ -1,0 +1,46 @@
+import Stripe from 'stripe';
+const stripesecretkey = import.meta.env.VITE_STRIPE_SECRET_KEY;
+export async function POST({ request }) {
+    const data = await request.json();
+    let { userid } = data;
+    const baseURL = import.meta.env.VITE_APP_BASE_URL;
+    let response = await fetch(`${baseURL}/api/getUser`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userid: userid}),
+    });
+    let responseJSON = await response.json();
+    
+    const stripe = new Stripe(stripesecretkey, {
+        apiVersion: "2023-10-16",
+    });
+
+    let sessionParams = {
+      mode: 'subscription',
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          // price: '{{PRICE_ID}}',
+          price_data: {
+            currency: "USD",
+            product_data: {
+                name: "Endevyr Standard Plan",
+                images: ['https://app.endevyr.com/favicon.png'], //put publically-accessable endevyr logo here
+            },
+            unit_amount: 500,
+            recurring: {
+              interval: 'month',
+            },
+          },
+          quantity: 1,
+        },
+      ],
+      success_url: baseURL + "?session_id={CHECKOUT_SESSION_ID}",
+      cancel_url: baseURL,
+    };
+    sessionParams.customer_email = responseJSON.email;
+    const session = await stripe.checkout.sessions.create(sessionParams);
+    return new Response(JSON.stringify({url: session.url, status: 200}));
+};

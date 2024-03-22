@@ -81,6 +81,47 @@ export const load = async ({ url, cookies }) => {
   
   //end auth
 
+    //handle successful checkout
+    const paymentsessionid = url.searchParams.get('session_id');
+    if (paymentsessionid != null && paymentsessionid != undefined){
+      const stripe = new Stripe(stripesecretkey, {
+        apiVersion: "2023-10-16",
+      });
+      const session = await stripe.checkout.sessions.retrieve(paymentsessionid);
+      const customer = await stripe.customers.retrieve(session.customer);
+      if (session.payment_status == "paid"){
+        let customerResponse = await prisma.User.findFirst({
+          where: {
+            email: customer.email,
+          },
+        });
+        if (customerResponse.stripecustomerid == null){
+          await prisma.User.update({
+            where: {
+              id: customerResponse.id,
+            },
+            data: {
+              premiumsubscriber: 1,
+              stripecustomerid: session.customer,
+              premiumsubscriberexpirationdate: null,
+            },
+          });
+        } else {
+          await prisma.User.update({
+            where: {
+              id: customerResponse.id,
+            },
+            data: {
+              premiumsubscriber: 1,
+              premiumsubscriberexpirationdate: null,
+            },
+          });
+        }
+      }
+    }
+  
+    //
+
     let response = await prisma.User.findUnique({
         where: {
             email: userObj.email,

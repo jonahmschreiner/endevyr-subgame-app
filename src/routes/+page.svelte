@@ -170,6 +170,7 @@
 
 <script>
     import { tick, onMount } from "svelte";
+    import { goto } from '$app/navigation';
     import LogRocket from 'logrocket';
     export let data;
     let { user, drillsdue } = data;
@@ -621,6 +622,34 @@
     function toggleadddrillstooltipopen () {
         adddrillstooltipopen = !adddrillstooltipopen;
     }
+
+    function goBackToProcessStage1 () {
+        processStage = 1;
+    }
+
+    async function goToStripe () {
+        if (user.premiumsubscriber) {
+            let response = await fetch('/api/paymentUtils/createBillingPortalSession', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json', 
+                },
+                body: JSON.stringify({ userid: user.id }),
+            });
+            let responseJSON = await response.json();
+            goto(responseJSON.url);
+        } else {
+            let response = await fetch('/api/paymentUtils/createCheckout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json', 
+                },
+                body: JSON.stringify({ userid: user.id }),
+            });
+            let responseJSON = await response.json();
+            goto(responseJSON.url);
+        }
+    }
 </script>
 
 
@@ -815,6 +844,19 @@
             </button>
         {:else if processStage == 2}
             <h1>Finished for the day</h1>
+            {#if user.premiumsubscriber == 1}
+                <button style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 360px; max-width: 360px;'} border-radius: 5px; border-color: black; border-width: 2px; border-style: solid; padding: 15px; margin-top: 30px; color: black;" on:click={() => {goBackToProcessStage1()}}>
+                    <h2>Add more drills</h2>
+                    <p style="font-family: 'Inter'; font-size: 16px; font-weigth: 500;">(more than three a day for the<br>same game is not recommended)</p>
+                </button>
+                <button style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 360px; max-width: 360px;'} border-radius: 5px; border-color: black; border-width: 2px; border-style: solid; padding: 15px; margin-top: 30px; color: black;" on:click={() => {goToStripe()}}>
+                    <h2>Manage plan</h2>
+                </button>
+            {:else}
+            <button style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 360px; max-width: 360px;'} border-radius: 5px; border-color: black; border-width: 2px; border-style: solid; padding: 15px; margin-top: 30px; color: black;" on:click={() => {goToStripe()}}>
+                <h2>View standard plan<br>(removes limit)</h2>
+            </button>
+            {/if}
         {/if}
     {/if}
 </div>

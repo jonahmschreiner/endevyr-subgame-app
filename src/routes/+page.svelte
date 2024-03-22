@@ -173,7 +173,7 @@
     import LogRocket from 'logrocket';
     export let data;
     let { user, drillsdue } = data;
-    if (user.name != "jonahmschreiner@gmail.com"){
+    if (user.email != "jonahmschreiner@gmail.com"){
         LogRocket.init('1ok2hy/endevyr-app');
         LogRocket.identify(user.id, {
             name: user.name,
@@ -615,6 +615,12 @@
     function toggletodaysdrillstooltipopen () {
         todaysdrillstooltipopen = !todaysdrillstooltipopen;
     }
+
+    let adddrillstooltipopen = false;
+    let adddrillstooltipmodal;
+    function toggleadddrillstooltipopen () {
+        adddrillstooltipopen = !adddrillstooltipopen;
+    }
 </script>
 
 
@@ -740,29 +746,29 @@
         </button>
     {:else}
         {#if processStage == 0}
-        <div style="display: flex; justify-content: space-between; width: 100%; max-width: 360px;">
-            <h1>Today's Drills</h1>
-            <button on:click={toggletodaysdrillstooltipopen}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"/>
-                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                    <path d="M12 17h.01"/>
-                </svg>
-            </button>
-            {#if todaysdrillstooltipopen && !indrill && !ingame}
-                <div class="tooltip-modal" bind:this={todaysdrillstooltipmodal}>
-                    <div class="navigationSection">
-                        <button on:click={toggletodaysdrillstooltipopen}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="10" viewBox="0 0 11 10" fill="none">
-                                <line x1="1.70711" y1="1.29289" x2="9.70711" y2="9.29289" stroke="black" stroke-width="2"/>
-                                <line y1="-1" x2="11.3137" y2="-1" transform="matrix(-0.707107 0.707107 0.707107 0.707107 10 2)" stroke="black" stroke-width="2"/>
-                            </svg>
-                        </button>
+            <div style="display: flex; justify-content: space-between; width: 100%; max-width: 360px;">
+                <h1>Today's Drills</h1>
+                <button on:click={toggletodaysdrillstooltipopen}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                        <path d="M12 17h.01"/>
+                    </svg>
+                </button>
+                {#if todaysdrillstooltipopen && !indrill && !ingame}
+                    <div class="tooltip-modal" bind:this={todaysdrillstooltipmodal}>
+                        <div class="navigationSection">
+                            <button on:click={toggletodaysdrillstooltipopen}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="10" viewBox="0 0 11 10" fill="none">
+                                    <line x1="1.70711" y1="1.29289" x2="9.70711" y2="9.29289" stroke="black" stroke-width="2"/>
+                                    <line y1="-1" x2="11.3137" y2="-1" transform="matrix(-0.707107 0.707107 0.707107 0.707107 10 2)" stroke="black" stroke-width="2"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <p class="tooltip-modal-content">Complete the following drills to ensure they remain in long term memory<br><br>(time between a drill's repetitions<br>increases exponentially)</p>
                     </div>
-                    <p class="tooltip-modal-content">Complete the following drills to ensure they remain in long term memory<br><br>(time between a drill's repetitions<br>increases exponentially)</p>
-                </div>
-            {/if}
-        </div>
+                {/if}
+            </div>
             
             {#each drillsdue as drill}
                 <button style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 360px; max-width: 360px;'} border-radius: 5px; border-color: black; border-width: 2px; border-style: solid; padding: 15px; margin-top: 30px; color: black;" on:click={() => {goToDrill(drill)}}>
@@ -771,7 +777,29 @@
                 </button>
             {/each}
         {:else if processStage == 1}
-            <h1>Add Drills ({3 - user.todaynewfinitegamebehaviorcount})</h1>
+            <div style="display: flex; justify-content: space-between; width: 100%; max-width: 360px;">
+                <h1>Add Drills ({3 - user.todaynewfinitegamebehaviorcount})</h1>
+                <button on:click={toggleadddrillstooltipopen}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                        <path d="M12 17h.01"/>
+                    </svg>
+                </button>
+                {#if adddrillstooltipopen && !indrill && !ingame}
+                    <div class="tooltip-modal" bind:this={adddrillstooltipmodal}>
+                        <div class="navigationSection">
+                            <button on:click={toggleadddrillstooltipopen}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="10" viewBox="0 0 11 10" fill="none">
+                                    <line x1="1.70711" y1="1.29289" x2="9.70711" y2="9.29289" stroke="black" stroke-width="2"/>
+                                    <line y1="-1" x2="11.3137" y2="-1" transform="matrix(-0.707107 0.707107 0.707107 0.707107 10 2)" stroke="black" stroke-width="2"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <p class="tooltip-modal-content">Select (or add) a game and recursively<br>break it down into subgames.<br><br>When breaking a subgame down further feels like a habit (instead of a game), select the<br>flag icon to turn it into a drill<br>(where you describe a way to practice it)<br><br>Each day you'll create/activate three new drills for your habit-building queue</p>
+                    </div>
+                {/if}
+            </div>
             {#each primaryGames as primaryGame}
                 <button style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 360px; max-width: 360px;'} border-radius: 5px; border-color: black; border-width: 2px; border-style: solid; padding: 15px; margin-top: 30px; color: black;" on:click={() => {goToGame(primaryGame)}}>
                     <h2>{truncateString(primaryGame.name, 22)}</h2>

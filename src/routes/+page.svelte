@@ -467,7 +467,7 @@
             let next = new Date(lastcompleted);
             let nextcompletiondate;
             if (currgame.basecaserepetitions > 0) {
-                next.setDate(lastcompleted.getDate() + spacedrepetitioncadence[currgame.basecaserepetitions])
+                next.setTime(lastcompleted.getTime() + (spacedrepetitioncadence[currgame.basecaserepetitions] * 1000 * 60 * 60 * 24));
                 next.setHours(3);
                 next.setMinutes(0);
                 next.setSeconds(0);

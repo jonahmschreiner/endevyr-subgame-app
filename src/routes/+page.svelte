@@ -372,6 +372,9 @@
     }
 
     async function submitSubGameTitleChanges () {
+        if (editingSubGameTitle.name == null || editingSubGameTitle.name == undefined || editingSubGameTitle.name.trim() == ""){
+            editingSubGameTitle.name = "Example Name";
+        }
         const gameIn = editingSubGameTitle;
         editingSubGameTitle = null;
         await fetch('/api/updateGame', {

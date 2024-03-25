@@ -312,8 +312,8 @@
 
     function closeGame () {
         editingHierarchyStage = 0;
-        if (currgame.parentgame) {
-            currgame = currgame.parentgame;
+        if (currgame.parentgameid != undefined && currgame.parentgameid != null) {
+            currgame = user.games.find(obj => obj.id == currgame.parentgameid);
             currgame.subgames = getSubgamesOfGame(currgame);
         } else {
             currgame = null;
@@ -322,8 +322,8 @@
     }
 
     function closeDrill () {
-        if (currgame.parentgame) {
-            currgame = currgame.parentgame;
+        if (currgame.parentgameid != undefined && currgame.parentgameid != null) {
+            currgame = user.games.find(obj => obj.id == currgame.parentgameid);
             currgame.subgames = getSubgamesOfGame(currgame);
             indrill = false;
         } else {

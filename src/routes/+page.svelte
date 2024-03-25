@@ -666,6 +666,31 @@
             goto(responseJSON.url);
         }
     }
+
+    let deactivatetext = "Deactivate All";
+    let deactivatetext2 = "Drills";
+    async function deactivateAll () {
+        //local
+        drillsdue = drillsdue.filter(obj => obj.superparentgameid != currgame.id);
+        let deactivateddrills = user.games.filter(obj => obj.superparentgameid == currgame.id && obj.basecasedrillactivated == 1);
+        deactivateddrills.forEach(drill => drill.basecasedrillactivated = 0);
+
+        //db
+        const deactivatedDrillIds = deactivateddrills.map(drill => drill.id);
+        await fetch('/api/updateGames', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ gameids: deactivatedDrillIds, type: "basecasedrillactivated", value: 0}),
+        });
+        deactivatetext = "Done";
+        deactivatetext2 = "";
+        setTimeout(async () => {
+            deactivatetext = "Deactivate All";
+            deactivatetext2 = "Drills";
+        }, 1000);
+    }
 </script>
 
 
@@ -782,13 +807,14 @@
                 {/if}
             </div>
         {/each}
-        <button style="margin-top: 15px;" on:click={addSubGame}>
+        <button style="margin-top: 30px;" on:click={addSubGame}>
             <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26" fill="none">
                 <circle cx="13" cy="13" r="12" fill="black" stroke="black" stroke-width="2"/>
                 <rect x="12.6973" y="5.44141" width="1.2093" height="15.7209" fill="white"/>
                 <rect x="5.44141" y="13.9072" width="1.2093" height="15.7209" transform="rotate(-90 5.44141 13.9072)" fill="white"/>
             </svg>
         </button>
+        <button disabled={deactivatetext == "Done"} style="margin-top: 120px; color: red; padding: 10px; font-size: 16px; font-weight: 600;" on:click={deactivateAll}>{deactivatetext}{#if deactivatetext != "Done"}&nbsp;{currgame.name}&nbsp;{/if}{deactivatetext2}</button>
     {:else}
         {#if processStage == 0}
             <div style="display: flex; justify-content: space-between; width: 100%; max-width: 360px;">

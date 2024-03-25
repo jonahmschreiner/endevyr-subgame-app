@@ -108,6 +108,10 @@
         letter-spacing: -0.01em;
     }
 
+    h2 {
+        letter-spacing: -0.01em;
+    }
+
     .drill-input-title {
         font-size: 16px;
         font-family: 'Inter';
@@ -862,7 +866,7 @@
             {/if}
         </div>
         <div style="width: 100%; display: flex; justify-content: flex-end; margin-top: 15px; max-width: 430px;">
-            <button style="color: #3C80E5; font-size: 16px; font-family: 'Inter';" on:click={edithierarchyclicked}>{#if editingHierarchyStage == 0}Edit Hierarchy{:else if editingHierarchyStage == 1}Select Subgame to Move{:else if editingHierarchyStage == 2}Select New Parent Game (title moves it up a level){/if}</button>    
+            <button style="color: #3C80E5; font-size: 16px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em;" on:click={edithierarchyclicked}>{#if editingHierarchyStage == 0}Edit Hierarchy{:else if editingHierarchyStage == 1}Select Subgame to Move{:else if editingHierarchyStage == 2}Select New Parent Game (title moves it up a level){/if}</button>    
         </div>
         {#each currgame.subgames as subgame, index}
             {#if editingHierarchyStage != 2 || subgame.isbasecase == 0}
@@ -876,7 +880,7 @@
                         </button>  
                     {:else}
                         <div style="{viewportWidth < 430 ? 'width: ' + (viewportWidth - 265) +'px; max-width: ' + (viewportWidth - 265) + 'px;' : 'width: 200px; max-width: 200px;'} display: flex; align-items: center;">
-                            <button style="font-weight: 700; font-size: 16px; color: black; text-align: left;" on:click={() => {navigateToSubGame(subgame)}}>{subgame.name}</button>
+                            <button style="font-weight: 700; font-size: 16px; color: black; text-align: left; letter-spacing: -0.01em;" on:click={() => {navigateToSubGame(subgame)}}>{subgame.name}</button>
                         </div>
                         {#if editingHierarchyStage == 0}
                             <button style="margin-left: 15px;" on:click={() => {setEditingSubGameTitle(subgame, index)}}>
@@ -941,7 +945,7 @@
                     <rect x="5.44141" y="13.9072" width="1.2093" height="15.7209" transform="rotate(-90 5.44141 13.9072)" fill="white"/>
                 </svg>
             </button>
-            <button disabled={deactivatetext == "Done"} style="margin-top: 120px; color: red; padding: 10px; font-size: 16px; font-weight: 600;" on:click={deactivateAll}>{deactivatetext}{#if deactivatetext != "Done"}&nbsp;{"\"" + currgame.name + "\""}&nbsp;{/if}{deactivatetext2}</button>
+            <button disabled={deactivatetext == "Done"} style="margin-top: 120px; color: red; padding: 10px; font-size: 16px; font-weight: 600; letter-spacing: -0.01em;" on:click={deactivateAll}>{deactivatetext}{#if deactivatetext != "Done"}&nbsp;{"\"" + currgame.name + "\""}&nbsp;{/if}{deactivatetext2}</button>
         {/if}
     {:else}
         {#if processStage == 0}

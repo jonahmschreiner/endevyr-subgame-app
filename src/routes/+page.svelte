@@ -607,6 +607,18 @@
         });
     }
 
+    async function deletePrimaryGame (primaryGameIn) {
+        user.games = user.games.filter(obj => !(obj.id == primaryGameIn.id || obj.parentgameid == primaryGameIn.id));
+        primaryGames = primaryGames.filter(obj => obj.id != primaryGameIn.id);
+        await fetch('/api/deleteGame', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ gameid: primaryGameIn.id }),
+        });
+    }
+
     function truncateString(primaryGameName, maxCharacterNum) {
         if (primaryGameName.length > maxCharacterNum) {
             return primaryGameName.substring(0, maxCharacterNum - 3) + '...';
@@ -811,8 +823,8 @@
             {/each}
         {:else if processStage == 1}
             <div style="display: flex; justify-content: space-between; width: 100%; max-width: 360px;">
-                <h1>Add Drills ({3 - user.todaynewfinitegamebehaviorcount})</h1>
-                <button on:click={toggleadddrillstooltipopen}>
+                <h1 style="width: 80%; {viewportWidth < 430 ? 'max-width: 360px;' : 'max-width: 80%;'}">Add Drills ({3 - user.todaynewfinitegamebehaviorcount})</h1>
+                <button style="width: 20%; max-width: 20%;" on:click={toggleadddrillstooltipopen}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="10"/>
                         <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
@@ -834,9 +846,20 @@
                 {/if}
             </div>
             {#each primaryGames as primaryGame}
-                <button style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 360px; max-width: 360px;'} border-radius: 5px; border-color: black; border-width: 2px; border-style: solid; padding: 15px; margin-top: 30px; color: black;" on:click={() => {goToGame(primaryGame)}}>
-                    <h2>{truncateString(primaryGame.name, 22)}</h2>
-                </button>
+                <div style="display: flex; width: 100%; max-width: 100%; margin-top: 30px;">
+                    <button style="{viewportWidth < 430 ? 'width: 80%; max-width: 80%;' : 'width: 360px; max-width: 360px;'} border-radius: 5px; border-color: black; border-width: 2px; border-style: solid; padding: 15px; color: black;" on:click={() => {goToGame(primaryGame)}}>
+                        <h2>{truncateString(primaryGame.name, 22)}</h2>
+                    </button>
+                    <button style="{viewportWidth < 430 ? 'width: 20%; max-width: 20%; margin-left: 15px;' : 'margin-left: 20px; '}" on:click={() => {deletePrimaryGame(primaryGame)}}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 6h18"/>
+                            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                            <line x1="10" x2="10" y1="11" y2="17"/>
+                            <line x1="14" x2="14" y1="11" y2="17"/>
+                        </svg>
+                    </button>
+                </div>
             {/each}
 
             <button style="margin-top: 30px;" on:click={addPrimaryGame}>

@@ -339,7 +339,15 @@
     }
 
     async function submitTitleChanges () {
+        if (currgame.name == null || currgame.name == undefined || currgame.name.trim() == ""){
+            currgame.name = "Example Name";
+        }
         editingTitle = false;
+        currgame.subgames.forEach(subgame => subgame.parentgame.name = currgame.name);
+        let primaryGameInstance = primaryGames.find(obj => obj.id == currgame.id);
+        if (primaryGameInstance != null && primaryGameInstance != undefined) {
+            primaryGameInstance.name = currgame.name;
+        }
         await fetch('/api/updateGame', {
             method: 'POST',
             headers: {
@@ -854,7 +862,7 @@
             {/if}
         </div>
         <div style="width: 100%; display: flex; justify-content: flex-end; margin-top: 15px; max-width: 430px;">
-            <button style="color: #3C80E5;" on:click={edithierarchyclicked}>{#if editingHierarchyStage == 0}Edit Hierarchy{:else if editingHierarchyStage == 1}Select Subgame to Move{:else if editingHierarchyStage == 2}Select New Parent Game (title moves it up a level){/if}</button>    
+            <button style="color: #3C80E5; font-size: 16px; font-family: 'Inter';" on:click={edithierarchyclicked}>{#if editingHierarchyStage == 0}Edit Hierarchy{:else if editingHierarchyStage == 1}Select Subgame to Move{:else if editingHierarchyStage == 2}Select New Parent Game (title moves it up a level){/if}</button>    
         </div>
         {#each currgame.subgames as subgame, index}
             {#if editingHierarchyStage != 2 || subgame.isbasecase == 0}

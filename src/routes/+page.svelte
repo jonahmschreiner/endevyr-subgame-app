@@ -570,7 +570,11 @@
                 });
                 let responseJSON = await response.json();
                 drillsdue = responseJSON.drillsdue;
-                processStage = 0;
+                if (drillsdue && drillsdue.length > 0) {
+                    processStage = 0;
+                } else {
+                    processStage = 3;
+                }
             }
             ingame = false;
             indrill = false;

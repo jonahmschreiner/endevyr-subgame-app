@@ -151,11 +151,15 @@ export const load = async ({ url, cookies }) => {
         },
     });
     let today = new Date();
-    today.setHours(3);
+    today.setHours(8);
     today.setMinutes(0);
     today.setSeconds(0);
     today.setMilliseconds(0);
     let next = new Date(today.getTime() - (24 * 60 * 60 * 1000));
+    let finitegameadditionsremaining = drillsdue.length;
+    if (finitegameadditionsremaining > 3) {
+      finitegameadditionsremaining = 3;
+    }
     if (response.lastfinitegamebehaviorcountreset <= next) {
       await prisma.User.update({
         where: {
@@ -163,7 +167,7 @@ export const load = async ({ url, cookies }) => {
         },
         data: {
           lastfinitegamebehaviorcountreset: today,
-          todaynewfinitegamebehaviorcount: 0,
+          todaynewfinitegamebehaviorcount: finitegameadditionsremaining,
         },
       });
       response.lastfinitegamebehaviorcountreset = today;

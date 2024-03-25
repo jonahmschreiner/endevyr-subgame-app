@@ -307,6 +307,7 @@
     }
 
     function closeGame () {
+        editingHierarchyStage = 0;
         if (currgame.parentgame) {
             currgame = currgame.parentgame;
             currgame.subgames = getSubgamesOfGame(currgame);
@@ -424,11 +425,18 @@
         }
     }
 
-    function navigateToSubGame (subgameIn) {
-        if (subgameIn.isbasecase == 1) {
-            goToDrill(subgameIn);
-        } else {
-            goToGame(subgameIn);
+    async function navigateToSubGame (subgameIn) {
+        if (editingHierarchyStage == 0) {
+            if (subgameIn.isbasecase == 1) {
+                goToDrill(subgameIn);
+            } else {
+                goToGame(subgameIn);
+            }
+        } else if (editingHierarchyStage == 1) {
+            selectedsubgame = subgameIn;
+            editingHierarchyStage = 2;
+        } else if (editingHierarchyStage == 2) {
+            setAsNewParent(subgameIn);
         }
     }
 
@@ -703,6 +711,43 @@
     function toggledrillexecutiontooltipopen () {
         drillexecutiontooltipopen = !drillexecutiontooltipopen;
     }
+
+    let editingHierarchyStage = 0;
+    function edithierarchyclicked () {
+        if (editingHierarchyStage == 0) {
+            editingHierarchyStage = 1;
+        } else {
+            editingHierarchyStage = 0;
+            selectedsubgame = null;
+        }
+    }
+    let selectedsubgame = null;
+    async function setAsNewParent (gameIn) {
+        if (gameIn == null) {
+            selectedsubgame.parentgameid = currgame.parentgameid;
+            currgame.subgames = getSubgamesOfGame(currgame);
+            await fetch('/api/updateGame', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ gameid: selectedsubgame.id, type: "parentgameid", value: currgame.parentgameid }),
+            });
+        } else {
+            selectedsubgame.parentgameid = gameIn.id;
+            currgame.subgames = getSubgamesOfGame(currgame);
+            gameIn.subgames = getSubgamesOfGame(gameIn);
+            await fetch('/api/updateGame', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ gameid: selectedsubgame.id, type: "parentgameid", value: gameIn.id }),
+            });
+        }
+        selectedsubgame = null;
+        editingHierarchyStage = 0;
+    }
 </script>
 
 
@@ -785,16 +830,20 @@
                 </svg>
             </button>
         </div>
-        <div style="display: flex; margin-bottom: 30px;">
+        <div style="display: flex;">
             {#if !editingTitle}
-                <h1 style="margin: 0; max-width: 90%;">{currgame.name}</h1>
-                <button style="margin-left: 15px;" on:click={toggleEditingTitle}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="38" viewBox="0 0 20 20" fill="none">
-                            <line x1="4.58579" y1="15.0985" x2="14.0989" y2="5.58533" stroke="#D9D9D9" stroke-width="4"/>
-                            <rect x="14" y="2.82812" width="4" height="4" transform="rotate(-45 14 2.82812)" fill="#D9D9D9"/>
-                            <path d="M1.41391 18.243L2.31049 14.8969L4.75998 17.3464L1.41391 18.243Z" fill="#D9D9D9"/>
-                        </svg>
+                <button disabled={editingHierarchyStage == 0} on:click={() => {setAsNewParent(null);}} style="{editingHierarchyStage == 0 ? 'cursor: text;' : ''}">
+                    <h1 style="margin: 0; max-width: 90%;">{currgame.name}</h1>
                 </button>
+                {#if editingHierarchyStage == 0}
+                    <button style="margin-left: 15px;" on:click={toggleEditingTitle}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="38" viewBox="0 0 20 20" fill="none">
+                                <line x1="4.58579" y1="15.0985" x2="14.0989" y2="5.58533" stroke="#D9D9D9" stroke-width="4"/>
+                                <rect x="14" y="2.82812" width="4" height="4" transform="rotate(-45 14 2.82812)" fill="#D9D9D9"/>
+                                <path d="M1.41391 18.243L2.31049 14.8969L4.75998 17.3464L1.41391 18.243Z" fill="#D9D9D9"/>
+                            </svg>
+                    </button>
+                {/if}
             {:else}
                 <input id="currgametitleinput" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Insert game title" bind:value={currgame.name}>
                 <button style="margin-left: 15px;" on:click={submitTitleChanges}>
@@ -804,79 +853,88 @@
                 </button>
             {/if}
         </div>
+        <div style="width: 100%; display: flex; justify-content: flex-end; margin-top: 15px; max-width: 430px;">
+            <button style="color: #3C80E5;" on:click={edithierarchyclicked}>{#if editingHierarchyStage == 0}Edit Hierarchy{:else if editingHierarchyStage == 1}Select Subgame to Move{:else if editingHierarchyStage == 2}Select New Parent Game (title moves it up a level){/if}</button>    
+        </div>
         {#each currgame.subgames as subgame, index}
-            <div style="display: flex; margin-top: 15px;">
-                {#if editingSubGameTitle != null && editingSubGameTitle.id == subgame.id}
-                    <input id="subgamenameinput{index}" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Insert game title" bind:value={subgame.name}>
-                    <button style="padding-left: 15px;" on:click={submitSubGameTitleChanges}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M20 6 9 17l-5-5"/>
-                        </svg>
-                    </button>  
-                {:else}
-                    <div style="{viewportWidth < 430 ? 'width: ' + (viewportWidth - 265) +'px; max-width: ' + (viewportWidth - 265) + 'px;' : 'width: 200px; max-width: 200px;'} display: flex; align-items: center;">
-                        <button style="font-weight: 700; font-size: 16px; color: black; text-align: left;" on:click={() => {navigateToSubGame(subgame)}}>{subgame.name}</button>
-                    </div>
-                    <button style="margin-left: 15px;" on:click={() => {setEditingSubGameTitle(subgame, index)}}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="38" viewBox="0 0 20 20" fill="none">
-                            <line x1="4.58579" y1="15.0985" x2="14.0989" y2="5.58533" stroke="#D9D9D9" stroke-width="4"/>
-                            <rect x="14" y="2.82812" width="4" height="4" transform="rotate(-45 14 2.82812)" fill="#D9D9D9"/>
-                            <path d="M1.41391 18.243L2.31049 14.8969L4.75998 17.3464L1.41391 18.243Z" fill="#D9D9D9"/>
-                        </svg>
-                    </button>
-                    {#if subgame.subgames == null || subgame.subgames.length == 0}
-                        <button style="margin-left: 15px;" on:click={() => {goToDrill(subgame);}}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="{subgame.isbasecase == 1 && subgame.basecasedrillactivated == 0 ? 'red' : subgame.isbasecase == 1 && subgame.basecasedrillactivated == 1 ? '#53E720' : 'black'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="m12 8 6-3-6-3v10"/>
-                                <path d="m8 11.99-5.5 3.14a1 1 0 0 0 0 1.74l8.5 4.86a2 2 0 0 0 2 0l8.5-4.86a1 1 0 0 0 0-1.74L16 12"/>
-                                <path d="m6.49 12.85 11.02 6.3"/>
-                                <path d="M17.51 12.85 6.5 19.15"/>
+            {#if editingHierarchyStage != 2 || subgame.isbasecase == 0}
+                <div style="display: flex; margin-top: 15px;">
+                    {#if editingSubGameTitle != null && editingSubGameTitle.id == subgame.id}
+                        <input id="subgamenameinput{index}" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Insert game title" bind:value={subgame.name}>
+                        <button style="padding-left: 15px;" on:click={submitSubGameTitleChanges}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 6 9 17l-5-5"/>
                             </svg>
-                        </button>
+                        </button>  
                     {:else}
-                        <div style="width: 26px; height: 41px; margin-left: 15px;"></div>
+                        <div style="{viewportWidth < 430 ? 'width: ' + (viewportWidth - 265) +'px; max-width: ' + (viewportWidth - 265) + 'px;' : 'width: 200px; max-width: 200px;'} display: flex; align-items: center;">
+                            <button style="font-weight: 700; font-size: 16px; color: black; text-align: left;" on:click={() => {navigateToSubGame(subgame)}}>{subgame.name}</button>
+                        </div>
+                        {#if editingHierarchyStage == 0}
+                            <button style="margin-left: 15px;" on:click={() => {setEditingSubGameTitle(subgame, index)}}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="38" viewBox="0 0 20 20" fill="none">
+                                    <line x1="4.58579" y1="15.0985" x2="14.0989" y2="5.58533" stroke="#D9D9D9" stroke-width="4"/>
+                                    <rect x="14" y="2.82812" width="4" height="4" transform="rotate(-45 14 2.82812)" fill="#D9D9D9"/>
+                                    <path d="M1.41391 18.243L2.31049 14.8969L4.75998 17.3464L1.41391 18.243Z" fill="#D9D9D9"/>
+                                </svg>
+                            </button>
+                            {#if subgame.subgames == null || subgame.subgames.length == 0}
+                                <button style="margin-left: 15px;" on:click={() => {goToDrill(subgame);}}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="{subgame.isbasecase == 1 && subgame.basecasedrillactivated == 0 ? 'red' : subgame.isbasecase == 1 && subgame.basecasedrillactivated == 1 ? '#53E720' : 'black'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="m12 8 6-3-6-3v10"/>
+                                        <path d="m8 11.99-5.5 3.14a1 1 0 0 0 0 1.74l8.5 4.86a2 2 0 0 0 2 0l8.5-4.86a1 1 0 0 0 0-1.74L16 12"/>
+                                        <path d="m6.49 12.85 11.02 6.3"/>
+                                        <path d="M17.51 12.85 6.5 19.15"/>
+                                    </svg>
+                                </button>
+                            {:else}
+                                <div style="width: 26px; height: 41px; margin-left: 15px;"></div>
+                            {/if}
+                            {#if subgame.isbasecase == 0}
+                                <button style="margin-left: 15px;" on:click={() => {goToGame(subgame)}}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26" fill="none">
+                                        <circle cx="13" cy="13" r="12" fill="black" stroke="black" stroke-width="2"/>
+                                        <rect x="12.6973" y="5.44141" width="1.2093" height="15.7209" fill="white"/>
+                                        <rect x="5.44141" y="13.9072" width="1.2093" height="15.7209" transform="rotate(-90 5.44141 13.9072)" fill="white"/>
+                                    </svg>
+                                </button>
+                            {:else}
+                                <div style="width: 26px; height: 41px; margin-left: 15px;"></div>
+                            {/if}
+                            <button style="margin-left: 15px;" on:click={() => {deleteGame(subgame)}}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 6h18"/>
+                                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                                    <line x1="10" x2="10" y1="11" y2="17"/>
+                                    <line x1="14" x2="14" y1="11" y2="17"/>
+                                </svg>
+                            </button>
+                            <button style="margin-left: 15px;" on:click={() => {moveGameDown(index)}}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="m6 9 6 6 6-6"/>
+                                </svg>
+                            </button>
+                            <button style="margin-left: 15px;" on:click={() => {moveGameUp(index)}}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="m18 15-6-6-6 6"/>
+                                </svg>
+                            </button>
+                        {/if}
                     {/if}
-                    {#if subgame.isbasecase == 0}
-                        <button style="margin-left: 15px;" on:click={() => {goToGame(subgame)}}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26" fill="none">
-                                <circle cx="13" cy="13" r="12" fill="black" stroke="black" stroke-width="2"/>
-                                <rect x="12.6973" y="5.44141" width="1.2093" height="15.7209" fill="white"/>
-                                <rect x="5.44141" y="13.9072" width="1.2093" height="15.7209" transform="rotate(-90 5.44141 13.9072)" fill="white"/>
-                            </svg>
-                        </button>
-                    {:else}
-                        <div style="width: 26px; height: 41px; margin-left: 15px;"></div>
-                    {/if}
-                    <button style="margin-left: 15px;" on:click={() => {deleteGame(subgame)}}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M3 6h18"/>
-                            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
-                            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
-                            <line x1="10" x2="10" y1="11" y2="17"/>
-                            <line x1="14" x2="14" y1="11" y2="17"/>
-                        </svg>
-                    </button>
-                    <button style="margin-left: 15px;" on:click={() => {moveGameDown(index)}}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="m6 9 6 6 6-6"/>
-                        </svg>
-                    </button>
-                    <button style="margin-left: 15px;" on:click={() => {moveGameUp(index)}}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="m18 15-6-6-6 6"/>
-                        </svg>
-                    </button>
-                {/if}
-            </div>
+                </div>
+            {/if}
         {/each}
-        <button style="margin-top: 30px;" on:click={addSubGame}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26" fill="none">
-                <circle cx="13" cy="13" r="12" fill="black" stroke="black" stroke-width="2"/>
-                <rect x="12.6973" y="5.44141" width="1.2093" height="15.7209" fill="white"/>
-                <rect x="5.44141" y="13.9072" width="1.2093" height="15.7209" transform="rotate(-90 5.44141 13.9072)" fill="white"/>
-            </svg>
-        </button>
-        <button disabled={deactivatetext == "Done"} style="margin-top: 120px; color: red; padding: 10px; font-size: 16px; font-weight: 600;" on:click={deactivateAll}>{deactivatetext}{#if deactivatetext != "Done"}&nbsp;{"\"" + currgame.name + "\""}&nbsp;{/if}{deactivatetext2}</button>
+        {#if editingHierarchyStage == 0}
+            <button style="margin-top: 30px;" on:click={addSubGame}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26" fill="none">
+                    <circle cx="13" cy="13" r="12" fill="black" stroke="black" stroke-width="2"/>
+                    <rect x="12.6973" y="5.44141" width="1.2093" height="15.7209" fill="white"/>
+                    <rect x="5.44141" y="13.9072" width="1.2093" height="15.7209" transform="rotate(-90 5.44141 13.9072)" fill="white"/>
+                </svg>
+            </button>
+            <button disabled={deactivatetext == "Done"} style="margin-top: 120px; color: red; padding: 10px; font-size: 16px; font-weight: 600;" on:click={deactivateAll}>{deactivatetext}{#if deactivatetext != "Done"}&nbsp;{"\"" + currgame.name + "\""}&nbsp;{/if}{deactivatetext2}</button>
+        {/if}
     {:else}
         {#if processStage == 0}
             <div style="display: flex; justify-content: space-between; width: 100%; max-width: 360px;">

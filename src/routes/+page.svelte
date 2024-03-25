@@ -874,7 +874,7 @@
                 <rect x="5.44141" y="13.9072" width="1.2093" height="15.7209" transform="rotate(-90 5.44141 13.9072)" fill="white"/>
             </svg>
         </button>
-        <button disabled={deactivatetext == "Done"} style="margin-top: 120px; color: red; padding: 10px; font-size: 16px; font-weight: 600;" on:click={deactivateAll}>{deactivatetext}{#if deactivatetext != "Done"}&nbsp;{currgame.name}&nbsp;{/if}{deactivatetext2}</button>
+        <button disabled={deactivatetext == "Done"} style="margin-top: 120px; color: red; padding: 10px; font-size: 16px; font-weight: 600;" on:click={deactivateAll}>{deactivatetext}{#if deactivatetext != "Done"}&nbsp;{"\"" + currgame.name + "\""}&nbsp;{/if}{deactivatetext2}</button>
     {:else}
         {#if processStage == 0}
             <div style="display: flex; justify-content: space-between; width: 100%; max-width: 360px;">

@@ -763,6 +763,14 @@
         selectedsubgame = null;
         editingHierarchyStage = 0;
     }
+
+    function skipDrills () {
+        if (user.todaynewfinitegamebehaviorcount < 3) {
+            processStage = 1;
+        } else {
+            processStage = 2;
+        }
+    }
 </script>
 
 
@@ -982,6 +990,12 @@
                     <p class="super-parent-text">{drill.superparentgame.name}</p>
                 </button>
             {/each}
+            <div style="display: flex; justify-content: center; margin-top: 60px; {viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 360px; max-width: 360px;'}">
+                <button style="padding: 15px; color: red; text-align: center;" on:click={skipDrills}>
+                    <h2>Skip drills for now</h2>
+                </button>
+            </div>
+            
         {:else if processStage == 1}
             <div style="display: flex; justify-content: space-between; width: 100%; max-width: 360px;">
                 <h1 style="width: 80%; {viewportWidth < 430 ? 'max-width: 360px;' : 'max-width: 80%;'}">Add Drills ({3 - user.todaynewfinitegamebehaviorcount})</h1>

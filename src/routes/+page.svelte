@@ -158,9 +158,28 @@
         margin-bottom: 17px;
     }
 
-    .navigationSection{
+    .navigationSection {
         display: flex;
         justify-content: flex-end;
+    }
+
+    .onboarding-text {
+        font-family: 'Inter';
+        font-size: 20px;
+        font-weight: 500;
+        line-height: 1.4;
+        margin: 0;
+    }
+
+    .onboarding-bullet {
+        font-family: 'Inter';
+        font-size: 20px;
+        font-weight: 500;
+        line-height: 1.4;
+        margin: 0;
+        text-indent: -1.4em;
+        padding-left: 35px;
+        margin-bottom: 5px;
     }
 
     @media (max-width: 430px) {
@@ -176,7 +195,12 @@
     import { tick, onMount } from "svelte";
     import { goto } from '$app/navigation';
     import LogRocket from 'logrocket';
+    import Onboardinggraphic1 from "../lib/onboardinggraphic1.svelte";
+    import Onboardinggraphic2 from "../lib/onboardinggraphic2.svelte";
+    import Onboardinggraphic3 from "../lib/onboardinggraphic3.svelte";
+    import Onboardinggraphic4 from "../lib/onboardinggraphic4.svelte";
     export let data;
+    const baseURL = import.meta.env.VITE_APP_BASE_URL;
     let { user, drillsdue } = data;
     if (user.email != "jonahmschreiner@gmail.com"){
         LogRocket.init('1ok2hy/endevyr-app');
@@ -194,7 +218,6 @@
     }
 
     let primaryGames = user.games.filter(obj => obj.parentgameid == null);
-
     function getSubgamesOfGame (gameIn) {
         return user.games.filter(obj => obj.parentgameid == gameIn.id).sort((a, b) => a.parentgamesubgamesindex - b.parentgamesubgamesindex);
     }
@@ -206,6 +229,9 @@
     onMount(() => {
         updateWidth();
         window.addEventListener('resize', updateWidth);
+        if (user.onboardingcomplete == 0 && user.onboardingstage == 6) {
+            speedUpOnboardingVideos();
+        }
         return () => {
             window.removeEventListener('resize', updateWidth);
         };
@@ -771,294 +797,426 @@
             processStage = 2;
         }
     }
+
+    function advanceOnboarding () {
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+        if (user.onboardingstage < 6) {
+            user.onboardingstage = user.onboardingstage + 1;
+            if (user.onboardingstage == 6) {
+                speedUpOnboardingVideos();
+            }
+
+            //db (wait until done building)
+        } else {
+            user.onboardingcomplete = 1;
+
+            //db (wait until done building onboarding)
+        }
+    }
+
+    async function speedUpOnboardingVideos () {
+        await tick();
+        document.getElementById("videoexample1").playbackRate = 2.5;
+        document.getElementById("videoexample2").playbackRate = 3;
+        document.getElementById("videoexample3").playbackRate = 2.5;
+        document.getElementById("videoexample4").playbackRate = 2.5;
+        document.getElementById("videoexample5").playbackRate = 2.5;
+    }
 </script>
 
 
 <title>Endevyr</title>
 <meta name="description" content="Endevyr app">
-<div style="display: flex; flex-direction: column; {ingame ? 'margin-left: 15px; margin-right: 15px; margin-bottom: 15px; margin-top: 0;' : 'margin: 15px;'} align-items: flex-start;">
-    {#if indrill}
-        <div style="display: flex; width: 100%; justify-content: flex-end; margin-right: -10px;">
-            <button on:click={closeDrill}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="10" viewBox="0 0 11 11" fill="none">
-                    <line y1="-1" x2="11.5486" y2="-1" transform="matrix(0.692722 0.721204 -0.692722 0.721204 1 2)" stroke="black" stroke-width="2"/>
-                    <line y1="-1" x2="11.5486" y2="-1" transform="matrix(-0.692722 0.721204 0.692722 0.721204 10 2)" stroke="black" stroke-width="2"/>
-                </svg>
-            </button>
+{#if user.onboardingcomplete == 0}
+    <div style="width: 100%; display: flex; justify-content: center;">
+        <div style="display: flex; flex-direction: column; width: 100%; max-width: 600px; box-sizing: border-box; padding: 15px; {user.onboardingstage < 2 ? 'align-items: center; justify-content: center;' : 'align-items: flex-start;'};">
+            {#if user.onboardingstage < 2}
+                <h1 style="text-align: center; position: absolute; left: 50%; top: 40%; transform: translate(-50%, -40%); width: 90%;">{#if user.onboardingstage == 0}Reach goals 10x faster with Endevyr{:else}Memory is the limitation{/if}</h1>
+            {:else if user.onboardingstage == 2}
+                <h1 style="margin-bottom: 15px; margin-top: 15px;">Problem-Solving</h1>
+                <p class="onboarding-text" style="margin-bottom: 60px;">Our brain solves problems by breaking them into smaller and smaller parts until we figure out what to do next</p>
+                <h1 style="margin-bottom: 30px;">Example</h1>
+                <div style="width: 100%; display: flex; justify-content: center;">
+                    <div style="border-style: solid; border-width: 4px; border-color: black; width: 100%; max-width: 400px;">
+                        <Onboardinggraphic1 />
+                    </div>
+                </div>
+            {:else if user.onboardingstage == 3}
+                <h1 style="margin-bottom: 15px; margin-top: 15px;">The memory problem</h1>
+                <p class="onboarding-text" style="margin-bottom: 60px;">However, complex goals have many parts, which results in us spending most of our brain power remembering the pieces and only a tiny fraction on finding a solution</p>
+                <h1 style="margin-bottom: 30px;">Example</h1>
+                <div style="width: 100%; display: flex; justify-content: center;">
+                    <div style="border-style: solid; border-width: 4px; border-color: black; width: 100%; max-width: 400px;">
+                        <Onboardinggraphic2 />
+                    </div>
+                </div>
+                <div style="width: 100%; display: flex; justify-content: center;">
+                    <h1 style="text-align: center; margin-top: 30px; margin-bottom: 30px;">VS</h1>
+                </div>
+                <div style="width: 100%; display: flex; justify-content: center;">
+                    <div style="border-style: solid; border-width: 4px; border-color: black; width: 100%; max-width: 400px;">
+                        <Onboardinggraphic3 />
+                    </div>
+                </div>
+                <h1 style="margin-bottom: 30px; margin-top: 60px;">The symptoms:</h1>
+                <li class="onboarding-bullet">Feeling lost/overwhelmed</li>
+                <li class="onboarding-bullet">Deciding against pursuing interests because they feel like too much effort</li>
+                <li class="onboarding-bullet">Don’t feel like you’re “crushing it” in everything you work on</li>
+            {:else if user.onboardingstage == 4}
+                <h1 style="margin-bottom: 15px; margin-top: 15px;">How Endevyr helps</h1>
+                <p class="onboarding-text" style="margin-bottom: 60px;">It stores the goal’s pieces in a way that makes sense for problem solving, which frees up brain power to focus on finding a solution rather than remembering details.</p>
+                <h1 style="margin-bottom: 30px;">From:</h1>
+                <div style="width: 100%; display: flex; justify-content: center;">
+                    <div style="border-style: solid; border-width: 4px; border-color: black; width: 100%; max-width: 400px;">
+                        <Onboardinggraphic3 />
+                    </div>
+                </div>
+                <h1 style="margin-bottom: 30px; margin-top: 30px;">To:</h1>
+                <div style="width: 100%; display: flex; justify-content: center;">
+                    <div style="border-style: solid; border-width: 4px; border-color: black; width: 100%; max-width: 400px;">
+                        <Onboardinggraphic4 />
+                    </div>
+                </div>
+                <h1 style="margin-bottom: 30px; margin-top: 60px;">The difference:</h1>
+                <li class="onboarding-bullet">Always know exactly what to do</li>
+                <li class="onboarding-bullet">Be able to do well in any area you’re interested in without a huge commitment</li>
+                <li class="onboarding-bullet">Feel like a genius as your brain comes up with clever solutions on autopilot</li>
+            {:else if user.onboardingstage == 5}
+                <h1 style="margin-bottom: 15px; margin-top: 15px;">When to use Endevyr</h1>
+                <li class="onboarding-bullet">Whenever a task feels hard</li>
+                <li class="onboarding-bullet">When starting something new (skill, project, assignment, etc.)</li>
+                <li class="onboarding-bullet">When wanting to improve an existing area of life (a skill, health, wealth, relationships)</li>
+            {:else if user.onboardingstage == 6}
+                <h1 style="margin-bottom: 15px; margin-top: 15px;">How it works</h1>
+                <p class="onboarding-text" style="margin-bottom: 30px;">Add a new “game” (skill, task, project, area of life, etc.)</p>
+                <div style="width: 100%; display: flex; justify-content: center;">
+                    <div style="border-style: solid; border-width: 4px; border-color: black; width: 100%; max-width: 400px; margin-bottom: 60px;">
+                        <video id="videoexample1" src="/EndevyrOnboardingWeightLossExampleAddGameCropped.mp4" width="100%" height="100%" controls muted playsinline>
+                    </div>
+                </div>
+                <p class="onboarding-text" style="margin-bottom: 30px;">Break the game down into the smaller “games” that make it up by asking "what would prevent this game from being completed?"</p>
+                <div style="width: 100%; display: flex; justify-content: center;">
+                    <div style="border-style: solid; border-width: 4px; border-color: black; width: 100%; max-width: 400px; margin-bottom: 60px;">
+                        <video id="videoexample2" src="/EndevyrOnboardingWeightLossExampleBreakGameDownCropped.mp4" width="100%" height="100%" controls muted playsinline></video>
+                    </div>
+                </div>
+                <p class="onboarding-text" style="margin-bottom: 30px;">Upon reaching a “game” that is more like an action/habit than a game, stop. If it is a new habit, select the flag, otherwise complete the action and move on to the next</p>
+                <div style="width: 100%; display: flex; justify-content: center;">
+                    <div style="border-style: solid; border-width: 4px; border-color: black; width: 100%; max-width: 400px; margin-bottom: 60px;">
+                        <video id="videoexample3" src="/EndevyrOnboardingWeightLossExampleClickFlagCropped.mp4" width="100%" height="100%" controls muted playsinline></video>
+                    </div>
+                </div>
+                <p class="onboarding-text" style="margin-bottom: 30px;">Record habits' situation and desired new action</p>
+                <div style="width: 100%; display: flex; justify-content: center;">
+                    <div style="border-style: solid; border-width: 4px; border-color: black; width: 100%; max-width: 400px; margin-bottom: 60px;">
+                        <video id="videoexample4" src="/EndevyrOnboardingWeightLossExampleAddingDrillCropped.mp4" width="100%" height="100%" controls muted playsinline></video>
+                    </div>
+                </div>
+                <p class="onboarding-text" style="margin-bottom: 30px;">Be reminded of new habits shortly before forgetting</p>
+                <div style="width: 100%; display: flex; justify-content: center;">
+                    <div style="border-style: solid; border-width: 4px; border-color: black; width: 100%; max-width: 400px; margin-bottom: 60px;">
+                        <video id="videoexample5" src="/EndevyrOnboardingWeightLossExampleCompleteDrillCropped.mp4" width="100%" height="100%" controls muted playsinline></video>
+                    </div>
+                </div>
+            {/if}
+            <div style="width: 100%; display: flex; justify-content: center;">
+                <button on:click={advanceOnboarding} class="page-button" style="{user.onboardingstage < 2 || user.onboardingstage == 5 ? 'position: absolute; left: 50%; top: 80%; transform: translate(-50%, -80%);' : ''} color: white; background-color: black; margin-top: 60px; margin-bottom: 15px; max-width: 570px;">Continue</button>
+            </div>
+            
         </div>
-        <h1>{currgame.name}</h1>
-        <div style="display: flex; justify-content: space-between; {viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 90%; max-width: 960px;'} margin-top: 20px;">
-            <h2 class="drill-input-title" style="margin-top: 0;">Drill set up</h2>
-            {#if processStage != 0}
-                <button style="margin-left: 5px;" on:click={toggledrillsetuptooltipopen}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                        <path d="M12 17h.01"/>
+    </div>
+{:else}
+    <div style="display: flex; flex-direction: column; {ingame || indrill ? 'margin-left: 15px; margin-right: 0px; margin-bottom: 15px; margin-top: 0;' : 'margin: 15px;'} align-items: flex-start;">
+        {#if indrill}
+            <div style="display: flex; width: 100%; justify-content: flex-end;">
+                <button on:click={closeDrill}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="10" viewBox="0 0 11 11" fill="none">
+                        <line y1="-1" x2="11.5486" y2="-1" transform="matrix(0.692722 0.721204 -0.692722 0.721204 1 2)" stroke="black" stroke-width="2"/>
+                        <line y1="-1" x2="11.5486" y2="-1" transform="matrix(-0.692722 0.721204 0.692722 0.721204 10 2)" stroke="black" stroke-width="2"/>
                     </svg>
                 </button>
-                {#if drillsetuptooltipopen && indrill}
-                    <div class="tooltip-modal" bind:this={drillsetuptooltipmodal}>
-                        <div class="navigationSection">
-                            <button on:click={toggledrillsetuptooltipopen}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="10" viewBox="0 0 11 10" fill="none">
-                                    <line x1="1.70711" y1="1.29289" x2="9.70711" y2="9.29289" stroke="black" stroke-width="2"/>
-                                    <line y1="-1" x2="11.3137" y2="-1" transform="matrix(-0.707107 0.707107 0.707107 0.707107 10 2)" stroke="black" stroke-width="2"/>
-                                </svg>
-                            </button>
-                        </div>
-                        <p class="tooltip-modal-content">How to get in the situation where the new behavior should be completed<br><br>(able to get into it at any time)</p>
-                    </div>
-                {/if}
-            {/if}
-        </div>
-        <textarea id="drill-setup-textarea" style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : ''}" class="input" type="text" spellcheck="false" autocomplete="off" placeholder="How to set up drill" bind:value={currgame.basecasedrillsetup} on:keydown={handleKeyDownDrill} />
-        <div style="display: flex; justify-content: space-between; {viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 90%; max-width: 960px;'} margin-top: 20px;">
-            <h2 class="drill-input-title" style="margin-top: 0;">Drill execution</h2>
-            {#if processStage != 0}
-                <button style="margin-left: 5px;" on:click={toggledrillexecutiontooltipopen}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                        <path d="M12 17h.01"/>
-                    </svg>
-                </button>
-                {#if drillexecutiontooltipopen && indrill}
-                    <div class="tooltip-modal" bind:this={drillexecutiontooltipmodal}>
-                        <div class="navigationSection">
-                            <button on:click={toggledrillexecutiontooltipopen}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="10" viewBox="0 0 11 10" fill="none">
-                                    <line x1="1.70711" y1="1.29289" x2="9.70711" y2="9.29289" stroke="black" stroke-width="2"/>
-                                    <line y1="-1" x2="11.3137" y2="-1" transform="matrix(-0.707107 0.707107 0.707107 0.707107 10 2)" stroke="black" stroke-width="2"/>
-                                </svg>
-                            </button>
-                        </div>
-                        <p class="tooltip-modal-content">The new action to take in the situation</p>
-                    </div>
-                {/if}
-            {/if}
-        </div>
-        <textarea id="drill-execution-textarea" style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : ''}" class="input" type="text" spellcheck="false" autocomplete="off" placeholder="How to execute drill" bind:value={currgame.basecasedrillexecution} on:keydown={handleKeyDownDrill} />
-        {#if currgame.basecasedrillexecution != null && currgame.basecasedrillexecution.trim() != '' && currgame.basecasedrillsetup != null && currgame.basecasedrillsetup.trim() != ''}
-            <button class="page-button" style="{(currgame.basecasedrillactivated && processStage == 0) || (!currgame.basecasedrillactivated && processStage == 1) ? 'color: #FFF; background-color: #000;' : 'color: #000; background-color: #FFF;'} {viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : ''}" on:click={handleBottomButtonClick}>{#if processStage == 0}Completed{:else if !currgame.basecasedrillactivated}Activate{:else}Turn Off{/if}</button>
-        {:else}
-            <button disabled class="page-button" style="{!currgame.basecasedrillactivated ? 'color: #0000004D; border-color: #0000004D;' : 'color: #FFFFFF4D; border-color: #0000004D; background: #0000004D; background-clip: padding-box;'} {viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : ''}">Activate</button>
-        {/if}
-    {:else if ingame}
-        <div style="display: flex; width: 100%; justify-content: flex-end;">
-            <button on:click={closeGame}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="10" viewBox="0 0 11 11" fill="none">
-                    <line y1="-1" x2="11.5486" y2="-1" transform="matrix(0.692722 0.721204 -0.692722 0.721204 1 2)" stroke="black" stroke-width="2"/>
-                    <line y1="-1" x2="11.5486" y2="-1" transform="matrix(-0.692722 0.721204 0.692722 0.721204 10 2)" stroke="black" stroke-width="2"/>
-                </svg>
-            </button>
-        </div>
-        <div style="display: flex;">
-            {#if !editingTitle}
-                <button disabled={editingHierarchyStage == 0} on:click={() => {setAsNewParent(null);}} style="{editingHierarchyStage == 0 ? 'cursor: text;' : ''}">
-                    <h1 style="margin: 0; max-width: 90%;">{currgame.name}</h1>
-                </button>
-                {#if editingHierarchyStage == 0}
-                    <button style="margin-left: 15px;" on:click={toggleEditingTitle}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="38" viewBox="0 0 20 20" fill="none">
-                                <line x1="4.58579" y1="15.0985" x2="14.0989" y2="5.58533" stroke="#D9D9D9" stroke-width="4"/>
-                                <rect x="14" y="2.82812" width="4" height="4" transform="rotate(-45 14 2.82812)" fill="#D9D9D9"/>
-                                <path d="M1.41391 18.243L2.31049 14.8969L4.75998 17.3464L1.41391 18.243Z" fill="#D9D9D9"/>
+            </div>
+            <div style="display: flex; flex-direction: column; margin-right: 15px; width: -webkit-fill-available; align-items: flex-start;">
+                <h1>{currgame.name}</h1>
+                <div style="display: flex; justify-content: space-between; {viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 90%; max-width: 960px;'} margin-top: 20px;">
+                    <h2 class="drill-input-title" style="margin-top: 0;">Drill set up</h2>
+                    {#if processStage != 0}
+                        <button style="margin-left: 5px;" on:click={toggledrillsetuptooltipopen}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                <path d="M12 17h.01"/>
                             </svg>
+                        </button>
+                        {#if drillsetuptooltipopen && indrill}
+                            <div class="tooltip-modal" bind:this={drillsetuptooltipmodal}>
+                                <div class="navigationSection">
+                                    <button on:click={toggledrillsetuptooltipopen}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="10" viewBox="0 0 11 10" fill="none">
+                                            <line x1="1.70711" y1="1.29289" x2="9.70711" y2="9.29289" stroke="black" stroke-width="2"/>
+                                            <line y1="-1" x2="11.3137" y2="-1" transform="matrix(-0.707107 0.707107 0.707107 0.707107 10 2)" stroke="black" stroke-width="2"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <p class="tooltip-modal-content">How to get in the situation where the new behavior should be completed<br><br>(able to get into it at any time)</p>
+                            </div>
+                        {/if}
+                    {/if}
+                </div>
+                <textarea id="drill-setup-textarea" style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : ''}" class="input" type="text" spellcheck="false" autocomplete="off" placeholder="How to set up drill" bind:value={currgame.basecasedrillsetup} on:keydown={handleKeyDownDrill} />
+                <div style="display: flex; justify-content: space-between; {viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 90%; max-width: 960px;'} margin-top: 20px;">
+                    <h2 class="drill-input-title" style="margin-top: 0;">Drill execution</h2>
+                    {#if processStage != 0}
+                        <button style="margin-left: 5px;" on:click={toggledrillexecutiontooltipopen}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                <path d="M12 17h.01"/>
+                            </svg>
+                        </button>
+                        {#if drillexecutiontooltipopen && indrill}
+                            <div class="tooltip-modal" bind:this={drillexecutiontooltipmodal}>
+                                <div class="navigationSection">
+                                    <button on:click={toggledrillexecutiontooltipopen}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="10" viewBox="0 0 11 10" fill="none">
+                                            <line x1="1.70711" y1="1.29289" x2="9.70711" y2="9.29289" stroke="black" stroke-width="2"/>
+                                            <line y1="-1" x2="11.3137" y2="-1" transform="matrix(-0.707107 0.707107 0.707107 0.707107 10 2)" stroke="black" stroke-width="2"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <p class="tooltip-modal-content">The new action to take in the situation</p>
+                            </div>
+                        {/if}
+                    {/if}
+                </div>
+                <textarea id="drill-execution-textarea" style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : ''}" class="input" type="text" spellcheck="false" autocomplete="off" placeholder="How to execute drill" bind:value={currgame.basecasedrillexecution} on:keydown={handleKeyDownDrill} />
+                {#if currgame.basecasedrillexecution != null && currgame.basecasedrillexecution.trim() != '' && currgame.basecasedrillsetup != null && currgame.basecasedrillsetup.trim() != ''}
+                    <button class="page-button" style="{(currgame.basecasedrillactivated && processStage == 0) || (!currgame.basecasedrillactivated && processStage == 1) ? 'color: #FFF; background-color: #000;' : 'color: #000; background-color: #FFF;'} {viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : ''}" on:click={handleBottomButtonClick}>{#if processStage == 0}Completed{:else if !currgame.basecasedrillactivated}Activate{:else}Turn Off{/if}</button>
+                {:else}
+                    <button disabled class="page-button" style="{!currgame.basecasedrillactivated ? 'color: #0000004D; border-color: #0000004D;' : 'color: #FFFFFF4D; border-color: #0000004D; background: #0000004D; background-clip: padding-box;'} {viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : ''}">Activate</button>
+                {/if}
+            </div>
+        {:else if ingame}
+            <div style="display: flex; width: 100%; justify-content: flex-end;">
+                <button on:click={closeGame}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="10" viewBox="0 0 11 11" fill="none">
+                        <line y1="-1" x2="11.5486" y2="-1" transform="matrix(0.692722 0.721204 -0.692722 0.721204 1 2)" stroke="black" stroke-width="2"/>
+                        <line y1="-1" x2="11.5486" y2="-1" transform="matrix(-0.692722 0.721204 0.692722 0.721204 10 2)" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+            </div>
+            <div style="display: flex; flex-direction: column; margin-right: 15px; width: 1fr; align-items: flex-start;">
+            <div style="display: flex; width: 100%;">
+                {#if !editingTitle}
+                    <button disabled={editingHierarchyStage == 0} on:click={() => {setAsNewParent(null);}} style="{editingHierarchyStage == 0 ? 'cursor: text;' : ''} max-width: 90%;">
+                        <h1 style="margin: 0;">{currgame.name}</h1>
                     </button>
-                {/if}
-            {:else}
-                <input id="currgametitleinput" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Insert game title" bind:value={currgame.name}>
-                <button style="margin-left: 15px;" on:click={submitTitleChanges}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M20 6 9 17l-5-5"/>
-                    </svg>
-                </button>
-            {/if}
-        </div>
-        <div style="width: 100%; display: flex; justify-content: flex-end; margin-top: 15px; max-width: 430px;">
-            <button style="color: #3C80E5; font-size: 16px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em;" on:click={edithierarchyclicked}>{#if editingHierarchyStage == 0}Edit Hierarchy{:else if editingHierarchyStage == 1}Select Subgame to Move{:else if editingHierarchyStage == 2}Select New Parent Game (title moves it up a level){/if}</button>    
-        </div>
-        {#each currgame.subgames as subgame, index}
-            {#if editingHierarchyStage != 2 || subgame.isbasecase == 0}
-                <div style="display: flex; margin-top: 15px;">
-                    {#if editingSubGameTitle != null && editingSubGameTitle.id == subgame.id}
-                        <input id="subgamenameinput{index}" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Insert game title" bind:value={subgame.name}>
-                        <button style="padding-left: 15px;" on:click={submitSubGameTitleChanges}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 6 9 17l-5-5"/>
-                            </svg>
-                        </button>  
-                    {:else}
-                        <div style="{viewportWidth < 430 ? 'width: ' + (viewportWidth - 265) +'px; max-width: ' + (viewportWidth - 265) + 'px;' : 'width: 200px; max-width: 200px;'} display: flex; align-items: center;">
-                            <button style="font-weight: 700; font-size: 16px; color: black; text-align: left; letter-spacing: -0.01em;" on:click={() => {navigateToSubGame(subgame)}}>{subgame.name}</button>
-                        </div>
-                        {#if editingHierarchyStage == 0}
-                            <button style="margin-left: 15px;" on:click={() => {setEditingSubGameTitle(subgame, index)}}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="38" viewBox="0 0 20 20" fill="none">
+                    {#if editingHierarchyStage == 0}
+                        <button style="margin-left: 15px;" on:click={toggleEditingTitle}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="38" viewBox="0 0 20 20" fill="none">
                                     <line x1="4.58579" y1="15.0985" x2="14.0989" y2="5.58533" stroke="#D9D9D9" stroke-width="4"/>
                                     <rect x="14" y="2.82812" width="4" height="4" transform="rotate(-45 14 2.82812)" fill="#D9D9D9"/>
                                     <path d="M1.41391 18.243L2.31049 14.8969L4.75998 17.3464L1.41391 18.243Z" fill="#D9D9D9"/>
                                 </svg>
-                            </button>
-                            {#if subgame.subgames == null || subgame.subgames.length == 0}
-                                <button style="margin-left: 15px;" on:click={() => {goToDrill(subgame);}}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="{subgame.isbasecase == 1 && subgame.basecasedrillactivated == 0 ? 'red' : subgame.isbasecase == 1 && subgame.basecasedrillactivated == 1 ? '#53E720' : 'black'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="m12 8 6-3-6-3v10"/>
-                                        <path d="m8 11.99-5.5 3.14a1 1 0 0 0 0 1.74l8.5 4.86a2 2 0 0 0 2 0l8.5-4.86a1 1 0 0 0 0-1.74L16 12"/>
-                                        <path d="m6.49 12.85 11.02 6.3"/>
-                                        <path d="M17.51 12.85 6.5 19.15"/>
-                                    </svg>
-                                </button>
-                            {:else}
-                                <div style="width: 26px; height: 41px; margin-left: 15px;"></div>
-                            {/if}
-                            {#if subgame.isbasecase == 0}
-                                <button style="margin-left: 15px;" on:click={() => {goToGame(subgame)}}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26" fill="none">
-                                        <circle cx="13" cy="13" r="12" fill="black" stroke="black" stroke-width="2"/>
-                                        <rect x="12.6973" y="5.44141" width="1.2093" height="15.7209" fill="white"/>
-                                        <rect x="5.44141" y="13.9072" width="1.2093" height="15.7209" transform="rotate(-90 5.44141 13.9072)" fill="white"/>
-                                    </svg>
-                                </button>
-                            {:else}
-                                <div style="width: 26px; height: 41px; margin-left: 15px;"></div>
-                            {/if}
-                            <button style="margin-left: 15px;" on:click={() => {deleteGame(subgame)}}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M3 6h18"/>
-                                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
-                                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
-                                    <line x1="10" x2="10" y1="11" y2="17"/>
-                                    <line x1="14" x2="14" y1="11" y2="17"/>
-                                </svg>
-                            </button>
-                            <button style="margin-left: 15px;" on:click={() => {moveGameDown(index)}}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="m6 9 6 6 6-6"/>
-                                </svg>
-                            </button>
-                            <button style="margin-left: 15px;" on:click={() => {moveGameUp(index)}}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="m18 15-6-6-6 6"/>
-                                </svg>
-                            </button>
-                        {/if}
+                        </button>
                     {/if}
-                </div>
-            {/if}
-        {/each}
-        {#if editingHierarchyStage == 0}
-            <button style="margin-top: 30px;" on:click={addSubGame}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26" fill="none">
-                    <circle cx="13" cy="13" r="12" fill="black" stroke="black" stroke-width="2"/>
-                    <rect x="12.6973" y="5.44141" width="1.2093" height="15.7209" fill="white"/>
-                    <rect x="5.44141" y="13.9072" width="1.2093" height="15.7209" transform="rotate(-90 5.44141 13.9072)" fill="white"/>
-                </svg>
-            </button>
-            <button disabled={deactivatetext == "Done"} style="margin-top: 120px; color: red; padding: 10px; font-size: 16px; font-weight: 600; letter-spacing: -0.01em;" on:click={deactivateAll}>{deactivatetext}{#if deactivatetext != "Done"}&nbsp;{"\"" + currgame.name + "\""}&nbsp;{/if}{deactivatetext2}</button>
-        {/if}
-    {:else}
-        {#if processStage == 0}
-            <div style="display: flex; justify-content: space-between; width: 100%; max-width: 360px;">
-                <h1>Today's Drills</h1>
-                <button on:click={toggletodaysdrillstooltipopen}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                        <path d="M12 17h.01"/>
-                    </svg>
-                </button>
-                {#if todaysdrillstooltipopen && !indrill && !ingame}
-                    <div class="tooltip-modal" bind:this={todaysdrillstooltipmodal}>
-                        <div class="navigationSection">
-                            <button on:click={toggletodaysdrillstooltipopen}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="10" viewBox="0 0 11 10" fill="none">
-                                    <line x1="1.70711" y1="1.29289" x2="9.70711" y2="9.29289" stroke="black" stroke-width="2"/>
-                                    <line y1="-1" x2="11.3137" y2="-1" transform="matrix(-0.707107 0.707107 0.707107 0.707107 10 2)" stroke="black" stroke-width="2"/>
-                                </svg>
-                            </button>
-                        </div>
-                        <p class="tooltip-modal-content">Complete the following drills to ensure they remain in long term memory<br><br>(time between a drill's repetitions<br>increases exponentially)</p>
-                    </div>
-                {/if}
-            </div>
-            
-            {#each drillsdue as drill}
-                <button style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 360px; max-width: 360px;'} border-radius: 5px; border-color: black; border-width: 2px; border-style: solid; padding: 15px; margin-top: 30px; color: black;" on:click={() => {goToDrill(drill)}}>
-                    <h2>{truncateString(drill.name, 22)}</h2>
-                    <p class="super-parent-text">{drill.superparentgame.name}</p>
-                </button>
-            {/each}
-            <div style="display: flex; justify-content: center; margin-top: 60px; {viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 360px; max-width: 360px;'}">
-                <button style="padding: 15px; color: red; text-align: center;" on:click={skipDrills}>
-                    <h2>Skip drills for now</h2>
-                </button>
-            </div>
-            
-        {:else if processStage == 1}
-            <div style="display: flex; justify-content: space-between; width: 100%; max-width: 360px;">
-                <h1 style="width: 80%; {viewportWidth < 430 ? 'max-width: 360px;' : 'max-width: 80%;'}">Add Drills ({3 - user.todaynewfinitegamebehaviorcount})</h1>
-                <button style="width: 20%; max-width: 20%;" on:click={toggleadddrillstooltipopen}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                        <path d="M12 17h.01"/>
-                    </svg>
-                </button>
-                {#if adddrillstooltipopen && !indrill && !ingame}
-                    <div class="tooltip-modal" bind:this={adddrillstooltipmodal}>
-                        <div class="navigationSection">
-                            <button on:click={toggleadddrillstooltipopen}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="10" viewBox="0 0 11 10" fill="none">
-                                    <line x1="1.70711" y1="1.29289" x2="9.70711" y2="9.29289" stroke="black" stroke-width="2"/>
-                                    <line y1="-1" x2="11.3137" y2="-1" transform="matrix(-0.707107 0.707107 0.707107 0.707107 10 2)" stroke="black" stroke-width="2"/>
-                                </svg>
-                            </button>
-                        </div>
-                        <p class="tooltip-modal-content">Select (or add) a game and recursively<br>break it down into subgames.<br><br>When breaking a subgame down further feels like a habit (instead of a game), select the<br>flag icon to turn it into a drill<br>(where you describe a way to practice it)<br><br>Each day you'll create/activate three new drills for your habit-building queue</p>
-                    </div>
-                {/if}
-            </div>
-            {#each primaryGames as primaryGame}
-                <div style="display: flex; width: 100%; max-width: 100%; margin-top: 30px;">
-                    <button style="{viewportWidth < 430 ? 'width: 80%; max-width: 80%;' : 'width: 360px; max-width: 360px;'} border-radius: 5px; border-color: black; border-width: 2px; border-style: solid; padding: 15px; color: black;" on:click={() => {goToGame(primaryGame)}}>
-                        <h2>{truncateString(primaryGame.name, 22)}</h2>
-                    </button>
-                    <button style="{viewportWidth < 430 ? 'width: 20%; max-width: 20%; margin-left: 15px;' : 'margin-left: 20px; '}" on:click={() => {deletePrimaryGame(primaryGame)}}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M3 6h18"/>
-                            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
-                            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
-                            <line x1="10" x2="10" y1="11" y2="17"/>
-                            <line x1="14" x2="14" y1="11" y2="17"/>
+                {:else}
+                    <input id="currgametitleinput" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Insert game title" bind:value={currgame.name}>
+                    <button style="margin-left: 15px;" on:click={submitTitleChanges}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 6 9 17l-5-5"/>
                         </svg>
                     </button>
-                </div>
+                {/if}
+            </div>
+            <div style="width: 100%; display: flex; justify-content: flex-end; margin-top: 15px; max-width: 430px;">
+                <button style="color: #3C80E5; font-size: 16px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em;" on:click={edithierarchyclicked}>{#if editingHierarchyStage == 0}Edit Hierarchy{:else if editingHierarchyStage == 1}Select Subgame to Move{:else if editingHierarchyStage == 2}Select New Parent Game (title moves it up a level){/if}</button>    
+            </div>
+            {#each currgame.subgames as subgame, index}
+                {#if editingHierarchyStage != 2 || subgame.isbasecase == 0}
+                    <div style="display: flex; margin-top: 15px;">
+                        {#if editingSubGameTitle != null && editingSubGameTitle.id == subgame.id}
+                            <input id="subgamenameinput{index}" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Insert game title" bind:value={subgame.name}>
+                            <button style="padding-left: 15px;" on:click={submitSubGameTitleChanges}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20 6 9 17l-5-5"/>
+                                </svg>
+                            </button>  
+                        {:else}
+                            <div style="{viewportWidth < 430 ? 'width: ' + (viewportWidth - 265) +'px; max-width: ' + (viewportWidth - 265) + 'px;' : 'width: 200px; max-width: 200px;'} display: flex; align-items: center;">
+                                <button style="font-weight: 700; font-size: 16px; color: black; text-align: left; letter-spacing: -0.01em;" on:click={() => {navigateToSubGame(subgame)}}>{subgame.name}</button>
+                            </div>
+                            {#if editingHierarchyStage == 0}
+                                <button style="margin-left: 15px;" on:click={() => {setEditingSubGameTitle(subgame, index)}}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="38" viewBox="0 0 20 20" fill="none">
+                                        <line x1="4.58579" y1="15.0985" x2="14.0989" y2="5.58533" stroke="#D9D9D9" stroke-width="4"/>
+                                        <rect x="14" y="2.82812" width="4" height="4" transform="rotate(-45 14 2.82812)" fill="#D9D9D9"/>
+                                        <path d="M1.41391 18.243L2.31049 14.8969L4.75998 17.3464L1.41391 18.243Z" fill="#D9D9D9"/>
+                                    </svg>
+                                </button>
+                                {#if subgame.subgames == null || subgame.subgames.length == 0}
+                                    <button style="margin-left: 15px;" on:click={() => {goToDrill(subgame);}}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="{subgame.isbasecase == 1 && subgame.basecasedrillactivated == 0 ? 'red' : subgame.isbasecase == 1 && subgame.basecasedrillactivated == 1 ? '#53E720' : 'black'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="m12 8 6-3-6-3v10"/>
+                                            <path d="m8 11.99-5.5 3.14a1 1 0 0 0 0 1.74l8.5 4.86a2 2 0 0 0 2 0l8.5-4.86a1 1 0 0 0 0-1.74L16 12"/>
+                                            <path d="m6.49 12.85 11.02 6.3"/>
+                                            <path d="M17.51 12.85 6.5 19.15"/>
+                                        </svg>
+                                    </button>
+                                {:else}
+                                    <div style="width: 26px; height: 41px; margin-left: 15px;"></div>
+                                {/if}
+                                {#if subgame.isbasecase == 0}
+                                    <button style="margin-left: 15px;" on:click={() => {goToGame(subgame)}}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26" fill="none">
+                                            <circle cx="13" cy="13" r="12" fill="black" stroke="black" stroke-width="2"/>
+                                            <rect x="12.6973" y="5.44141" width="1.2093" height="15.7209" fill="white"/>
+                                            <rect x="5.44141" y="13.9072" width="1.2093" height="15.7209" transform="rotate(-90 5.44141 13.9072)" fill="white"/>
+                                        </svg>
+                                    </button>
+                                {:else}
+                                    <div style="width: 26px; height: 41px; margin-left: 15px;"></div>
+                                {/if}
+                                <button style="margin-left: 15px;" on:click={() => {deleteGame(subgame)}}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M3 6h18"/>
+                                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                                        <line x1="10" x2="10" y1="11" y2="17"/>
+                                        <line x1="14" x2="14" y1="11" y2="17"/>
+                                    </svg>
+                                </button>
+                                <button style="margin-left: 15px;" on:click={() => {moveGameDown(index)}}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="m6 9 6 6 6-6"/>
+                                    </svg>
+                                </button>
+                                <button style="margin-left: 15px;" on:click={() => {moveGameUp(index)}}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="m18 15-6-6-6 6"/>
+                                    </svg>
+                                </button>
+                            {/if}
+                        {/if}
+                    </div>
+                {/if}
             {/each}
+            {#if editingHierarchyStage == 0}
+                <button style="margin-top: 30px;" on:click={addSubGame}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26" fill="none">
+                        <circle cx="13" cy="13" r="12" fill="black" stroke="black" stroke-width="2"/>
+                        <rect x="12.6973" y="5.44141" width="1.2093" height="15.7209" fill="white"/>
+                        <rect x="5.44141" y="13.9072" width="1.2093" height="15.7209" transform="rotate(-90 5.44141 13.9072)" fill="white"/>
+                    </svg>
+                </button>
+                <button disabled={deactivatetext == "Done"} style="margin-top: 120px; color: red; padding: 10px; font-size: 16px; font-weight: 600; letter-spacing: -0.01em;" on:click={deactivateAll}>{deactivatetext}{#if deactivatetext != "Done"}&nbsp;{#if currgame.name != undefined && currgame.name != null}{"\"" + currgame.name + "\""}{:else}""{/if}&nbsp;{/if}{deactivatetext2}</button>
+            {/if}
+        </div>
+        {:else}
+            {#if processStage == 0}
+                <div style="display: flex; justify-content: space-between; width: 100%; max-width: 360px;">
+                    <h1>Today's Drills</h1>
+                    <button on:click={toggletodaysdrillstooltipopen}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                            <path d="M12 17h.01"/>
+                        </svg>
+                    </button>
+                    {#if todaysdrillstooltipopen && !indrill && !ingame}
+                        <div class="tooltip-modal" bind:this={todaysdrillstooltipmodal}>
+                            <div class="navigationSection">
+                                <button on:click={toggletodaysdrillstooltipopen}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="10" viewBox="0 0 11 10" fill="none">
+                                        <line x1="1.70711" y1="1.29289" x2="9.70711" y2="9.29289" stroke="black" stroke-width="2"/>
+                                        <line y1="-1" x2="11.3137" y2="-1" transform="matrix(-0.707107 0.707107 0.707107 0.707107 10 2)" stroke="black" stroke-width="2"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <p class="tooltip-modal-content">Complete the following drills to ensure they remain in long term memory<br><br>(time between a drill's repetitions<br>increases exponentially)</p>
+                        </div>
+                    {/if}
+                </div>
+                
+                {#each drillsdue as drill}
+                    <button style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 360px; max-width: 360px;'} border-radius: 5px; border-color: black; border-width: 2px; border-style: solid; padding: 15px; margin-top: 30px; color: black;" on:click={() => {goToDrill(drill)}}>
+                        <h2>{truncateString(drill.name, 22)}</h2>
+                        <p class="super-parent-text">{drill.superparentgame.name}</p>
+                    </button>
+                {/each}
+                <div style="display: flex; justify-content: center; margin-top: 60px; {viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 360px; max-width: 360px;'}">
+                    <button style="padding: 15px; color: red; text-align: center;" on:click={skipDrills}>
+                        <h2>Skip drills for now</h2>
+                    </button>
+                </div>
+                
+            {:else if processStage == 1}
+                <div style="display: flex; width: 100%; ">
+                    <h1 style="{viewportWidth < 430 ? 'width: 80%; max-width: 80%;' : 'width: 360px; max-width: 360px; box-sizing: border-box;'}">Add Drills ({3 - user.todaynewfinitegamebehaviorcount})</h1>
+                    <div style="width: {viewportWidth < 430 ? '15' : '20'}px;"></div>
+                    <button style="{viewportWidth < 430 ? 'width: 20%; max-width: 20%;' : ''} box-sizing: border-box;" on:click={toggleadddrillstooltipopen}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                            <path d="M12 17h.01"/>
+                        </svg>
+                    </button>
+                    {#if adddrillstooltipopen && !indrill && !ingame}
+                        <div class="tooltip-modal" bind:this={adddrillstooltipmodal}>
+                            <div class="navigationSection">
+                                <button on:click={toggleadddrillstooltipopen}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="10" viewBox="0 0 11 10" fill="none">
+                                        <line x1="1.70711" y1="1.29289" x2="9.70711" y2="9.29289" stroke="black" stroke-width="2"/>
+                                        <line y1="-1" x2="11.3137" y2="-1" transform="matrix(-0.707107 0.707107 0.707107 0.707107 10 2)" stroke="black" stroke-width="2"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <p class="tooltip-modal-content">Select (or add) a game and recursively<br>break it down into subgames.<br><br>When breaking a subgame down further feels like a habit (instead of a game), select the<br>flag icon to turn it into a drill<br>(where you describe a way to practice it)<br><br>Each day you'll create/activate three new drills for your habit-building queue</p>
+                        </div>
+                    {/if}
+                </div>
+                {#each primaryGames as primaryGame}
+                    <div style="display: flex; width: 100%; max-width: 100%; margin-top: 30px;">
+                        <button style="{viewportWidth < 430 ? 'width: 80%; max-width: 80%;' : 'width: 360px; max-width: 360px;'} overflow-wrap: break-word; border-radius: 5px; box-sizing: border-box; border-color: black; border-width: 2px; border-style: solid; padding: 15px; color: black;" on:click={() => {goToGame(primaryGame)}}>
+                            <h2>{truncateString(primaryGame.name, 22)}</h2>
+                        </button>
+                        <div style="width: {viewportWidth < 430 ? '15' : '20'}px;"></div>
+                        <button style="{viewportWidth < 430 ? 'width: 20%; max-width: 20%;' : ''} box-sizing: border-box;" on:click={() => {deletePrimaryGame(primaryGame)}}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 6h18"/>
+                                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                                <line x1="10" x2="10" y1="11" y2="17"/>
+                                <line x1="14" x2="14" y1="11" y2="17"/>
+                            </svg>
+                        </button>
+                    </div>
+                {/each}
 
-            <button style="margin-top: 30px;" on:click={addPrimaryGame}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26" fill="none">
-                    <circle cx="13" cy="13" r="12" fill="black" stroke="black" stroke-width="2"/>
-                    <rect x="12.6973" y="5.44141" width="1.2093" height="15.7209" fill="white"/>
-                    <rect x="5.44141" y="13.9072" width="1.2093" height="15.7209" transform="rotate(-90 5.44141 13.9072)" fill="white"/>
-                </svg>
-            </button>
-        {:else if processStage == 2}
-            <h1>Finished for the day</h1>
-            {#if user.premiumsubscriber == 1}
-                <button style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 360px; max-width: 360px;'} border-radius: 5px; border-color: black; border-width: 2px; border-style: solid; padding: 15px; margin-top: 30px; color: black;" on:click={() => {goBackToProcessStage1()}}>
-                    <h2>Add more drills</h2>
-                    <p style="font-family: 'Inter'; font-size: 16px; font-weigth: 500;">(more than three a day for the<br>same game is not recommended)</p>
+                <button style="margin-top: 30px;" on:click={addPrimaryGame}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26" fill="none">
+                        <circle cx="13" cy="13" r="12" fill="black" stroke="black" stroke-width="2"/>
+                        <rect x="12.6973" y="5.44141" width="1.2093" height="15.7209" fill="white"/>
+                        <rect x="5.44141" y="13.9072" width="1.2093" height="15.7209" transform="rotate(-90 5.44141 13.9072)" fill="white"/>
+                    </svg>
                 </button>
+            {:else if processStage == 2}
+                <h1>Finished for the day</h1>
+                {#if user.premiumsubscriber == 1}
+                    <button style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 360px; max-width: 360px;'} border-radius: 5px; border-color: black; border-width: 2px; border-style: solid; padding: 15px; margin-top: 30px; color: black;" on:click={() => {goBackToProcessStage1()}}>
+                        <h2>Add more drills</h2>
+                        <p style="font-family: 'Inter'; font-size: 16px; font-weigth: 500;">(more than three a day for the<br>same game is not recommended)</p>
+                    </button>
+                    <button style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 360px; max-width: 360px;'} border-radius: 5px; border-color: black; border-width: 2px; border-style: solid; padding: 15px; margin-top: 30px; color: black;" on:click={() => {goToStripe()}}>
+                        <h2>Manage plan</h2>
+                    </button>
+                {:else}
                 <button style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 360px; max-width: 360px;'} border-radius: 5px; border-color: black; border-width: 2px; border-style: solid; padding: 15px; margin-top: 30px; color: black;" on:click={() => {goToStripe()}}>
-                    <h2>Manage plan</h2>
+                    <h2>View standard plan<br>(removes limit)</h2>
                 </button>
-            {:else}
-            <button style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 360px; max-width: 360px;'} border-radius: 5px; border-color: black; border-width: 2px; border-style: solid; padding: 15px; margin-top: 30px; color: black;" on:click={() => {goToStripe()}}>
-                <h2>View standard plan<br>(removes limit)</h2>
-            </button>
+                {/if}
             {/if}
         {/if}
-    {/if}
-</div>
+    </div>
+{/if}

@@ -177,9 +177,12 @@
         font-weight: 500;
         line-height: 1.4;
         margin: 0;
-        text-indent: -1.4em;
-        padding-left: 35px;
         margin-bottom: 5px;
+    }
+
+    .onboarding-list {
+        margin: 0;
+        padding-left: 27px;
     }
 
     @media (max-width: 430px) {
@@ -857,24 +860,27 @@
             {:else if user.onboardingstage == 3}
                 <h1 style="margin-bottom: 15px; margin-top: 15px;">The memory problem</h1>
                 <p class="onboarding-text" style="margin-bottom: 60px;">However, complex goals have many parts, which results in us spending most of our brain power remembering the pieces and only a tiny fraction on finding a solution</p>
-                <h1 style="margin-bottom: 30px;">Example</h1>
+                <h1 style="margin-bottom: 30px;">Simple Problem</h1>
                 <div style="width: 100%; display: flex; justify-content: center;">
                     <div style="border-style: solid; border-width: 4px; border-color: black; width: 100%; max-width: 400px;">
                         <Onboardinggraphic2 />
                     </div>
                 </div>
-                <div style="width: 100%; display: flex; justify-content: center;">
+                <!-- <div style="width: 100%; display: flex; justify-content: center;">
                     <h1 style="text-align: center; margin-top: 30px; margin-bottom: 30px;">VS</h1>
-                </div>
+                </div> -->
+                <h1 style="margin-bottom: 30px; margin-top: 30px;">Complex Problem</h1>
                 <div style="width: 100%; display: flex; justify-content: center;">
                     <div style="border-style: solid; border-width: 4px; border-color: black; width: 100%; max-width: 400px;">
                         <Onboardinggraphic3 />
                     </div>
                 </div>
                 <h1 style="margin-bottom: 30px; margin-top: 60px;">The symptoms:</h1>
-                <li class="onboarding-bullet">Feeling lost/overwhelmed</li>
-                <li class="onboarding-bullet">Deciding against pursuing interests because they feel like too much effort</li>
-                <li class="onboarding-bullet">Don’t feel like you’re “crushing it” in everything you work on</li>
+                <ul class="onboarding-list">
+                    <li class="onboarding-bullet">Feeling lost/overwhelmed</li>
+                    <li class="onboarding-bullet">Deciding against pursuing interests because they feel like too much effort</li>
+                    <li class="onboarding-bullet">Don’t feel like you’re “crushing it” in everything you work on</li>
+                </ul>
             {:else if user.onboardingstage == 4}
                 <h1 style="margin-bottom: 15px; margin-top: 15px;">How Endevyr helps</h1>
                 <p class="onboarding-text" style="margin-bottom: 60px;">It stores the goal’s pieces in a way that makes sense for problem solving, which frees up brain power to focus on finding a solution rather than remembering details.</p>
@@ -891,14 +897,18 @@
                     </div>
                 </div>
                 <h1 style="margin-bottom: 30px; margin-top: 60px;">The difference:</h1>
-                <li class="onboarding-bullet">Always know exactly what to do</li>
-                <li class="onboarding-bullet">Be able to do well in any area you’re interested in without a huge commitment</li>
-                <li class="onboarding-bullet">Feel like a genius as your brain comes up with clever solutions on autopilot</li>
+                <ul class="onboarding-list">
+                    <li class="onboarding-bullet">Always know exactly what to do</li>
+                    <li class="onboarding-bullet">Be able to do well in any area you’re interested in without a huge commitment</li>
+                    <li class="onboarding-bullet">Feel like a genius as your brain comes up with clever solutions on autopilot</li>
+                </ul>
             {:else if user.onboardingstage == 5}
                 <h1 style="margin-bottom: 15px; margin-top: 15px;">When to use Endevyr</h1>
-                <li class="onboarding-bullet">Whenever a task feels hard</li>
-                <li class="onboarding-bullet">When starting something new (skill, project, assignment, etc.)</li>
-                <li class="onboarding-bullet">When wanting to improve an existing area of life (a skill, health, wealth, relationships)</li>
+                <ul class="onboarding-list">
+                    <li class="onboarding-bullet">Whenever a task feels hard</li>
+                    <li class="onboarding-bullet">When starting something new (skill, project, assignment, etc.)</li>
+                    <li class="onboarding-bullet">When wanting to improve an existing area of life (a skill, health, wealth, relationships)</li>
+                </ul>
             {:else if user.onboardingstage == 6}
                 <h1 style="margin-bottom: 15px; margin-top: 15px;">How it works</h1>
                 <p class="onboarding-text" style="margin-bottom: 30px;">Add a new “game” (skill, task, project, area of life, etc.)</p>

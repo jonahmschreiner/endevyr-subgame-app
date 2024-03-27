@@ -933,7 +933,7 @@
                 </div>
             {/if}
             <div style="width: 100%; display: flex; justify-content: center;">
-                <button on:click={advanceOnboarding} class="page-button" style="{user.onboardingstage < 2 || user.onboardingstage == 5 ? 'position: absolute; left: 50%; top: 80%; transform: translate(-50%, -80%);' : ''} color: white; background-color: black; margin-top: 60px; margin-bottom: 15px; max-width: 570px;">Continue</button>
+                <button on:click={advanceOnboarding} class="page-button" style="{user.onboardingstage < 2 || user.onboardingstage == 5 ? 'position: absolute; left: 50%; top: 80%; transform: translate(-50%, -80%);' : ''} color: white; background-color: black; margin-top: 60px; margin-bottom: 15px; font-size: 20px; height: 40px; letter-spacing: -0.01em; max-width: 570px;">Continue</button>
             </div>
             
         </div>

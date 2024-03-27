@@ -843,8 +843,8 @@
 {#if user.onboardingcomplete == 0}
     <div style="width: 100%; display: flex; justify-content: center;">
         <div style="display: flex; flex-direction: column; width: 100%; max-width: 600px; box-sizing: border-box; padding: 15px; {user.onboardingstage < 2 ? 'align-items: center; justify-content: center;' : 'align-items: flex-start;'};">
-            {#if user.onboardingstage < 2}
-                <h1 style="text-align: center; position: absolute; left: 50%; top: 40%; transform: translate(-50%, -40%); width: 90%;">{#if user.onboardingstage == 0}Reach goals 10x faster with Endevyr{:else}Memory is the limitation{/if}</h1>
+            {#if user.onboardingstage == 1}
+                <h1 style="text-align: center; position: absolute; left: 50%; top: 40%; transform: translate(-50%, -40%); width: 90%;">Reach goals 10x faster with Endevyr</h1>
             {:else if user.onboardingstage == 2}
                 <h1 style="margin-bottom: 15px; margin-top: 15px;">Problem-Solving</h1>
                 <p class="onboarding-text" style="margin-bottom: 60px;">Our brain solves problems by breaking them into smaller and smaller parts until we figure out what to do next</p>

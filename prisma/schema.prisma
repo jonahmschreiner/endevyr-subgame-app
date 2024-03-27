@@ -53,5 +53,5 @@ model User {
   premiumsubscriberexpirationdate DateTime?
   stripecustomerid    String?     @unique
   onboardingcomplete  Int     @default(0)
-  onboardingstage     Int     @default(0)
+  onboardingstage     Int     @default(1)
 }

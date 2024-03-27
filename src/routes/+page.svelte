@@ -926,7 +926,7 @@
                 <p class="onboarding-text" style="margin-bottom: 30px;">Upon reaching a “game” that is more like an action/habit than a game, stop. If it is a new habit, select the flag, otherwise complete the action and move on to the next</p>
                 <div style="width: 100%; display: flex; justify-content: center;">
                     <div style="border-style: solid; border-width: 4px; border-color: black; width: 100%; max-width: 400px; margin-bottom: 60px;">
-                        <video id="videoexample3" src="/EndevyrOnboardingWeightLossExampleClickFlagCropped.mp4" width="100%" height="100%" controls loop muted playsinline></video>
+                        <video id="videoexample3" src="/EndevyrOnboardingWeightLossExampleClickFlagCropped.mp4" width="100%" height="100%" controls muted playsinline></video>
                     </div>
                 </div>
                 <p class="onboarding-text" style="margin-bottom: 30px;">Record habits' situation and desired new action</p>

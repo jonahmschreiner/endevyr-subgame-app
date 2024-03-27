@@ -858,33 +858,33 @@
                     </div>
                 </div>
             {:else if user.onboardingstage == 3}
-                <h1 style="margin-bottom: 15px; margin-top: 15px;">The memory problem</h1>
-                <p class="onboarding-text" style="margin-bottom: 60px;">However, complex goals have many parts, which results in us spending most of our brain power remembering the pieces and only a tiny fraction on finding a solution</p>
-                <h1 style="margin-bottom: 30px;">Simple Problem</h1>
+                <h1 style="margin-bottom: 15px; margin-top: 15px;">The Memory Problem</h1>
+                <p class="onboarding-text" style="margin-bottom: 60px;">However, complex goals have many parts.<br><br>This makes us spend most of our brain power on remembering the pieces and only a tiny fraction on finding a solution.</p>
+                <!-- <h1 style="margin-bottom: 30px;">Simple Problem</h1>
                 <div style="width: 100%; display: flex; justify-content: center;">
                     <div style="border-style: solid; border-width: 4px; border-color: black; width: 100%; max-width: 400px;">
                         <Onboardinggraphic2 />
                     </div>
-                </div>
+                </div> -->
                 <!-- <div style="width: 100%; display: flex; justify-content: center;">
                     <h1 style="text-align: center; margin-top: 30px; margin-bottom: 30px;">VS</h1>
                 </div> -->
-                <h1 style="margin-bottom: 30px; margin-top: 30px;">Complex Problem</h1>
+                <!-- <h1 style="margin-bottom: 30px; margin-top: 30px;">Complex Problem</h1>
                 <div style="width: 100%; display: flex; justify-content: center;">
                     <div style="border-style: solid; border-width: 4px; border-color: black; width: 100%; max-width: 400px;">
                         <Onboardinggraphic3 />
                     </div>
-                </div>
-                <h1 style="margin-bottom: 30px; margin-top: 60px;">The symptoms:</h1>
+                </div> -->
+                <h1 style="margin-bottom: 30px;">Symptoms:</h1>
                 <ul class="onboarding-list">
                     <li class="onboarding-bullet">Feeling lost/overwhelmed</li>
-                    <li class="onboarding-bullet">Deciding against pursuing interests because they feel like too much effort</li>
+                    <li class="onboarding-bullet">Not pursuing interests because they feel like too much effort</li>
                     <li class="onboarding-bullet">Don’t feel like you’re “crushing it” in everything you work on</li>
                 </ul>
             {:else if user.onboardingstage == 4}
                 <h1 style="margin-bottom: 15px; margin-top: 15px;">How Endevyr helps</h1>
-                <p class="onboarding-text" style="margin-bottom: 60px;">It stores the goal’s pieces in a way that makes sense for problem solving, which frees up brain power to focus on finding a solution rather than remembering details.</p>
-                <h1 style="margin-bottom: 30px;">From:</h1>
+                <p class="onboarding-text" style="margin-bottom: 60px;">It stores the goal’s pieces for you, which frees up brain power to focus on finding a solution rather than remembering details.</p>
+                <!-- <h1 style="margin-bottom: 30px;">From:</h1>
                 <div style="width: 100%; display: flex; justify-content: center;">
                     <div style="border-style: solid; border-width: 4px; border-color: black; width: 100%; max-width: 400px;">
                         <Onboardinggraphic3 />
@@ -895,8 +895,8 @@
                     <div style="border-style: solid; border-width: 4px; border-color: black; width: 100%; max-width: 400px;">
                         <Onboardinggraphic4 />
                     </div>
-                </div>
-                <h1 style="margin-bottom: 30px; margin-top: 60px;">The difference:</h1>
+                </div> -->
+                <h1 style="margin-bottom: 30px;">The difference:</h1>
                 <ul class="onboarding-list">
                     <li class="onboarding-bullet">Always know exactly what to do</li>
                     <li class="onboarding-bullet">Be able to do well in any area you’re interested in without a huge commitment</li>
@@ -943,7 +943,7 @@
                 </div>
             {/if}
             <div style="width: 100%; display: flex; justify-content: center;">
-                <button on:click={advanceOnboarding} class="page-button" style="{user.onboardingstage < 2 || user.onboardingstage == 5 ? 'position: absolute; left: 50%; top: 80%; transform: translate(-50%, -80%);' : ''} color: white; background-color: black; margin-top: 60px; margin-bottom: 15px; font-size: 20px; height: 40px; letter-spacing: -0.01em; max-width: 570px;">Continue</button>
+                <button on:click={advanceOnboarding} class="page-button" style="{user.onboardingstage != 2 && user.onboardingstage != 6 ? 'position: absolute; left: 50%; top: 80%; transform: translate(-50%, -80%);' : ''} color: white; background-color: black; margin-top: 60px; margin-bottom: 15px; font-size: 20px; height: 40px; letter-spacing: -0.01em; max-width: 570px;">Continue</button>
             </div>
             
         </div>

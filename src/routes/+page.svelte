@@ -798,7 +798,7 @@
         }
     }
 
-    function advanceOnboarding () {
+    async function advanceOnboarding () {
         document.documentElement.scrollTop = 0;
         document.body.scrollTop = 0;
         if (user.onboardingstage < 6) {
@@ -806,12 +806,24 @@
             if (user.onboardingstage == 6) {
                 speedUpOnboardingVideos();
             }
-
-            //db (wait until done building)
+            //db
+            await fetch('/api/updateUser', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userid: user.id, type: "onboardingstage", value: user.onboardingstage}),
+            });
         } else {
             user.onboardingcomplete = 1;
-
-            //db (wait until done building onboarding)
+            //db
+            await fetch('/api/updateUser', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userid: user.id, type: "onboardingcomplete", value: 1}),
+            });
         }
     }
 

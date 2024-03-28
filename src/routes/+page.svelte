@@ -1017,7 +1017,7 @@
 {:else}
     <div style="display: flex; flex-direction: column; {ingame || indrill ? 'margin-left: 15px; margin-right: 0px; margin-bottom: 15px; margin-top: 0;' : 'margin: 15px;'} align-items: flex-start;">
         {#if indrill}
-            <div style="display: flex; width: 100%; max-width: 603px; justify-content: flex-end;">
+            <div style="display: flex; width: 100%; max-width: 603px; justify-content: flex-end; margin-top: 5px;">
                 <button on:click={closeDrill}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="10" viewBox="0 0 11 11" fill="none">
                         <line y1="-1" x2="11.5486" y2="-1" transform="matrix(0.692722 0.721204 -0.692722 0.721204 1 2)" stroke="black" stroke-width="2"/>
@@ -1086,7 +1086,7 @@
                 {/if}
             </div>
         {:else if ingame}
-            <div style="display: flex; width: 100%; max-width: 433px; justify-content: flex-end;">
+            <div style="display: flex; width: 100%; max-width: 433px; justify-content: flex-end; margin-top: 5px;">
                 <button on:click={closeGame}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="10" viewBox="0 0 11 11" fill="none">
                         <line y1="-1" x2="11.5486" y2="-1" transform="matrix(0.692722 0.721204 -0.692722 0.721204 1 2)" stroke="black" stroke-width="2"/>

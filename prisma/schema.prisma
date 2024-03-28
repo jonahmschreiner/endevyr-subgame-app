@@ -35,6 +35,7 @@ model Game {
   finitegame     Int        @default(0)
   userid         Int        
   user           User       @relation(fields: [userid], references: [id], onDelete: Cascade)
+  lastaccessed   DateTime   @default(now())
   @@index([parentgameid])
   @@index([userid])
   @@index([superparentgameid])

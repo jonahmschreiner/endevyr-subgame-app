@@ -132,6 +132,9 @@ export const load = async ({ url, cookies }) => {
                     parentgame: true,
                     subgames: true,
                 },
+                orderBy: {
+                  lastaccessed: 'desc',
+                },
             },
         },
     });

@@ -251,8 +251,10 @@
             body: JSON.stringify({ userid: user.id }),
         });
         let responseJSON = await response.json();
-        primaryGames.push(responseJSON.newgame);
-        user.games.push(responseJSON.newgame);
+        // primaryGames.push(responseJSON.newgame);
+        primaryGames = [responseJSON.newgame, ...primaryGames];
+        // user.games.push(responseJSON.newgame);
+        user.games = [responseJSON.newgame, ...user.games];
         user.games = user.games;
         primaryGames = primaryGames;
     }
@@ -286,6 +288,11 @@
     let indrill = false;
     let currgame = null;
     async function goToGame (gameIn) {
+        let updateLastAccessed = false;
+        const gameInConst = gameIn;
+        if (gameIn.parentgameid == null || gameIn.parentgameid == undefined) {
+            updateLastAccessed = true;
+        }
         gameIn.subgames = getSubgamesOfGame(gameIn);
         let superparentgameid;
         if (gameIn.superparentgameid) {
@@ -310,6 +317,17 @@
         }
         currgame = gameIn;
         ingame = true;
+        if (updateLastAccessed) {
+            let newPrimaryGamesOrder = primaryGames.filter(obj => obj.id != gameInConst.id);
+            primaryGames = [gameInConst, ...newPrimaryGamesOrder];
+            await fetch('/api/updateGame', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ gameid: gameInConst.id, type: "lastaccessed", value: new Date() }),
+            });
+        }
     }
 
     async function goToDrill (gameIn) {
@@ -1176,7 +1194,7 @@
                 
             {:else if processStage == 1}
                 <div style="display: flex; width: 100%; ">
-                    <h1 style="{viewportWidth < 430 ? 'width: 80%; max-width: 80%;' : 'width: 360px; max-width: 360px; box-sizing: border-box;'}">Add Drills ({3 - user.todaynewfinitegamebehaviorcount})</h1>
+                    <h1 style="{viewportWidth < 430 ? 'width: 80%; max-width: 80%;' : 'width: 360px; max-width: 360px; box-sizing: border-box;'}">Games<!--({3 - user.todaynewfinitegamebehaviorcount})--></h1>
                     <div style="width: {viewportWidth < 430 ? '15' : '20'}px;"></div>
                     <button style="{viewportWidth < 430 ? 'width: 20%; max-width: 20%;' : ''} box-sizing: border-box;" on:click={toggleadddrillstooltipopen}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="26" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1199,6 +1217,13 @@
                         </div>
                     {/if}
                 </div>
+                <button style="margin-top: 30px;" on:click={addPrimaryGame}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26" fill="none">
+                        <circle cx="13" cy="13" r="12" fill="black" stroke="black" stroke-width="2"/>
+                        <rect x="12.6973" y="5.44141" width="1.2093" height="15.7209" fill="white"/>
+                        <rect x="5.44141" y="13.9072" width="1.2093" height="15.7209" transform="rotate(-90 5.44141 13.9072)" fill="white"/>
+                    </svg>
+                </button>
                 {#each primaryGames as primaryGame}
                     <div style="display: flex; width: 100%; max-width: 100%; margin-top: 30px;">
                         <button style="{viewportWidth < 430 ? 'width: 80%; max-width: 80%;' : 'width: 360px; max-width: 360px;'} overflow-wrap: break-word; border-radius: 5px; box-sizing: border-box; border-color: black; border-width: 2px; border-style: solid; padding: 15px; color: black;" on:click={() => {goToGame(primaryGame)}}>
@@ -1216,14 +1241,6 @@
                         </button>
                     </div>
                 {/each}
-
-                <button style="margin-top: 30px;" on:click={addPrimaryGame}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26" fill="none">
-                        <circle cx="13" cy="13" r="12" fill="black" stroke="black" stroke-width="2"/>
-                        <rect x="12.6973" y="5.44141" width="1.2093" height="15.7209" fill="white"/>
-                        <rect x="5.44141" y="13.9072" width="1.2093" height="15.7209" transform="rotate(-90 5.44141 13.9072)" fill="white"/>
-                    </svg>
-                </button>
             {:else if processStage == 2}
                 <h1>Finished for the day</h1>
                 {#if user.premiumsubscriber == 1}

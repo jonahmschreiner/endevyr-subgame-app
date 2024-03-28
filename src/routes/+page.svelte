@@ -248,12 +248,10 @@
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ userid: user.id }),
+            body: JSON.stringify({ userid: user.id, name: "New Category" }),
         });
         let responseJSON = await response.json();
-        // primaryGames.push(responseJSON.newgame);
         primaryGames = [responseJSON.newgame, ...primaryGames];
-        // user.games.push(responseJSON.newgame);
         user.games = [responseJSON.newgame, ...user.games];
         user.games = user.games;
         primaryGames = primaryGames;
@@ -318,6 +316,14 @@
         currgame = gameIn;
         ingame = true;
         if (updateLastAccessed) {
+            if (currgame.name == "New Category") {
+                await tick();
+                toggleEditingTitle();
+                blur = true;
+                await tick();
+                document.getElementById("currgametitleinput").focus();
+            }
+
             let newPrimaryGamesOrder = primaryGames.filter(obj => obj.id != gameInConst.id);
             primaryGames = [gameInConst, ...newPrimaryGamesOrder];
             await fetch('/api/updateGame', {
@@ -383,7 +389,7 @@
     let editingTitle = false;
     async function toggleEditingTitle () {
         editingTitle = !editingTitle;
-        if (currgame.name == "Example Name") {
+        if (currgame.name == "Category" || currgame.name == "New Category") {
             currgame.name = null;
         }
         await tick();
@@ -391,8 +397,13 @@
     }
 
     async function submitTitleChanges () {
+        blur = false;
         if (currgame.name == null || currgame.name == undefined || currgame.name.trim() == ""){
-            currgame.name = "Example Name";
+            if (currgame.parentgameid == null || currgame.parentgameid == undefined) {
+                currgame.name = "New Category";
+            } else {
+                currgame.name = "Category";
+            }  
         }
         editingTitle = false;
         currgame.subgames.forEach(subgame => subgame.parentgame.name = currgame.name);
@@ -411,7 +422,7 @@
 
     let editingSubGameTitle = null;
     async function setEditingSubGameTitle (subgame, index) {
-        if (subgame.name == "Example Name") {
+        if (subgame.name == "Category") {
             subgame.name = null;
         }
         editingSubGameTitle = subgame;
@@ -421,7 +432,7 @@
 
     async function submitSubGameTitleChanges () {
         if (editingSubGameTitle.name == null || editingSubGameTitle.name == undefined || editingSubGameTitle.name.trim() == ""){
-            editingSubGameTitle.name = "Example Name";
+            editingSubGameTitle.name = "Category";
         }
         const gameIn = editingSubGameTitle;
         editingSubGameTitle = null;
@@ -857,11 +868,16 @@
         document.getElementById("videoexample4").playbackRate = 2.5;
         document.getElementById("videoexample5").playbackRate = 2.5;
     }
+
+    let blur = false;
 </script>
 
 
 <title>Endevyr</title>
 <meta name="description" content="Endevyr app">
+{#if blur}
+    <div style="position: fixed; top: 0px; left: 0; width: 100%; height: 100%; background-color: #00000099; z-index: 3;"></div>
+{/if}
 {#if user.onboardingcomplete == 0}
     <div style="width: 100%; display: flex; justify-content: center;">
         <div style="display: flex; flex-direction: column; width: 100%; max-width: 600px; box-sizing: border-box; padding: 15px; {user.onboardingstage < 2 ? 'align-items: center; justify-content: center;' : 'align-items: flex-start;'};">
@@ -1063,15 +1079,18 @@
                         </button>
                     {/if}
                 {:else}
-                    <input id="currgametitleinput" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Insert game title" bind:value={currgame.name}>
-                    <button style="margin-left: 15px;" on:click={submitTitleChanges}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M20 6 9 17l-5-5"/>
-                        </svg>
-                    </button>
+                    <div style="display: flex; background-color: white; z-index: 5; {blur ? 'padding: 5px;' : ''}">
+                        <input style="z-index: 5;" id="currgametitleinput" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Insert category title" bind:value={currgame.name}>
+                        <button style="margin-left: 15px; z-index: 5;" on:click={submitTitleChanges}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 6 9 17l-5-5"/>
+                            </svg>
+                        </button>
+                    </div>
                 {/if}
             </div>
-            <div style="width: 100%; display: flex; justify-content: flex-end; margin-top: 15px; max-width: 430px;">
+            <div style="width: 100%; display: flex; justify-content: space-between; margin-top: 15px; max-width: 430px;">
+                <p style="font-size: 16px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em; max-width: 60%;">Categories for reasons the above wouldn't be fulfilled:</p>
                 <button style="color: #3C80E5; font-size: 16px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em;" on:click={edithierarchyclicked}>{#if editingHierarchyStage == 0}Edit Hierarchy{:else if editingHierarchyStage == 1}Select Subgame to Move{:else if editingHierarchyStage == 2}Select New Parent Game (title moves it up a level){/if}</button>    
             </div>
             {#each currgame.subgames as subgame, index}
@@ -1194,7 +1213,7 @@
                 
             {:else if processStage == 1}
                 <div style="display: flex; width: 100%; ">
-                    <h1 style="{viewportWidth < 430 ? 'width: 80%; max-width: 80%;' : 'width: 360px; max-width: 360px; box-sizing: border-box;'}">Games<!--({3 - user.todaynewfinitegamebehaviorcount})--></h1>
+                    <h1 style="{viewportWidth < 430 ? 'width: 80%; max-width: 80%;' : 'width: 360px; max-width: 360px; box-sizing: border-box;'}">Categories<!--({3 - user.todaynewfinitegamebehaviorcount})--></h1>
                     <div style="width: {viewportWidth < 430 ? '15' : '20'}px;"></div>
                     <button style="{viewportWidth < 430 ? 'width: 20%; max-width: 20%;' : ''} box-sizing: border-box;" on:click={toggleadddrillstooltipopen}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="26" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1227,7 +1246,7 @@
                 {#each primaryGames as primaryGame}
                     <div style="display: flex; width: 100%; max-width: 100%; margin-top: 30px;">
                         <button style="{viewportWidth < 430 ? 'width: 80%; max-width: 80%;' : 'width: 360px; max-width: 360px;'} overflow-wrap: break-word; border-radius: 5px; box-sizing: border-box; border-color: black; border-width: 2px; border-style: solid; padding: 15px; color: black;" on:click={() => {goToGame(primaryGame)}}>
-                            <h2>{truncateString(primaryGame.name, 22)}</h2>
+                            <h2>{truncateString(primaryGame.name, 20)}</h2>
                         </button>
                         <div style="width: {viewportWidth < 430 ? '15' : '20'}px;"></div>
                         <button style="{viewportWidth < 430 ? 'width: 20%; max-width: 20%;' : ''} box-sizing: border-box;" on:click={() => {deletePrimaryGame(primaryGame)}}>

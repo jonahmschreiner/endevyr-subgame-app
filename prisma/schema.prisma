@@ -17,7 +17,7 @@ datasource db {
 
 model Game {
   id            Int          @id @default(autoincrement())
-  name          String       @default("Example Name")
+  name          String       @default("Category")
   subgames      Game[]      @relation("subgame")
   parentgameid  Int?
   parentgame    Game?       @relation("subgame", fields: [parentgameid], references: [id], onDelete: NoAction, onUpdate: NoAction)

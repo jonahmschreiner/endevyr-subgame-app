@@ -1316,7 +1316,7 @@
             {:else if processStage == 1}
                 <div style="display: flex; width: 100%; ">
                     <h1 style="{viewportWidth < 430 ? 'width: 80%; max-width: 80%;' : 'width: 360px; max-width: 360px; box-sizing: border-box;'}">Categories<!--({3 - user.todaynewfinitegamebehaviorcount})--></h1>
-                    <div style="width: {viewportWidth < 430 ? '15' : '20'}px;"></div>
+                    <div style="width: {viewportWidth < 430 ? '4' : '20'}px;"></div>
                     <button style="{viewportWidth < 430 ? 'width: 20%; max-width: 20%;' : ''} box-sizing: border-box;" on:click={toggleadddrillstooltipopen}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="26" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="10"/>

@@ -216,9 +216,6 @@
     let processStage = 0;
     if (drillsdue == null || drillsdue == undefined || drillsdue.length == 0) {
         processStage = 1;
-        if (user.todaynewfinitegamebehaviorcount == 3) {
-            processStage = 2;
-        }
     }
 
     let primaryGames = user.games.filter(obj => obj.parentgameid == null);
@@ -243,43 +240,60 @@
 
 
     async function addPrimaryGame () {
-        let response = await fetch('/api/createGame', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ userid: user.id, name: "New Category" }),
-        });
-        let responseJSON = await response.json();
-        primaryGames = [responseJSON.newgame, ...primaryGames];
-        user.games = [responseJSON.newgame, ...user.games];
-        user.games = user.games;
-        primaryGames = primaryGames;
+        if (user.games.length < 80 || user.premiumsubscriber == 1) {
+            let response = await fetch('/api/createGame', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userid: user.id, name: "New Category" }),
+            });
+            let responseJSON = await response.json();
+            primaryGames = [responseJSON.newgame, ...primaryGames];
+            user.games = [responseJSON.newgame, ...user.games];
+            user.games = user.games;
+            primaryGames = primaryGames;
+        } else {
+            showFreeLimitReachedModal();
+        }  
     }
 
     async function addSubGame () {
-        let superparentgameid;
-        if (currgame.superparentgameid) {
-            superparentgameid = currgame.superparentgameid;
-        } else if (currgame.parentgameid) {
-            superparentgameid = currgame.parentgameid;
+        if (user.games.length < 80 || user.premiumsubscriber == 1) {
+            let superparentgameid;
+            if (currgame.superparentgameid) {
+                superparentgameid = currgame.superparentgameid;
+            } else if (currgame.parentgameid) {
+                superparentgameid = currgame.parentgameid;
+            } else {
+                superparentgameid = currgame.id;
+            }
+            let response = await fetch('/api/createGame', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userid: user.id, parentgameid: currgame.id, parentgamesubgameslength: currgame.subgames.length, superparentgameidin: superparentgameid }),
+            });
+            let responseJSON = await response.json();
+            user.games.push(responseJSON.newgame);
+            currgame.subgames = getSubgamesOfGame(currgame);
+            editingSubGameTitle = currgame.subgames[currgame.subgames.length - 1];
+            currgame.subgames[currgame.subgames.length - 1].name = null;
+            await tick();
+            document.getElementById("subgamenameinput" + (currgame.subgames.length - 1)).focus();
         } else {
-            superparentgameid = currgame.id;
+            showFreeLimitReachedModal();
         }
-        let response = await fetch('/api/createGame', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ userid: user.id, parentgameid: currgame.id, parentgamesubgameslength: currgame.subgames.length, superparentgameidin: superparentgameid }),
-        });
-        let responseJSON = await response.json();
-        user.games.push(responseJSON.newgame);
-        currgame.subgames = getSubgamesOfGame(currgame);
-        editingSubGameTitle = currgame.subgames[currgame.subgames.length - 1];
-        currgame.subgames[currgame.subgames.length - 1].name = null;
-        await tick();
-        document.getElementById("subgamenameinput" + (currgame.subgames.length - 1)).focus();
+    }
+
+    let freelimitreachedmodalshowing = false;
+    function showFreeLimitReachedModal () {
+        freelimitreachedmodalshowing = true;
+    }
+
+    function hideFreeLimitReachedModal () {
+        freelimitreachedmodalshowing = false;
     }
 
     let ingame = false;
@@ -571,11 +585,7 @@
             currgame = false;
             drillsdue = drillsdue.filter(obj => obj.id != storedcurrgame.id);
             if (drillsdue.length == 0) {
-                if (user.todaynewfinitegamebehaviorcount == 3){
-                    processStage = 2;
-                } else {
-                    processStage = 1;
-                }
+                processStage = 1;
             }
             indrill = false;
             //set db
@@ -677,7 +687,7 @@
         } else {
             currgame.subgames = currgame.subgames.filter(obj => !(obj.id == subgameIn.id || obj.parentgameid == subgameIn.id));
         }
-        
+        recursivelyDeleteGames(subgameIn);
 
         //db
         await fetch('/api/deleteGame', {
@@ -690,7 +700,8 @@
     }
 
     async function deletePrimaryGame (primaryGameIn) {
-        user.games = user.games.filter(obj => !(obj.id == primaryGameIn.id || obj.parentgameid == primaryGameIn.id));
+        user.games = user.games.filter(obj => obj.id != primaryGameIn.id);
+        recursivelyDeleteGames(primaryGameIn);
         primaryGames = primaryGames.filter(obj => obj.id != primaryGameIn.id);
         await fetch('/api/deleteGame', {
             method: 'POST',
@@ -699,6 +710,14 @@
             },
             body: JSON.stringify({ gameid: primaryGameIn.id }),
         });
+    }
+
+    async function recursivelyDeleteGames(node) {
+        const gamesToDelete = user.games.filter(obj => obj.parentgameid == node.id);
+        for (const child of gamesToDelete) {
+            await recursivelyDeleteGames(child);
+        }
+        user.games = user.games.filter(game => !gamesToDelete.some(deleteGame => deleteGame.id == game.id));
     }
 
     function truncateString(primaryGameName, maxCharacterNum) {
@@ -824,11 +843,7 @@
     }
 
     function skipDrills () {
-        if (user.todaynewfinitegamebehaviorcount < 3) {
-            processStage = 1;
-        } else {
-            processStage = 2;
-        }
+        processStage = 1;
     }
 
     async function advanceOnboarding () {
@@ -877,6 +892,22 @@
 <meta name="description" content="Endevyr app">
 {#if blur}
     <div style="position: fixed; top: 0px; left: 0; width: 100%; height: 100%; background-color: #00000099; z-index: 3;"></div>
+{/if}
+{#if freelimitreachedmodalshowing}
+    <div class="tooltip-modal" bind:this={freelimitreachedmodalshowing}>
+        <div class="navigationSection">
+            <button on:click={hideFreeLimitReachedModal}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="10" viewBox="0 0 11 10" fill="none">
+                    <line x1="1.70711" y1="1.29289" x2="9.70711" y2="9.29289" stroke="black" stroke-width="2"/>
+                    <line y1="-1" x2="11.3137" y2="-1" transform="matrix(-0.707107 0.707107 0.707107 0.707107 10 2)" stroke="black" stroke-width="2"/>
+                </svg>
+            </button>
+        </div>
+        <p class="tooltip-modal-content" style="font-size: 16px; margin-bottom: 15px;">You've reached the categories-added limit<br><br>Delete some to make space or upgrade to the standard version to remove the limit</p>
+        <div style="width: 100%; display: flex; justify-content: center;">
+            <button style="color: white; font-size: 16px; margin-bottom: 10px; margin-top: 0px; background-color: #3C80E5; letter-spacing: -0.01em; border-radius: 5px; padding: 5px; width: 100px;" on:click={goToStripe}>View Plan</button>
+        </div>
+    </div>
 {/if}
 {#if user.onboardingcomplete == 0}
     <div style="width: 100%; display: flex; justify-content: center;">
@@ -1236,13 +1267,40 @@
                         </div>
                     {/if}
                 </div>
-                <button style="margin-top: 30px;" on:click={addPrimaryGame}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26" fill="none">
-                        <circle cx="13" cy="13" r="12" fill="black" stroke="black" stroke-width="2"/>
-                        <rect x="12.6973" y="5.44141" width="1.2093" height="15.7209" fill="white"/>
-                        <rect x="5.44141" y="13.9072" width="1.2093" height="15.7209" transform="rotate(-90 5.44141 13.9072)" fill="white"/>
-                    </svg>
-                </button>
+                <div style="display: flex; width: 100%; margin-top: 30px;">
+                    <div style="{viewportWidth < 430 ? 'width: 80%; max-width: 80%;' : 'width: 360px; max-width: 360px; box-sizing: border-box;'}">
+                        <button on:click={addPrimaryGame}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26" fill="none">
+                                <circle cx="13" cy="13" r="12" fill="black" stroke="black" stroke-width="2"/>
+                                <rect x="12.6973" y="5.44141" width="1.2093" height="15.7209" fill="white"/>
+                                <rect x="5.44141" y="13.9072" width="1.2093" height="15.7209" transform="rotate(-90 5.44141 13.9072)" fill="white"/>
+                            </svg>
+                        </button>
+                    </div>
+                    {#if user.premiumsubscriber == 1}
+                        <div style="width: {viewportWidth < 430 ? '15' : '20'}px;"></div>
+                        <div style="{viewportWidth < 430 ? 'width: 20%; max-width: 20%;' : ''} box-sizing: border-box; display: flex; justify-content: center;">
+                            <button on:click={goToStripe}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/>
+                                    <path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/>
+                                    <path d="M12 2v2"/>
+                                    <path d="M12 22v-2"/>
+                                    <path d="m17 20.66-1-1.73"/>
+                                    <path d="M11 10.27 7 3.34"/>
+                                    <path d="m20.66 17-1.73-1"/>
+                                    <path d="m3.34 7 1.73 1"/>
+                                    <path d="M14 12h8"/>
+                                    <path d="M2 12h2"/>
+                                    <path d="m20.66 7-1.73 1"/>
+                                    <path d="m3.34 17 1.73-1"/>
+                                    <path d="m17 3.34-1 1.73"/>
+                                    <path d="m11 13.73-4 6.93"/>
+                                </svg>
+                            </button>
+                        </div>
+                    {/if}
+                </div>
                 {#each primaryGames as primaryGame}
                     <div style="display: flex; width: 100%; max-width: 100%; margin-top: 30px;">
                         <button style="{viewportWidth < 430 ? 'width: 80%; max-width: 80%;' : 'width: 360px; max-width: 360px;'} overflow-wrap: break-word; border-radius: 5px; box-sizing: border-box; border-color: black; border-width: 2px; border-style: solid; padding: 15px; color: black;" on:click={() => {goToGame(primaryGame)}}>
@@ -1260,21 +1318,6 @@
                         </button>
                     </div>
                 {/each}
-            {:else if processStage == 2}
-                <h1>Finished for the day</h1>
-                {#if user.premiumsubscriber == 1}
-                    <button style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 360px; max-width: 360px;'} border-radius: 5px; border-color: black; border-width: 2px; border-style: solid; padding: 15px; margin-top: 30px; color: black;" on:click={() => {goBackToProcessStage1()}}>
-                        <h2>Add more drills</h2>
-                        <p style="font-family: 'Inter'; font-size: 16px; font-weigth: 500;">(more than three a day for the<br>same game is not recommended)</p>
-                    </button>
-                    <button style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 360px; max-width: 360px;'} border-radius: 5px; border-color: black; border-width: 2px; border-style: solid; padding: 15px; margin-top: 30px; color: black;" on:click={() => {goToStripe()}}>
-                        <h2>Manage plan</h2>
-                    </button>
-                {:else}
-                <button style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 360px; max-width: 360px;'} border-radius: 5px; border-color: black; border-width: 2px; border-style: solid; padding: 15px; margin-top: 30px; color: black;" on:click={() => {goToStripe()}}>
-                    <h2>View standard plan<br>(removes limit)</h2>
-                </button>
-                {/if}
             {/if}
         {/if}
     </div>

@@ -1112,14 +1112,16 @@
 {:else}
     <div style="display: flex; flex-direction: column; {ingame || indrill ? 'margin-left: 15px; margin-right: 0px; margin-bottom: 15px; margin-top: 0;' : 'margin: 15px;'} align-items: flex-start;">
         {#if indrill}
-            <div style="display: flex; width: 100%; max-width: 603px; justify-content: flex-end; margin-top: 5px;">
-                <button style="margin-right: 5px;" on:click={closeDrill}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="10" viewBox="0 0 11 11" fill="none">
-                        <line y1="-1" x2="11.5486" y2="-1" transform="matrix(0.692722 0.721204 -0.692722 0.721204 1 2)" stroke="black" stroke-width="2"/>
-                        <line y1="-1" x2="11.5486" y2="-1" transform="matrix(-0.692722 0.721204 0.692722 0.721204 10 2)" stroke="black" stroke-width="2"/>
-                    </svg>
-                </button>
-            </div>
+            {#if !(indrilltypeselection && viewportWidth >= 430)}
+                <div style="display: flex; width: 100%; max-width: 603px; justify-content: flex-end; margin-top: 5px;">
+                    <button style="margin-right: 5px;" on:click={closeDrill}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="10" viewBox="0 0 11 11" fill="none">
+                            <line y1="-1" x2="11.5486" y2="-1" transform="matrix(0.692722 0.721204 -0.692722 0.721204 1 2)" stroke="black" stroke-width="2"/>
+                            <line y1="-1" x2="11.5486" y2="-1" transform="matrix(-0.692722 0.721204 0.692722 0.721204 10 2)" stroke="black" stroke-width="2"/>
+                        </svg>
+                    </button>
+                </div>
+            {/if}
             {#if indrilltypeselection}
                 <div style="position: absolute; left: 50%; top: 40%; transform: translate(-50%, -40%); display: flex; flex-direction: column; align-items: center; width: 100%;">
                     <h1 style="text-align: center;">What type of solution?</h1>

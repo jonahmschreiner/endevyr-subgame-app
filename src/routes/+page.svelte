@@ -1079,7 +1079,7 @@
                         </button>
                     {/if}
                 {:else}
-                    <div style="display: flex; background-color: white; z-index: 5; {blur ? 'padding: 5px;' : ''}">
+                    <div style="display: flex; background-color: white; z-index: 5; border-radius: 5px; {blur ? 'padding: 5px;' : ''}">
                         <input style="z-index: 5;" id="currgametitleinput" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Insert category title" bind:value={currgame.name}>
                         <button style="margin-left: 15px; z-index: 5;" on:click={submitTitleChanges}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

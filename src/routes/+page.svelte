@@ -389,11 +389,16 @@
         }
     }
 
-    function closeDrill () {
+    async function closeDrill () {
         if (currgame.parentgameid != undefined && currgame.parentgameid != null) {
-            currgame = user.games.find(obj => obj.id == currgame.parentgameid);
-            currgame.subgames = getSubgamesOfGame(currgame);
-            indrill = false;
+            if (indrilltypeselection) {
+                deleteDrill(currgame);
+                indrilltypeselection = false;
+            } else {
+                currgame = user.games.find(obj => obj.id == currgame.parentgameid);
+                currgame.subgames = getSubgamesOfGame(currgame);
+                indrill = false;
+            } 
         } else {
             currgame = null;
             indrill = false;
@@ -893,6 +898,7 @@
         subgame.basecaserepetitions = 0;
         subgame.basecasenextcompletiondate = null;
         subgame.basecaselastcompleted = null;
+        subgame.basecasetype = 0;
         ingame = 1;
         indrill = 0;
         let newcurrgame = subgame.parentgame;
@@ -940,18 +946,39 @@
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ gameid: subgame.id, type: "basecaselastcompleted", value: null }),
-        });    
+        });
+        await fetch('/api/updateGame', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ gameid: subgame.id, type: "basecasetype", value: 0 }),
+        });  
     }
 
     async function handleFlagClick (subgame) {
         if (subgame.isbasecase == 0) {
             //go to choosing screen
-
+            indrilltypeselection = true;
             //temp goToDrill (remove upon adding base case choosing screen)
             goToDrill(subgame);
         } else {
             goToDrill(subgame);
         }
+    }
+
+    let indrilltypeselection = false;
+
+    async function setBaseCaseType (typeIn) {
+        currgame.basecasetype = typeIn;
+        indrilltypeselection = false;
+        await fetch('/api/updateGame', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ gameid: currgame.id, type: "basecasetype", value: typeIn }),
+        });  
     }
 </script>
 
@@ -1086,79 +1113,91 @@
     <div style="display: flex; flex-direction: column; {ingame || indrill ? 'margin-left: 15px; margin-right: 0px; margin-bottom: 15px; margin-top: 0;' : 'margin: 15px;'} align-items: flex-start;">
         {#if indrill}
             <div style="display: flex; width: 100%; max-width: 603px; justify-content: flex-end; margin-top: 5px;">
-                <button on:click={closeDrill}>
+                <button style="margin-right: 5px;" on:click={closeDrill}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="10" viewBox="0 0 11 11" fill="none">
                         <line y1="-1" x2="11.5486" y2="-1" transform="matrix(0.692722 0.721204 -0.692722 0.721204 1 2)" stroke="black" stroke-width="2"/>
                         <line y1="-1" x2="11.5486" y2="-1" transform="matrix(-0.692722 0.721204 0.692722 0.721204 10 2)" stroke="black" stroke-width="2"/>
                     </svg>
                 </button>
             </div>
-            <div style="display: flex; flex-direction: column; margin-right: 15px; width: -webkit-fill-available; align-items: flex-start;">
-                <h1>{currgame.name}</h1>
-                <div style="display: flex; justify-content: space-between; {viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 90%; max-width: 600px;'} margin-top: 20px;">
-                    <h2 class="drill-input-title" style="margin-top: 0;">Drill set up</h2>
-                    {#if processStage != 0}
-                        <button style="margin-left: 5px;" on:click={toggledrillsetuptooltipopen}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10"/>
-                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                                <path d="M12 17h.01"/>
-                            </svg>
-                        </button>
-                        {#if drillsetuptooltipopen && indrill}
-                            <div class="tooltip-modal" bind:this={drillsetuptooltipmodal}>
-                                <div class="navigationSection">
-                                    <button on:click={toggledrillsetuptooltipopen}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="10" viewBox="0 0 11 10" fill="none">
-                                            <line x1="1.70711" y1="1.29289" x2="9.70711" y2="9.29289" stroke="black" stroke-width="2"/>
-                                            <line y1="-1" x2="11.3137" y2="-1" transform="matrix(-0.707107 0.707107 0.707107 0.707107 10 2)" stroke="black" stroke-width="2"/>
-                                        </svg>
-                                    </button>
+            {#if indrilltypeselection}
+                <div style="position: absolute; left: 50%; top: 40%; transform: translate(-50%, -40%); display: flex; flex-direction: column; align-items: center; width: 100%;">
+                    <h1 style="text-align: center;">What type of solution?</h1>
+                    <button class="page-button" style="color: white; background-color: black; margin-top: 30px;" on:click={() => {setBaseCaseType(0)}}>New Habit</button>
+                    <button class="page-button" style="color: white; background-color: black; margin-top: 30px;" on:click={() => {setBaseCaseType(1)}}>Action, Task, or Answer</button>
+                </div>
+            {:else}
+                <div style="display: flex; flex-direction: column; margin-right: 15px; width: -webkit-fill-available; align-items: flex-start;">
+                    <h1>{currgame.name}</h1>
+                    {#if currgame.basecasetype == 0}
+                        <div style="display: flex; justify-content: space-between; {viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 90%; max-width: 600px;'} margin-top: 20px;">
+                            <h2 class="drill-input-title" style="margin-top: 0;">Drill set up</h2>
+                            {#if processStage != 0}
+                                <button style="margin-left: 5px;" on:click={toggledrillsetuptooltipopen}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                        <path d="M12 17h.01"/>
+                                    </svg>
+                                </button>
+                                {#if drillsetuptooltipopen && indrill}
+                                    <div class="tooltip-modal" bind:this={drillsetuptooltipmodal}>
+                                        <div class="navigationSection">
+                                            <button on:click={toggledrillsetuptooltipopen}>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="10" viewBox="0 0 11 10" fill="none">
+                                                    <line x1="1.70711" y1="1.29289" x2="9.70711" y2="9.29289" stroke="black" stroke-width="2"/>
+                                                    <line y1="-1" x2="11.3137" y2="-1" transform="matrix(-0.707107 0.707107 0.707107 0.707107 10 2)" stroke="black" stroke-width="2"/>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        <p class="tooltip-modal-content">How to get in the situation where the new behavior should be completed<br><br>(able to get into it at any time)</p>
+                                    </div>
+                                {/if}
+                            {/if}
+                        </div>
+                        <textarea id="drill-setup-textarea" style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : ''}" class="input" type="text" spellcheck="false" autocomplete="off" placeholder="How to set up drill" bind:value={currgame.basecasedrillsetup} on:keydown={handleKeyDownDrill} />
+                    {/if}
+                    <div style="display: flex; justify-content: space-between; {viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 90%; max-width: 600px;'} margin-top: 20px;">
+                        <h2 class="drill-input-title" style="margin-top: 0;">Drill execution</h2>
+                        {#if processStage != 0}
+                            <button style="margin-left: 5px;" on:click={toggledrillexecutiontooltipopen}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                    <path d="M12 17h.01"/>
+                                </svg>
+                            </button>
+                            {#if drillexecutiontooltipopen && indrill}
+                                <div class="tooltip-modal" bind:this={drillexecutiontooltipmodal}>
+                                    <div class="navigationSection">
+                                        <button on:click={toggledrillexecutiontooltipopen}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="10" viewBox="0 0 11 10" fill="none">
+                                                <line x1="1.70711" y1="1.29289" x2="9.70711" y2="9.29289" stroke="black" stroke-width="2"/>
+                                                <line y1="-1" x2="11.3137" y2="-1" transform="matrix(-0.707107 0.707107 0.707107 0.707107 10 2)" stroke="black" stroke-width="2"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <p class="tooltip-modal-content">The new action to take in the situation</p>
                                 </div>
-                                <p class="tooltip-modal-content">How to get in the situation where the new behavior should be completed<br><br>(able to get into it at any time)</p>
-                            </div>
+                            {/if}
+                        {/if}
+                    </div>
+                    <textarea id="drill-execution-textarea" style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : ''}" class="input" type="text" spellcheck="false" autocomplete="off" placeholder="How to execute drill" bind:value={currgame.basecasedrillexecution} on:keydown={handleKeyDownDrill} />
+                    {#if currgame.basecasetype == 0}
+                        {#if currgame.basecasedrillexecution != null && currgame.basecasedrillexecution.trim() != '' && currgame.basecasedrillsetup != null && currgame.basecasedrillsetup.trim() != ''}
+                            <button class="page-button" style="{(currgame.basecasedrillactivated && processStage == 0) || (!currgame.basecasedrillactivated && processStage == 1) ? 'color: #FFF; background-color: #000;' : 'color: #000; background-color: #FFF;'} {viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : ''}" on:click={handleBottomButtonClick}>{#if processStage == 0}Completed{:else if !currgame.basecasedrillactivated}Activate{:else}Turn Off{/if}</button>
+                        {:else}
+                            <button disabled class="page-button" style="{!currgame.basecasedrillactivated ? 'color: #0000004D; border-color: #0000004D;' : 'color: #FFFFFF4D; border-color: #0000004D; background: #0000004D; background-clip: padding-box;'} {viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : ''}">Activate</button>
                         {/if}
                     {/if}
-                </div>
-                <textarea id="drill-setup-textarea" style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : ''}" class="input" type="text" spellcheck="false" autocomplete="off" placeholder="How to set up drill" bind:value={currgame.basecasedrillsetup} on:keydown={handleKeyDownDrill} />
-                <div style="display: flex; justify-content: space-between; {viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 90%; max-width: 600px;'} margin-top: 20px;">
-                    <h2 class="drill-input-title" style="margin-top: 0;">Drill execution</h2>
-                    {#if processStage != 0}
-                        <button style="margin-left: 5px;" on:click={toggledrillexecutiontooltipopen}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10"/>
-                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                                <path d="M12 17h.01"/>
-                            </svg>
-                        </button>
-                        {#if drillexecutiontooltipopen && indrill}
-                            <div class="tooltip-modal" bind:this={drillexecutiontooltipmodal}>
-                                <div class="navigationSection">
-                                    <button on:click={toggledrillexecutiontooltipopen}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="10" viewBox="0 0 11 10" fill="none">
-                                            <line x1="1.70711" y1="1.29289" x2="9.70711" y2="9.29289" stroke="black" stroke-width="2"/>
-                                            <line y1="-1" x2="11.3137" y2="-1" transform="matrix(-0.707107 0.707107 0.707107 0.707107 10 2)" stroke="black" stroke-width="2"/>
-                                        </svg>
-                                    </button>
-                                </div>
-                                <p class="tooltip-modal-content">The new action to take in the situation</p>
-                            </div>
-                        {/if}
+                    {#if processStage == 1}
+                        <button on:click={() => {deleteDrill(currgame);}} style="color: red; font-family: 'Inter'; font-size: 16px; letter-spacing: -0.01em; font-weight: 600; margin-top: 120px; padding: 10px;">Revert to Category</button>
                     {/if}
                 </div>
-                <textarea id="drill-execution-textarea" style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : ''}" class="input" type="text" spellcheck="false" autocomplete="off" placeholder="How to execute drill" bind:value={currgame.basecasedrillexecution} on:keydown={handleKeyDownDrill} />
-                {#if currgame.basecasedrillexecution != null && currgame.basecasedrillexecution.trim() != '' && currgame.basecasedrillsetup != null && currgame.basecasedrillsetup.trim() != ''}
-                    <button class="page-button" style="{(currgame.basecasedrillactivated && processStage == 0) || (!currgame.basecasedrillactivated && processStage == 1) ? 'color: #FFF; background-color: #000;' : 'color: #000; background-color: #FFF;'} {viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : ''}" on:click={handleBottomButtonClick}>{#if processStage == 0}Completed{:else if !currgame.basecasedrillactivated}Activate{:else}Turn Off{/if}</button>
-                {:else}
-                    <button disabled class="page-button" style="{!currgame.basecasedrillactivated ? 'color: #0000004D; border-color: #0000004D;' : 'color: #FFFFFF4D; border-color: #0000004D; background: #0000004D; background-clip: padding-box;'} {viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : ''}">Activate</button>
-                {/if}
-                {#if processStage == 1}
-                    <button on:click={() => {deleteDrill(currgame);}} style="color: red; font-family: 'Inter'; font-size: 16px; letter-spacing: -0.01em; font-weight: 600; margin-top: 120px; padding: 10px;">Revert to Category</button>
-                {/if}
-            </div>
+            {/if}
         {:else if ingame}
             <div style="display: flex; width: 100%; max-width: 433px; justify-content: flex-end; margin-top: 5px;">
-                <button on:click={closeGame}>
+                <button style="margin-right: 5px;" on:click={closeGame}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="10" viewBox="0 0 11 11" fill="none">
                         <line y1="-1" x2="11.5486" y2="-1" transform="matrix(0.692722 0.721204 -0.692722 0.721204 1 2)" stroke="black" stroke-width="2"/>
                         <line y1="-1" x2="11.5486" y2="-1" transform="matrix(-0.692722 0.721204 0.692722 0.721204 10 2)" stroke="black" stroke-width="2"/>

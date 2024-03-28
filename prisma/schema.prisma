@@ -25,6 +25,7 @@ model Game {
   superparentgame Game?     @relation("supergamesubgames", fields: [superparentgameid], references: [id], onDelete: NoAction, onUpdate: NoAction)
   parentgamesubgamesindex Int?
   isbasecase    Int         @default(0)
+  basecasetype  Int         @default(0)
   basecasedrillsetup  String?   @db.VarChar(1000)
   basecasedrillexecution  String?   @db.VarChar(1000)
   basecaselastcompleted     DateTime?

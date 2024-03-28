@@ -1232,7 +1232,7 @@
                                     </svg>
                                 </button>
                             </div>
-                            <p class="tooltip-modal-content">Select (or add) a game and recursively<br>break it down into subgames.<br><br>When breaking a subgame down further feels like a habit (instead of a game), select the<br>flag icon to turn it into a drill<br>(where you describe a way to practice it)<br><br>Each day you'll create/activate three new drills for your habit-building queue</p>
+                            <p class="tooltip-modal-content">Select (or add) a category and recursively<br>break it down into sub-categories.<br><br>When breaking a sub-category down further feels like a habit (instead of a category), select the flag icon to turn it into a drill<br>(where you describe a way to practice it)<br><br>Each day you're able to activate up to three new drills for your habit-building queue<br>(unless drills for previous habits are due)</p>
                         </div>
                     {/if}
                 </div>

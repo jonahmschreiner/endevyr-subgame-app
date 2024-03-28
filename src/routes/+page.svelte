@@ -55,7 +55,7 @@
         line-height: normal;
         padding-left: 10px;
         padding-top: 10px;
-        max-width: 960px;
+        max-width: 600px;
         resize: none;
         margin-top: 5px;
     }
@@ -86,12 +86,13 @@
         color: #000;
         text-align: center;
         font-family: 'Inter';
-        font-size: 15px;
+        font-size: 16px;
         font-style: normal;
         font-weight: 500;
         line-height: normal;
-        max-width: 960px;
+        max-width: 600px;
         cursor: pointer;
+        letter-spacing: -0.01em;
     }
 
     h1 {
@@ -951,7 +952,7 @@
 {:else}
     <div style="display: flex; flex-direction: column; {ingame || indrill ? 'margin-left: 15px; margin-right: 0px; margin-bottom: 15px; margin-top: 0;' : 'margin: 15px;'} align-items: flex-start;">
         {#if indrill}
-            <div style="display: flex; width: 100%; justify-content: flex-end;">
+            <div style="display: flex; width: 100%; max-width: 603px; justify-content: flex-end;">
                 <button on:click={closeDrill}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="10" viewBox="0 0 11 11" fill="none">
                         <line y1="-1" x2="11.5486" y2="-1" transform="matrix(0.692722 0.721204 -0.692722 0.721204 1 2)" stroke="black" stroke-width="2"/>
@@ -961,7 +962,7 @@
             </div>
             <div style="display: flex; flex-direction: column; margin-right: 15px; width: -webkit-fill-available; align-items: flex-start;">
                 <h1>{currgame.name}</h1>
-                <div style="display: flex; justify-content: space-between; {viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 90%; max-width: 960px;'} margin-top: 20px;">
+                <div style="display: flex; justify-content: space-between; {viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 90%; max-width: 600px;'} margin-top: 20px;">
                     <h2 class="drill-input-title" style="margin-top: 0;">Drill set up</h2>
                     {#if processStage != 0}
                         <button style="margin-left: 5px;" on:click={toggledrillsetuptooltipopen}>
@@ -987,7 +988,7 @@
                     {/if}
                 </div>
                 <textarea id="drill-setup-textarea" style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : ''}" class="input" type="text" spellcheck="false" autocomplete="off" placeholder="How to set up drill" bind:value={currgame.basecasedrillsetup} on:keydown={handleKeyDownDrill} />
-                <div style="display: flex; justify-content: space-between; {viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 90%; max-width: 960px;'} margin-top: 20px;">
+                <div style="display: flex; justify-content: space-between; {viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 90%; max-width: 600px;'} margin-top: 20px;">
                     <h2 class="drill-input-title" style="margin-top: 0;">Drill execution</h2>
                     {#if processStage != 0}
                         <button style="margin-left: 5px;" on:click={toggledrillexecutiontooltipopen}>
@@ -1020,7 +1021,7 @@
                 {/if}
             </div>
         {:else if ingame}
-            <div style="display: flex; width: 100%; justify-content: flex-end;">
+            <div style="display: flex; width: 100%; max-width: 433px; justify-content: flex-end;">
                 <button on:click={closeGame}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="10" viewBox="0 0 11 11" fill="none">
                         <line y1="-1" x2="11.5486" y2="-1" transform="matrix(0.692722 0.721204 -0.692722 0.721204 1 2)" stroke="black" stroke-width="2"/>
@@ -1031,7 +1032,7 @@
             <div style="display: flex; flex-direction: column; margin-right: 15px; width: 1fr; align-items: flex-start;">
             <div style="display: flex; width: 100%;">
                 {#if !editingTitle}
-                    <button disabled={editingHierarchyStage == 0} on:click={() => {setAsNewParent(null);}} style="{editingHierarchyStage == 0 ? 'cursor: text;' : ''} max-width: 90%;">
+                    <button disabled={editingHierarchyStage == 0} on:click={() => {setAsNewParent(null);}} style="{editingHierarchyStage == 0 ? 'cursor: text;' : ''} max-width: {viewportWidth < 478 ? '90%' : '430px'};">
                         <h1 style="margin: 0;">{currgame.name}</h1>
                     </button>
                     {#if editingHierarchyStage == 0}

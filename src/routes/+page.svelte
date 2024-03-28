@@ -885,6 +885,74 @@
     }
 
     let blur = false;
+
+    async function deleteDrill (subgame) {
+        subgame.isbasecase = 0;
+        subgame.basecasedrillexecution = null;
+        subgame.basecasedrillsetup = null;
+        subgame.basecaserepetitions = 0;
+        subgame.basecasenextcompletiondate = null;
+        subgame.basecaselastcompleted = null;
+        ingame = 1;
+        indrill = 0;
+        let newcurrgame = subgame.parentgame;
+        newcurrgame.subgames = getSubgamesOfGame(newcurrgame);
+        currgame = newcurrgame;
+        //db
+        await fetch('/api/updateGame', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ gameid: subgame.id, type: "isbasecase", value: 0 }),
+        });
+        await fetch('/api/updateGame', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ gameid: subgame.id, type: "basecasedrillexecution", value: null }),
+        });
+        await fetch('/api/updateGame', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ gameid: subgame.id, type: "basecasedrillsetup", value: null }),
+        });
+        await fetch('/api/updateGame', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ gameid: subgame.id, type: "basecaserepetitions", value: 0 }),
+        });
+        await fetch('/api/updateGame', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ gameid: subgame.id, type: "basecasenextcompletiondate", value: null }),
+        });
+        await fetch('/api/updateGame', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ gameid: subgame.id, type: "basecaselastcompleted", value: null }),
+        });    
+    }
+
+    async function handleFlagClick (subgame) {
+        if (subgame.isbasecase == 0) {
+            //go to choosing screen
+
+            //temp goToDrill (remove upon adding base case choosing screen)
+            goToDrill(subgame);
+        } else {
+            goToDrill(subgame);
+        }
+    }
 </script>
 
 
@@ -1084,6 +1152,9 @@
                 {:else}
                     <button disabled class="page-button" style="{!currgame.basecasedrillactivated ? 'color: #0000004D; border-color: #0000004D;' : 'color: #FFFFFF4D; border-color: #0000004D; background: #0000004D; background-clip: padding-box;'} {viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : ''}">Activate</button>
                 {/if}
+                {#if processStage == 1}
+                    <button on:click={() => {deleteDrill(currgame);}} style="color: red; font-family: 'Inter'; font-size: 16px; letter-spacing: -0.01em; font-weight: 600; margin-top: 120px; padding: 10px;">Revert to Category</button>
+                {/if}
             </div>
         {:else if ingame}
             <div style="display: flex; width: 100%; max-width: 433px; justify-content: flex-end; margin-top: 5px;">
@@ -1095,20 +1166,20 @@
                 </button>
             </div>
             <div style="display: flex; flex-direction: column; margin-right: 15px; width: 1fr; align-items: flex-start;">
-            <div style="display: flex; width: 100%;">
+            <div style="display: flex; width: 100%; max-width: 433px;">
                 {#if !editingTitle}
-                    <button disabled={editingHierarchyStage == 0} on:click={() => {setAsNewParent(null);}} style="{editingHierarchyStage == 0 ? 'cursor: text;' : ''} max-width: {viewportWidth < 478 ? '90%' : '430px'};">
-                        <h1 style="margin: 0;">{currgame.name}</h1>
-                    </button>
-                    {#if editingHierarchyStage == 0}
-                        <button style="margin-left: 15px;" on:click={toggleEditingTitle}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="38" viewBox="0 0 20 20" fill="none">
-                                    <line x1="4.58579" y1="15.0985" x2="14.0989" y2="5.58533" stroke="#D9D9D9" stroke-width="4"/>
-                                    <rect x="14" y="2.82812" width="4" height="4" transform="rotate(-45 14 2.82812)" fill="#D9D9D9"/>
-                                    <path d="M1.41391 18.243L2.31049 14.8969L4.75998 17.3464L1.41391 18.243Z" fill="#D9D9D9"/>
-                                </svg>
+                        <button disabled={editingHierarchyStage == 0} on:click={() => {setAsNewParent(null);}} style="{editingHierarchyStage == 0 ? 'cursor: text;' : ''} max-width: {viewportWidth < 478 ? '90%' : '430px'};">
+                            <h1 style="margin: 0;">{currgame.name}</h1>
                         </button>
-                    {/if}
+                        {#if editingHierarchyStage == 0}
+                            <button style="margin-left: 15px;" on:click={toggleEditingTitle}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="38" viewBox="0 0 20 20" fill="none">
+                                        <line x1="4.58579" y1="15.0985" x2="14.0989" y2="5.58533" stroke="#D9D9D9" stroke-width="4"/>
+                                        <rect x="14" y="2.82812" width="4" height="4" transform="rotate(-45 14 2.82812)" fill="#D9D9D9"/>
+                                        <path d="M1.41391 18.243L2.31049 14.8969L4.75998 17.3464L1.41391 18.243Z" fill="#D9D9D9"/>
+                                    </svg>
+                            </button>
+                        {/if}
                 {:else}
                     <div style="display: flex; background-color: white; z-index: 5; border-radius: 5px; {blur ? 'padding: 5px;' : ''}">
                         <input style="z-index: 5;" id="currgametitleinput" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Insert category title" bind:value={currgame.name}>
@@ -1147,7 +1218,7 @@
                                     </svg>
                                 </button>
                                 {#if subgame.subgames == null || subgame.subgames.length == 0}
-                                    <button style="margin-left: 15px;" on:click={() => {goToDrill(subgame);}}>
+                                    <button style="margin-left: 15px;" on:click={() => {handleFlagClick(subgame);}}>
                                         <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="{subgame.isbasecase == 1 && subgame.basecasedrillactivated == 0 ? 'red' : subgame.isbasecase == 1 && subgame.basecasedrillactivated == 1 ? '#53E720' : 'black'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <path d="m12 8 6-3-6-3v10"/>
                                             <path d="m8 11.99-5.5 3.14a1 1 0 0 0 0 1.74l8.5 4.86a2 2 0 0 0 2 0l8.5-4.86a1 1 0 0 0 0-1.74L16 12"/>

@@ -273,51 +273,59 @@
         };
     });
 
-
+    let currentlyAddingGame = false;
     async function addPrimaryGame () {
-        hamburgermenuopen = false;
-        if (user.games.length < 80 || user.premiumsubscriber == 1) {
-            let response = await fetch('/api/createGame', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ userid: user.id, name: "New Category" }),
-            });
-            let responseJSON = await response.json();
-            primaryGames = [responseJSON.newgame, ...primaryGames];
-            user.games = [responseJSON.newgame, ...user.games];
-            user.games = user.games;
-            primaryGames = primaryGames;
-        } else {
-            showFreeLimitReachedModal();
-        }  
+        if (!currentlyAddingGame){
+            currentlyAddingGame = true;
+            hamburgermenuopen = false;
+            if (user.games.length < 80 || user.premiumsubscriber == 1) {
+                let response = await fetch('/api/createGame', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ userid: user.id, name: "New Category" }),
+                });
+                let responseJSON = await response.json();
+                primaryGames = [responseJSON.newgame, ...primaryGames];
+                user.games = [responseJSON.newgame, ...user.games];
+                user.games = user.games;
+                primaryGames = primaryGames;
+            } else {
+                showFreeLimitReachedModal();
+            } 
+            currentlyAddingGame = false;
+        } 
     }
 
     async function addSubGame () {
         if (user.games.length < 80 || user.premiumsubscriber == 1) {
-            let superparentgameid;
-            if (currgame.superparentgameid) {
-                superparentgameid = currgame.superparentgameid;
-            } else if (currgame.parentgameid) {
-                superparentgameid = currgame.parentgameid;
-            } else {
-                superparentgameid = currgame.id;
+            if (!currentlyAddingGame && currgame.subgames[currgame.subgames.length - 1].name != null){
+                currentlyAddingGame = true;
+                let superparentgameid;
+                if (currgame.superparentgameid) {
+                    superparentgameid = currgame.superparentgameid;
+                } else if (currgame.parentgameid) {
+                    superparentgameid = currgame.parentgameid;
+                } else {
+                    superparentgameid = currgame.id;
+                }
+                let response = await fetch('/api/createGame', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ userid: user.id, parentgameid: currgame.id, parentgamesubgameslength: currgame.subgames.length, superparentgameidin: superparentgameid }),
+                });
+                let responseJSON = await response.json();
+                user.games.push(responseJSON.newgame);
+                currgame.subgames = getSubgamesOfGame(currgame);
+                editingSubGameTitle = currgame.subgames[currgame.subgames.length - 1];
+                currgame.subgames[currgame.subgames.length - 1].name = null;
+                await tick();
+                document.getElementById("subgamenameinput" + (currgame.subgames.length - 1)).focus();
+                currentlyAddingGame = false;
             }
-            let response = await fetch('/api/createGame', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ userid: user.id, parentgameid: currgame.id, parentgamesubgameslength: currgame.subgames.length, superparentgameidin: superparentgameid }),
-            });
-            let responseJSON = await response.json();
-            user.games.push(responseJSON.newgame);
-            currgame.subgames = getSubgamesOfGame(currgame);
-            editingSubGameTitle = currgame.subgames[currgame.subgames.length - 1];
-            currgame.subgames[currgame.subgames.length - 1].name = null;
-            await tick();
-            document.getElementById("subgamenameinput" + (currgame.subgames.length - 1)).focus();
         } else {
             showFreeLimitReachedModal();
         }

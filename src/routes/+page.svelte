@@ -1268,8 +1268,8 @@
                         <textarea id="drill-setup-textarea" style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : ''}" class="input" type="text" spellcheck="false" autocomplete="off" placeholder="How to set up drill" bind:value={currgame.basecasedrillsetup} on:keydown={handleKeyDownDrill} />
                     {/if}
                     <div style="display: flex; justify-content: space-between; {viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 90%; max-width: 600px;'} margin-top: 20px;">
-                        <h2 class="drill-input-title" style="margin-top: 0;">Drill execution</h2>
-                        {#if processStage != 0}
+                        <h2 class="drill-input-title" style="margin-top: 0;">{#if currgame.basecasetype == 0}Drill execution{:else}Solution{/if}</h2>
+                        {#if processStage != 0 && currgame.basecasetype == 0}
                             <button style="margin-left: 5px;" on:click={toggledrillexecutiontooltipopen}>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <circle cx="12" cy="12" r="10"/>
@@ -1356,7 +1356,7 @@
                             </button>  
                         {:else}
                             <div style="{viewportWidth < 430 ? 'width: ' + (viewportWidth - 265) +'px; max-width: ' + (viewportWidth - 265) + 'px;' : 'width: 200px; max-width: 200px;'} display: flex; align-items: center;">
-                                <button style="font-weight: 700; font-size: 16px; color: black; text-align: left; letter-spacing: -0.01em;" on:click={() => {navigateToSubGame(subgame)}}>{subgame.name}</button>
+                                <button style="max-width: 100%; font-weight: 700; font-size: 16px; color: black; text-align: left; letter-spacing: -0.01em; overflow-wrap: break-word;" on:click={() => {navigateToSubGame(subgame)}}>{subgame.name}</button>
                             </div>
                             {#if editingHierarchyStage == 0}
                                 <button style="margin-left: 15px;" on:click={() => {setEditingSubGameTitle(subgame, index)}}>

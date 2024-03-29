@@ -186,6 +186,41 @@
         padding-left: 27px;
     }
 
+    .modal {
+        background-color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding-left: 10px;
+        padding-right: 10px;
+        padding-top: 10px;
+        position: absolute;
+        border-radius: 5px;
+        border-color: black;
+        border-width: 2px;
+        border-style: solid;
+        box-shadow: 0px 5px 4px 0px rgba(0, 0, 0, 0.68);
+    }
+
+    .modal-element {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 10px;
+    }
+
+    .modal-text {
+        color: #000000;
+        font-family: 'Inter';
+        font-size: 20px;
+        font-weight: 600;
+        line-height: normal;
+        text-align: left;
+        margin: 0;
+        letter-spacing: -0.01em;
+    }
+
     @media (max-width: 430px) {
         .tooltip-modal {
             left: 50%;
@@ -240,6 +275,7 @@
 
 
     async function addPrimaryGame () {
+        hamburgermenuopen = false;
         if (user.games.length < 80 || user.premiumsubscriber == 1) {
             let response = await fetch('/api/createGame', {
                 method: 'POST',
@@ -300,6 +336,7 @@
     let indrill = false;
     let currgame = null;
     async function goToGame (gameIn) {
+        hamburgermenuopen = false;
         let updateLastAccessed = false;
         const gameInConst = gameIn;
         if (gameIn.parentgameid == null || gameIn.parentgameid == undefined) {
@@ -705,6 +742,7 @@
     }
 
     async function deletePrimaryGame (primaryGameIn) {
+        hamburgermenuopen = false;
         user.games = user.games.filter(obj => obj.id != primaryGameIn.id);
         recursivelyDeleteGames(primaryGameIn);
         primaryGames = primaryGames.filter(obj => obj.id != primaryGameIn.id);
@@ -739,17 +777,8 @@
         todaysdrillstooltipopen = !todaysdrillstooltipopen;
     }
 
-    let adddrillstooltipopen = false;
-    let adddrillstooltipmodal;
-    function toggleadddrillstooltipopen () {
-        adddrillstooltipopen = !adddrillstooltipopen;
-    }
-
-    function goBackToProcessStage1 () {
-        processStage = 1;
-    }
-
     async function goToStripe () {
+        hamburgermenuopen = false;
         if (user.premiumsubscriber) {
             let response = await fetch('/api/paymentUtils/createBillingPortalSession', {
                 method: 'POST',
@@ -979,6 +1008,26 @@
             },
             body: JSON.stringify({ gameid: currgame.id, type: "basecasetype", value: typeIn }),
         });  
+    }
+
+    let hamburgermenuopen = false;
+    async function toggleMainHamburgerMenu () {
+        hamburgermenuopen = !hamburgermenuopen;
+        if (hamburgermenuopen) {
+            await tick();
+            const scrollY = window.scrollY;
+            let hamburgermenubutton = document.getElementById("hamburger-menu-button").getBoundingClientRect();
+            let hamburgermenu = document.getElementById("hamburger-menu");
+            hamburgermenu.style.top = `${hamburgermenubutton.bottom + scrollY}px`;
+            hamburgermenu.style.right = `${viewportWidth - hamburgermenubutton.right}px`;
+        }
+    }
+
+    function redoOnboarding () {
+        hamburgermenuopen = false;
+        user.onboardingstage = 1;
+        user.onboardingcomplete = 0;
+        //don't think I want to update the db to match for right now
     }
 </script>
 
@@ -1233,7 +1282,7 @@
                 {/if}
             </div>
             <div style="width: 100%; display: flex; justify-content: space-between; margin-top: 15px; max-width: 430px;">
-                <p style="font-size: 16px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em; max-width: 60%;">Categories for reasons the above wouldn't be fulfilled:</p>
+                <p style="font-size: 16px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em; max-width: 60%;">Top-level reasons the above wouldn't be true:</p>
                 <button style="color: #3C80E5; font-size: 16px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em;" on:click={edithierarchyclicked}>{#if editingHierarchyStage == 0}Edit Hierarchy{:else if editingHierarchyStage == 1}Select Subgame to Move{:else if editingHierarchyStage == 2}Select New Parent Game (title moves it up a level){/if}</button>    
             </div>
             {#each currgame.subgames as subgame, index}
@@ -1358,24 +1407,50 @@
                 <div style="display: flex; width: 100%; ">
                     <h1 style="{viewportWidth < 430 ? 'width: 80%; max-width: 80%;' : 'width: 360px; max-width: 360px; box-sizing: border-box;'}">Categories<!--({3 - user.todaynewfinitegamebehaviorcount})--></h1>
                     <div style="width: {viewportWidth < 430 ? '4' : '20'}px;"></div>
-                    <button style="{viewportWidth < 430 ? 'width: 20%; max-width: 20%;' : ''} box-sizing: border-box;" on:click={toggleadddrillstooltipopen}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"/>
-                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                            <path d="M12 17h.01"/>
+                    <button id="hamburger-menu-button" style="{viewportWidth < 430 ? 'width: 20%; max-width: 20%;' : ''} box-sizing: border-box;" on:click={toggleMainHamburgerMenu}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="4" x2="20" y1="12" y2="12"/>
+                            <line x1="4" x2="20" y1="6" y2="6"/>
+                            <line x1="4" x2="20" y1="18" y2="18"/>
                         </svg>
                     </button>
-                    {#if adddrillstooltipopen && !indrill && !ingame}
-                        <div class="tooltip-modal" bind:this={adddrillstooltipmodal}>
-                            <div class="navigationSection">
-                                <button on:click={toggleadddrillstooltipopen}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="10" viewBox="0 0 11 10" fill="none">
-                                        <line x1="1.70711" y1="1.29289" x2="9.70711" y2="9.29289" stroke="black" stroke-width="2"/>
-                                        <line y1="-1" x2="11.3137" y2="-1" transform="matrix(-0.707107 0.707107 0.707107 0.707107 10 2)" stroke="black" stroke-width="2"/>
+                    {#if hamburgermenuopen}
+                        <div class="modal" id="hamburger-menu">
+                            <button on:click={redoOnboarding}>
+                                <div class="modal-element">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                                        <path d="M3 3v5h5"/>
                                     </svg>
-                                </button>
-                            </div>
-                            <p class="tooltip-modal-content">Select (or add) a category and recursively<br>break it down into sub-categories.<br><br>When breaking a sub-category down further feels like a habit (instead of a category), select the flag icon to turn it into a drill<br>(where you describe a way to practice it)<br><br>Each day you're able to activate up to three new drills for your habit-building queue<br>(unless drills for previous habits are due)</p>
+                                    <p class="modal-text">Redo Onboarding</p>
+                                </div>
+                            </button>
+                            <button on:click={goToStripe}>
+                                <div class="modal-element">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        {#if user.premiumsubscriber == 1}
+                                            <path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/>
+                                            <path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/>
+                                            <path d="M12 2v2"/>
+                                            <path d="M12 22v-2"/>
+                                            <path d="m17 20.66-1-1.73"/>
+                                            <path d="M11 10.27 7 3.34"/>
+                                            <path d="m20.66 17-1.73-1"/>
+                                            <path d="m3.34 7 1.73 1"/>
+                                            <path d="M14 12h8"/>
+                                            <path d="M2 12h2"/>
+                                            <path d="m20.66 7-1.73 1"/>
+                                            <path d="m3.34 17 1.73-1"/>
+                                            <path d="m17 3.34-1 1.73"/>
+                                            <path d="m11 13.73-4 6.93"/>
+                                        {:else}
+                                            <path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/>
+                                            <path d="M5 21h14"/>
+                                        {/if}
+                                    </svg>
+                                    <p class="modal-text">{#if user.premiumsubscriber == 1}Manage Plan{:else}View Standard Plan{/if}</p>
+                                </div>
+                            </button>
                         </div>
                     {/if}
                 </div>
@@ -1389,29 +1464,6 @@
                             </svg>
                         </button>
                     </div>
-                    {#if user.premiumsubscriber == 1}
-                        <div style="width: {viewportWidth < 430 ? '15' : '20'}px;"></div>
-                        <div style="{viewportWidth < 430 ? 'width: 20%; max-width: 20%;' : ''} box-sizing: border-box; display: flex; justify-content: center;">
-                            <button on:click={goToStripe}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/>
-                                    <path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/>
-                                    <path d="M12 2v2"/>
-                                    <path d="M12 22v-2"/>
-                                    <path d="m17 20.66-1-1.73"/>
-                                    <path d="M11 10.27 7 3.34"/>
-                                    <path d="m20.66 17-1.73-1"/>
-                                    <path d="m3.34 7 1.73 1"/>
-                                    <path d="M14 12h8"/>
-                                    <path d="M2 12h2"/>
-                                    <path d="m20.66 7-1.73 1"/>
-                                    <path d="m3.34 17 1.73-1"/>
-                                    <path d="m17 3.34-1 1.73"/>
-                                    <path d="m11 13.73-4 6.93"/>
-                                </svg>
-                            </button>
-                        </div>
-                    {/if}
                 </div>
                 {#each primaryGames as primaryGame}
                     <div style="display: flex; width: 100%; max-width: 100%; margin-top: 30px;">

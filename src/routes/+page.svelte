@@ -417,6 +417,7 @@
 
     function closeGame () {
         editingHierarchyStage = 0;
+        editingTitle = false;
         if (currgame.parentgameid != undefined && currgame.parentgameid != null) {
             currgame = user.games.find(obj => obj.id == currgame.parentgameid);
             currgame.subgames = getSubgamesOfGame(currgame);

@@ -445,7 +445,7 @@
     let editingTitle = false;
     async function toggleEditingTitle () {
         editingTitle = !editingTitle;
-        if (currgame.name == "Category" || currgame.name == "New Category") {
+        if (currgame.name == "Reason" || currgame.name == "New Category") {
             currgame.name = null;
         }
         await tick();
@@ -458,7 +458,7 @@
             if (currgame.parentgameid == null || currgame.parentgameid == undefined) {
                 currgame.name = "New Category";
             } else {
-                currgame.name = "Category";
+                currgame.name = "Reason";
             }  
         }
         editingTitle = false;
@@ -478,7 +478,7 @@
 
     let editingSubGameTitle = null;
     async function setEditingSubGameTitle (subgame, index) {
-        if (subgame.name == "Category") {
+        if (subgame.name == "Reason") {
             subgame.name = null;
         }
         editingSubGameTitle = subgame;
@@ -488,7 +488,7 @@
 
     async function submitSubGameTitleChanges () {
         if (editingSubGameTitle.name == null || editingSubGameTitle.name == undefined || editingSubGameTitle.name.trim() == ""){
-            editingSubGameTitle.name = "Category";
+            editingSubGameTitle.name = "Reason";
         }
         const gameIn = editingSubGameTitle;
         editingSubGameTitle = null;
@@ -1242,7 +1242,7 @@
                         {/if}
                     {/if}
                     {#if processStage == 1}
-                        <button on:click={() => {deleteDrill(currgame);}} style="color: red; font-family: 'Inter'; font-size: 16px; letter-spacing: -0.01em; font-weight: 600; margin-top: 120px; padding: 10px;">Revert to Category</button>
+                        <button on:click={() => {deleteDrill(currgame);}} style="color: red; font-family: 'Inter'; font-size: 16px; letter-spacing: -0.01em; font-weight: 600; margin-top: 120px; padding: 10px;">Revert to Reason</button>
                     {/if}
                 </div>
             {/if}
@@ -1272,7 +1272,7 @@
                         {/if}
                 {:else}
                     <div style="display: flex; background-color: white; z-index: 5; border-radius: 5px; {blur ? 'padding: 5px;' : ''}">
-                        <input style="z-index: 5;" id="currgametitleinput" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Insert category title" bind:value={currgame.name}>
+                        <input style="z-index: 5;" id="currgametitleinput" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Insert reason title" bind:value={currgame.name}>
                         <button style="margin-left: 15px; z-index: 5;" on:click={submitTitleChanges}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M20 6 9 17l-5-5"/>
@@ -1289,7 +1289,7 @@
                 {#if editingHierarchyStage != 2 || subgame.isbasecase == 0}
                     <div style="display: flex; margin-top: 15px;">
                         {#if editingSubGameTitle != null && editingSubGameTitle.id == subgame.id}
-                            <input id="subgamenameinput{index}" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Insert game title" bind:value={subgame.name}>
+                            <input id="subgamenameinput{index}" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Insert reason title" bind:value={subgame.name}>
                             <button style="padding-left: 15px;" on:click={submitSubGameTitleChanges}>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M20 6 9 17l-5-5"/>

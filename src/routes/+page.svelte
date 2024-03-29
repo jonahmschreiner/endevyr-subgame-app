@@ -199,7 +199,7 @@
         border-color: black;
         border-width: 2px;
         border-style: solid;
-        box-shadow: 0px 5px 4px 0px rgba(0, 0, 0, 0.68);
+        /* box-shadow: 0px 5px 4px 0px rgba(0, 0, 0, 0.68); */
     }
 
     .modal-element {
@@ -1078,10 +1078,10 @@
                 <h1 style="text-align: center; position: absolute; left: 50%; top: 40%; transform: translate(-50%, -40%); width: 90%;">Reach goals 10x faster with Endevyr</h1>
             {:else if user.onboardingstage == 2}
                 <h1 style="margin-bottom: 15px; margin-top: 15px;">Problem-Solving</h1>
-                <p class="onboarding-text" style="margin-bottom: 60px;">Our brain solves problems by breaking them into smaller and smaller parts until we figure out what to do next</p>
+                <p class="onboarding-text" style="margin-bottom: 30px;">Our brain solves problems by breaking them into smaller and smaller parts until we figure out what to do next</p>
                 <h1 style="margin-bottom: 30px;">Example</h1>
                 <div style="width: 100%; display: flex; justify-content: center;">
-                    <div style="border-style: solid; border-width: 4px; border-color: black; width: 100%; max-width: 400px;">
+                    <div style="border-style: solid; border-width: 4px; border-color: black; width: 90%; max-width: 400px;">
                         <Onboardinggraphic1 />
                     </div>
                 </div>
@@ -1211,7 +1211,7 @@
                 </div>
             {/if}
             <div style="width: 100%; display: flex; justify-content: center;">
-                <button on:click={advanceOnboarding} class="page-button" style="{user.onboardingstage != 2 && user.onboardingstage != 6 ? 'position: absolute; left: 50%; top: 80%; transform: translate(-50%, -80%);' : ''} color: white; background-color: black; margin-top: 60px; margin-bottom: 15px; font-size: 20px; height: 40px; letter-spacing: -0.01em; max-width: 570px;">Continue</button>
+                <button on:click={advanceOnboarding} class="page-button" style="{user.onboardingstage != 2 && user.onboardingstage != 6 ? 'position: absolute; left: 50%; top: 80%; transform: translate(-50%, -80%);' : ''} color: white; background-color: black; margin-top: {viewportWidth >= 430 ? '60' : '30'}px; margin-bottom: 15px; font-size: 20px; height: 40px; letter-spacing: -0.01em; max-width: 570px;">Continue</button>
             </div>
             
         </div>
@@ -1526,7 +1526,7 @@
                 {#each primaryGames as primaryGame}
                     <div style="display: flex; width: 100%; max-width: 100%; margin-top: 30px;">
                         <button style="{viewportWidth < 430 ? 'width: 80%; max-width: 80%;' : 'width: 360px; max-width: 360px;'} overflow-wrap: break-word; border-radius: 5px; box-sizing: border-box; border-color: black; border-width: 2px; border-style: solid; padding: 15px; color: black;" on:click={() => {goToGame(primaryGame)}}>
-                            <h2>{truncateString(primaryGame.name, 20)}</h2>
+                            <h2 style="font-size: 20px;">{truncateString(primaryGame.name, 20)}</h2>
                         </button>
                         <div style="width: {viewportWidth < 430 ? '15' : '20'}px;"></div>
                         <button style="{viewportWidth < 430 ? 'width: 20%; max-width: 20%;' : ''} box-sizing: border-box;" on:click={() => {deletePrimaryGame(primaryGame)}}>

@@ -1301,7 +1301,7 @@
                             {/if}
                         {/if}
                     </div>
-                    <textarea id="drill-execution-textarea" style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : ''}" class="input" type="text" spellcheck="false" autocomplete="off" placeholder="How to execute drill" bind:value={currgame.basecasedrillexecution} on:keydown={handleKeyDownDrill} />
+                    <textarea id="drill-execution-textarea" style="{viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : ''}" class="input" type="text" spellcheck="false" autocomplete="off" placeholder="{currgame.basecasetype == 0 ? 'How to execute drill' : 'Insert solution here'}" bind:value={currgame.basecasedrillexecution} on:keydown={handleKeyDownDrill} />
                     {#if currgame.basecasetype == 0}
                         {#if currgame.basecasedrillexecution != null && currgame.basecasedrillexecution.trim() != '' && currgame.basecasedrillsetup != null && currgame.basecasedrillsetup.trim() != ''}
                             <button class="page-button" style="{(currgame.basecasedrillactivated && processStage == 0) || (!currgame.basecasedrillactivated && processStage == 1) ? 'color: #FFF; background-color: #000;' : 'color: #000; background-color: #FFF;'} {viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : ''}" on:click={handleBottomButtonClick}>{#if processStage == 0}Completed{:else if !currgame.basecasedrillactivated}Activate{:else}Turn Off{/if}</button>

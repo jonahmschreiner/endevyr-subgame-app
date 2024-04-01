@@ -1354,7 +1354,7 @@
                 <button style="color: #3C80E5; font-size: 16px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em;" on:click={edithierarchyclicked}>{#if editingHierarchyStage == 0}Edit Hierarchy{:else if editingHierarchyStage == 1}Select Subgame to Move{:else if editingHierarchyStage == 2}Select New Parent Game (title moves it up a level){/if}</button>    
             </div>
             {#each currgame.subgames as subgame, index}
-                {#if editingHierarchyStage != 2 || subgame.isbasecase == 0}
+                {#if editingHierarchyStage != 2 || (subgame.isbasecase == 0 && selectedsubgame.id != subgame.id)}
                     <div style="display: flex; margin-top: 15px;">
                         {#if editingSubGameTitle != null && editingSubGameTitle.id == subgame.id}
                             <input id="subgamenameinput{index}" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Insert reason title" bind:value={subgame.name}>

@@ -1152,7 +1152,7 @@
                 <p class="onboarding-text" style="margin-bottom: 30px;">Add a new “game” (skill, task, project, area of life, etc.)</p>
                 <div style="width: 100%; display: flex; justify-content: center;">
                     <div style="border-style: solid; border-width: 4px; border-color: black; width: 100%; max-width: 400px; margin-bottom: 60px; position: relative;">
-                        <video id="videoexample1" on:ended={() => {handleOnboardingVideoEnding(1)}} src="/EndevyrOnboardingWeightLossExampleAddGameCropped.mp4" width="100%" height="100%" muted playsinline />
+                        <video id="videoexample1" on:ended={() => {handleOnboardingVideoEnding(1)}} style="{onboardingVideoPlaying != 1 ? 'filter: opacity(10%);' : ''}" src="/EndevyrOnboardingWeightLossExampleAddGameCropped.mp4" width="100%" height="100%" muted playsinline />
                         {#if onboardingVideoPlaying != 1}
                             <button id="onboardingplayvideobutton1" style="position: absolute; z-index: 5; top: 50%; left: 50%; transform: translate(-50%, -50%);" on:click={() => {playOnboardingVideo(1);}}>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="75" height="75" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1166,7 +1166,7 @@
                 <p class="onboarding-text" style="margin-bottom: 30px;">Break the game down into the smaller “games” that make it up by asking "why wouldn't this be completed?"</p>
                 <div style="width: 100%; display: flex; justify-content: center;">
                     <div style="border-style: solid; border-width: 4px; border-color: black; width: 100%; max-width: 400px; margin-bottom: 60px; position: relative;">
-                        <video id="videoexample2" on:ended={() => {handleOnboardingVideoEnding(2)}} src="/EndevyrOnboardingWeightLossExampleBreakGameDownCropped.mp4" width="100%" height="100%" muted playsinline></video>
+                        <video id="videoexample2" on:ended={() => {handleOnboardingVideoEnding(2)}} style="{onboardingVideoPlaying != 2 ? 'filter: opacity(10%);' : ''}" src="/EndevyrOnboardingWeightLossExampleBreakGameDownCropped.mp4" width="100%" height="100%" muted playsinline></video>
                         {#if onboardingVideoPlaying != 2}
                             <button id="onboardingplayvideobutton2" style="position: absolute; z-index: 5; top: 50%; left: 50%; transform: translate(-50%, -50%);" on:click={() => {playOnboardingVideo(2);}}>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="75" height="75" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1180,7 +1180,7 @@
                 <p class="onboarding-text" style="margin-bottom: 30px;">Upon reaching a “game” that is more like an action, habit or solution than a game, select the flag.</p>
                 <div style="width: 100%; display: flex; justify-content: center;">
                     <div style="border-style: solid; border-width: 4px; border-color: black; width: 100%; max-width: 400px; margin-bottom: 60px; position: relative;">
-                        <video id="videoexample3" on:ended={() => {handleOnboardingVideoEnding(3)}} src="/EndevyrOnboardingWeightLossExampleClickFlagCropped.mp4" width="100%" height="100%" muted playsinline></video>
+                        <video id="videoexample3" on:ended={() => {handleOnboardingVideoEnding(3)}} style="{onboardingVideoPlaying != 3 ? 'filter: opacity(10%);' : ''}" src="/EndevyrOnboardingWeightLossExampleClickFlagCropped.mp4" width="100%" height="100%" muted playsinline></video>
                         {#if onboardingVideoPlaying != 3}
                             <button id="onboardingplayvideobutton3" style="position: absolute; z-index: 5; top: 50%; left: 50%; transform: translate(-50%, -50%);" on:click={() => {playOnboardingVideo(3);}}>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="75" height="75" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1194,7 +1194,7 @@
                 <p class="onboarding-text" style="margin-bottom: 30px;">Record habits' situation and desired new action</p>
                 <div style="width: 100%; display: flex; justify-content: center;">
                     <div style="border-style: solid; border-width: 4px; border-color: black; width: 100%; max-width: 400px; margin-bottom: 60px; position: relative;">
-                        <video id="videoexample4" on:ended={() => {handleOnboardingVideoEnding(4)}} src="/EndevyrOnboardingWeightLossExampleAddingDrillCropped.mp4" width="100%" height="100%" muted playsinline></video>
+                        <video id="videoexample4" on:ended={() => {handleOnboardingVideoEnding(4)}} style="{onboardingVideoPlaying != 4 ? 'filter: opacity(10%);' : ''}" src="/EndevyrOnboardingWeightLossExampleAddingDrillCropped.mp4" width="100%" height="100%" muted playsinline></video>
                         {#if onboardingVideoPlaying != 4}
                             <button id="onboardingplayvideobutton4" style="position: absolute; z-index: 5; top: 50%; left: 50%; transform: translate(-50%, -50%);" on:click={() => {playOnboardingVideo(4);}}>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="75" height="75" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1208,7 +1208,7 @@
                 <p class="onboarding-text" style="margin-bottom: 30px;">Be reminded of new habits shortly before forgetting</p>
                 <div style="width: 100%; display: flex; justify-content: center;">
                     <div style="border-style: solid; border-width: 4px; border-color: black; width: 100%; max-width: 400px; margin-bottom: 60px; position: relative;">
-                        <video id="videoexample5" on:ended={() => {handleOnboardingVideoEnding(5)}} src="/EndevyrOnboardingWeightLossExampleCompleteDrillCropped.mp4" width="100%" height="100%" muted playsinline></video>
+                        <video id="videoexample5" on:ended={() => {handleOnboardingVideoEnding(5)}} style="{onboardingVideoPlaying != 5 ? 'filter: opacity(10%);' : ''}" src="/EndevyrOnboardingWeightLossExampleCompleteDrillCropped.mp4" width="100%" height="100%" muted playsinline></video>
                         {#if onboardingVideoPlaying != 5}
                             <button id="onboardingplayvideobutton5" style="position: absolute; z-index: 5; top: 50%; left: 50%; transform: translate(-50%, -50%);" on:click={() => {playOnboardingVideo(5);}}>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="75" height="75" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

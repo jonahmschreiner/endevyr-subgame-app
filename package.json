@@ -13,7 +13,8 @@
 		"@sveltejs/kit": "^1.20.4",
 		"prisma": "^5.7.0",
 		"svelte": "^4.0.5",
-		"vite": "^4.4.2"
+		"vite": "^4.4.2",
+		"vite-plugin-node-polyfills": "^0.21.0"
 	},
 	"type": "module",
 	"dependencies": {

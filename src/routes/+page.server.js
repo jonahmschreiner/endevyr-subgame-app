@@ -3,13 +3,18 @@ import { redirect } from '@sveltejs/kit';
 import { WorkOS } from '@workos-inc/node';
 import { SignJWT, jwtVerify } from 'jose';
 import Stripe from 'stripe';
+const conversionapitoken = import.meta.env.VITE_APP_META_CONVERSIONS_API_ACCESS_TOKEN;
+import crypto from 'crypto';
 const stripesecretkey = import.meta.env.VITE_STRIPE_SECRET_KEY;
 const workosapikey = import.meta.env.VITE_WORKOS_API_KEY;
 const workosclientid = import.meta.env.VITE_WORKOS_CLIENT_ID;
 const workossecretkey = import.meta.env.VITE_WORKOS_SECRET_KEY;
 const workosredirecturi = import.meta.env.VITE_WORKOS_REDIRECT_URI;
 const secret = new Uint8Array(Buffer.from(workossecretkey, 'base64'),);
-export const load = async ({ url, cookies }) => {
+export const load = async (event) => {
+  const {url, cookies, request} = event;
+  const clientIP = event.getClientAddress();
+  const userAgent = request.headers.get('user-agent');
 //start auth
   //check if the user is logging out
   const logout = url.searchParams.get('logout');
@@ -61,6 +66,61 @@ export const load = async ({ url, cookies }) => {
           name: userObj.firstName + " " + userObj.lastName,
           lastfinitegamebehaviorcountreset: today,
         },
+      });
+      //send event to meta conversions api
+      const email = userObj.email;
+      const emailHashAlgo = crypto.createHash('sha256');
+      emailHashAlgo.update(email);
+      const emailHash = emailHashAlgo.digest('hex');
+
+      const firstName = userObj.firstName; 
+      const firstNameHashAlgo = crypto.createHash('sha256');
+      firstNameHashAlgo.update(firstName);
+      const firstNameHash = firstNameHashAlgo.digest('hex');
+      
+      const lastName = userObj.lastName;
+      const lastNameHashAlgo = crypto.createHash('sha256');
+      lastNameHashAlgo.update(lastName);
+      const lastNameHash = lastNameHashAlgo.digest('hex');
+
+      const userid = existsresponse.id.toString();
+      const userIdHashAlgo = crypto.createHash('sha256');
+      userIdHashAlgo.update(userid);
+      const userIdHash = userIdHashAlgo.digest('hex');
+
+      let now = Math.floor(Date.now() / 1000);
+      const baseURL = import.meta.env.VITE_APP_BASE_URL;
+      let payload = [
+        {
+            "event_name": "Lead",
+            "event_time": now,
+            "action_source": "website",
+            "event_source_url": baseURL,
+            "user_data": {
+                "em": [
+                    emailHash
+                ],
+                "fn": [
+                    firstNameHash
+                ],
+                "ln": [
+                    lastNameHash
+                ],
+                "external_id": [
+                    userIdHash
+                ],
+                "client_ip_address": clientIP,
+                "client_user_agent": userAgent
+            },
+        }
+      ];
+      await fetch(`https://graph.facebook.com/v19.0/1102168667702160/events?access_token=${conversionapitoken}`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          mode: "cors",
+          body: JSON.stringify({data: payload}),
       });
     }
     const token = await new SignJWT({

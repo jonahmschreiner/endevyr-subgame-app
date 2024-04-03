@@ -235,11 +235,10 @@
     import { goto } from '$app/navigation';
     import LogRocket from 'logrocket';
     import Onboardinggraphic1 from "../lib/onboardinggraphic1.svelte";
-    import Onboardinggraphic2 from "../lib/onboardinggraphic2.svelte";
-    import Onboardinggraphic3 from "../lib/onboardinggraphic3.svelte";
-    import Onboardinggraphic4 from "../lib/onboardinggraphic4.svelte";
     export let data;
     const baseURL = import.meta.env.VITE_APP_BASE_URL;
+    const conversionapitoken = import.meta.env.VITE_APP_META_CONVERSIONS_API_ACCESS_TOKEN;
+    import crypto from 'node:crypto';
     let { user, drillsdue } = data;
     if (user.email != "jonahmschreiner@gmail.com"){
         LogRocket.init('1ok2hy/endevyr-app');
@@ -909,6 +908,67 @@
         } else {
             user.onboardingcomplete = 1;
             //db
+            let response = await fetch('/api/getUser', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userid: user.id }),
+            });
+            let responseJSON = await response.json();
+            if (responseJSON.user.onboardingcomplete == 0) {
+                //send event to meta conversions api
+                const email = user.email;
+                const emailHashAlgo = crypto.createHash('sha256');
+                emailHashAlgo.update(email);
+                const emailHash = emailHashAlgo.digest('hex');
+
+                const [firstName, lastName] = user.name.split(" "); 
+                const firstNameHashAlgo = crypto.createHash('sha256');
+                firstNameHashAlgo.update(firstName);
+                const firstNameHash = firstNameHashAlgo.digest('hex');
+                
+                const lastNameHashAlgo = crypto.createHash('sha256');
+                lastNameHashAlgo.update(lastName);
+                const lastNameHash = lastNameHashAlgo.digest('hex');
+
+                const userid = user.id;
+                const userIdHashAlgo = crypto.createHash('sha256');
+                userIdHashAlgo.update(userid);
+                const userIdHash = userIdHashAlgo.digest('hex');
+
+                let now = Math.floor(Date.now() / 1000);
+                let payload = [
+                    {
+                        "event_name": "TutorialCompletion",
+                        "event_time": now,
+                        "action_source": "website",
+                        "event_source_url": window.location.href,
+                        "user_data": {
+                            "em": [
+                                emailHash
+                            ],
+                            "fn": [
+                                firstNameHash
+                            ],
+                            "ln": [
+                                lastNameHash
+                            ],
+                            "external_id": [
+                                userIdHash
+                            ]
+                        },
+                    }
+                ];
+                await fetch(`https://graph.facebook.com/v19.0/1102168667702160/events?access_token=${conversionapitoken}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    mode: "cors",
+                    body: JSON.stringify({data: payload}),
+                });
+            }
             await fetch('/api/updateUser', {
                 method: 'POST',
                 headers: {

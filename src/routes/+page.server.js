@@ -237,8 +237,68 @@ export const load = async (event) => {
       response.todaynewfinitegamebehaviorcount = 0;
     }
 
+    //handle sharing url
+    const sharingcode = Number(url.searchParams.get('sharingcode'));
+    if (sharingcode != null && sharingcode != 0) {
+      let game = await prisma.Game.findUnique({
+          where: {
+            id: sharingcode
+          }
+      });
+      if (game.sharingenabled == 1) {
+        let newgame = await prisma.Game.create({
+          data: {
+            userid: response.id,
+            name: game.name,
+            isbasecase: game.isbasecase,
+            basecasetype: game.basecasetype,
+            basecasedrillsetup: game.basecasedrillsetup,
+            basecasedrillexecution: game.basecasedrillexecution,
+          },
+        });
+
+        await createDeepClonesOfChildren(game.id, response.id, newgame.id, newgame.id);
+
+        const baseURL = import.meta.env.VITE_APP_BASE_URL;
+        throw redirect(307, baseURL);
+      }
+    }
+
+    //prevent pojo error
+    response.lifetimespend = Number(response.lifetimespend);
     return {
         user: response,
         drillsdue,
     };
 };
+
+
+async function createDeepClonesOfChildren(parentGameId, userid, newParentGameId = null, superparentgameid) {
+  // Find all children of the parent game
+  const children = await prisma.Game.findMany({
+      where: {
+          parentgameid: parentGameId,
+      },
+  });
+
+  // Iterate through each child
+  for (const child of children) {
+      // Create a deep clone of the child
+      const newChild = await prisma.Game.create({
+          data: {
+            userid: userid,
+            parentgamesubgamesindex: child.parentgamesubgamesindex,
+            parentgameid: newParentGameId,
+            superparentgameid: superparentgameid,
+            name: child.name,
+            isbasecase: child.isbasecase,
+            basecasetype: child.basecasetype,
+            basecasedrillsetup: child.basecasedrillsetup,
+            basecasedrillexecution: child.basecasedrillexecution,
+          },
+      });
+
+      // Recursively create deep clones of the children of this child
+      await createDeepClonesOfChildren(child.id, userid, newChild.id, superparentgameid);
+  }
+}

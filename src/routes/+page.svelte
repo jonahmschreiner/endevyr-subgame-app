@@ -1117,6 +1117,26 @@
             onboardingVideoPlaying = -1;
         }
     }
+
+    let copysharinglinkbuttontext = "Share a copy";
+    async function copyShareLink () {
+        let sharinglink = window.location.href + "?sharingcode=" + currgame.id;
+        navigator.clipboard.writeText(sharinglink);
+        copysharinglinkbuttontext = "Copied link";
+        setTimeout(async () => {
+            copysharinglinkbuttontext = "Share a copy";
+        }, 1000);
+        if (currgame.sharingenabled == 0) {
+            currgame.sharingenabled = 1;
+            await fetch('/api/updateGame', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ gameid: currgame.id, type: "sharingenabled", value: 1 }),
+            });
+        }
+    }
 </script>
 
 
@@ -1490,7 +1510,8 @@
                         <rect x="5.44141" y="13.9072" width="1.2093" height="15.7209" transform="rotate(-90 5.44141 13.9072)" fill="white"/>
                     </svg>
                 </button>
-                <button disabled={deactivatetext == "Done"} style="margin-top: 120px; color: red; padding: 10px; font-size: 16px; font-weight: 600; letter-spacing: -0.01em;" on:click={deactivateAll}>{deactivatetext}{#if deactivatetext != "Done"}&nbsp;{#if currgame.name != undefined && currgame.name != null}{"\"" + currgame.name + "\""}{:else}""{/if}&nbsp;{/if}{deactivatetext2}</button>
+                <button disabled={copysharinglinkbuttontext == "Copied link"} style="margin-top: 120px; color: black; padding: 10px; font-size: 16px; font-weight: 600; letter-spacing: -0.01em;" on:click={copyShareLink}>{copysharinglinkbuttontext}</button>
+                <button disabled={deactivatetext == "Done"} style="color: red; padding: 10px; font-size: 16px; font-weight: 600; letter-spacing: -0.01em;" on:click={deactivateAll}>{deactivatetext}{#if deactivatetext != "Done"}&nbsp;{#if currgame.name != undefined && currgame.name != null}{"\"" + currgame.name + "\""}{:else}""{/if}&nbsp;{/if}{deactivatetext2}</button>
             {/if}
         </div>
         {:else}

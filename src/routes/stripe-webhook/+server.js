@@ -38,6 +38,7 @@ export async function POST(event) {
                 stripecustomerid: subscription.customer,
             },
         });
+        let lifetimespend = response.lifetimespend + 5;
 
         //then update the other stripe values with the values from this event
         if (status == "active"){
@@ -47,6 +48,7 @@ export async function POST(event) {
                 },
                 data: {
                     premiumsubscriber: 1,
+                    lifetimespend: lifetimespend,
                 },
             });
 

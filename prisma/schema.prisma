@@ -37,6 +37,7 @@ model Game {
   userid         Int        
   user           User       @relation(fields: [userid], references: [id], onDelete: Cascade)
   lastaccessed   DateTime   @default(now())
+  sharingenabled  Int       @default(0)
   @@index([parentgameid])
   @@index([userid])
   @@index([superparentgameid])
@@ -53,6 +54,7 @@ model User {
   lastfinitegamebehaviorcountreset  DateTime?
   premiumsubscriber Int   @default(0)
   premiumsubscriberexpirationdate DateTime?
+  lifetimespend     Decimal     @default(0)
   stripecustomerid    String?     @unique
   onboardingcomplete  Int     @default(0)
   onboardingstage     Int     @default(1)

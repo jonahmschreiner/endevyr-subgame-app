@@ -1120,7 +1120,9 @@
 
     let copysharinglinkbuttontext = "Share a copy";
     async function copyShareLink () {
-        let sharinglink = window.location.href + "?sharingcode=" + currgame.id;
+        let href = window.location.href;
+        href = href.replace(/#$/, '');
+        let sharinglink = href + "?sharingcode=" + currgame.id;
         navigator.clipboard.writeText(sharinglink);
         copysharinglinkbuttontext = "Copied link";
         setTimeout(async () => {

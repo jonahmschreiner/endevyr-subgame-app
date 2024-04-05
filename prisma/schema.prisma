@@ -58,4 +58,30 @@ model User {
   stripecustomerid    String?     @unique
   onboardingcomplete  Int     @default(0)
   onboardingstage     Int     @default(1)
+
+  dailyreportsincludedin DailyReport[]
+  monthlyreportsincludedinactiveusers MonthlyReport[] @relation("monthlyactiveusers")
+  monthlyreportsincludedinnewusers MonthlyReport[] @relation("monthlynewusers")
+}
+
+model DailyReport {
+  id            Int           @id @default(autoincrement()) @unique
+  periodend     DateTime
+  activeusers   User[]
+  activeusercount Int         @default(0)
+  monthlyreportid Int
+  monthlyreport           MonthlyReport       @relation(fields: [monthlyreportid], references: [id], onDelete: Cascade)
+  @@index([monthlyreportid])
+}
+
+model MonthlyReport {
+  id            Int           @id @default(autoincrement()) @unique
+  periodend     DateTime
+  dailyreports  DailyReport[]
+  activeusers   User[]        @relation("monthlyactiveusers")
+  activeusercount Int         @default(0)
+  totalpremiumsubscriberscount Int
+  cancellations   Int         @default(0)
+  newusers      User[]        @relation("monthlynewusers")
+  newusercount    Int         @default(0)
 }

@@ -118,6 +118,67 @@ export async function POST(event) {
                     premiumsubscriberexpirationdate: subscription.current_period_end,
                 },
             });
+
+            let monthlyreport = await prisma.MonthlyReport.findFirst({
+                orderBy: {
+                  id: 'desc'
+                },
+                include: {
+                    activeusers: true,
+                    newusers: true,
+                },
+            });
+
+            //make sure monthly report is current period, create a new one if not
+            if (monthlyreport == undefined || monthlyreport == null || monthlyreport.periodend < new Date()) {
+                if (monthlyreport) {
+                  let premiumsubscribercount = await prisma.User.count({
+                    where: {
+                      premiumsubscriber: 1
+                    }
+                  });
+                  await prisma.MonthlyReport.update({
+                    where: {
+                      id: monthlyreport.id,
+                    },
+                    data: {
+                      totalpremiumsubscriberscount: premiumsubscribercount,
+                      activeusercount: activeusers.length,
+                      newusercount: newusers.length,
+                    }
+                  });
+                }
+                const currentDate = new Date();
+                const nextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
+                const startOfNextMonth = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), 1);
+                if (monthlyreport != null && monthlyreport != undefined) {
+                    let newmonthlyreport = await prisma.MonthlyReport.create({
+                        data: {
+                          periodend: startOfNextMonth,
+                          totalpremiumsubscriberscount: monthlyreport.totalpremiumsubscriberscount,
+                        },
+                      });
+                      monthlyreport = newmonthlyreport;
+                } else {
+                    monthlyreport = await prisma.MonthlyReport.create({
+                        data: {
+                          periodend: startOfNextMonth,
+                          totalpremiumsubscriberscount: 0,
+                        },
+                      });
+                }
+              }
+            //
+
+            //increment cancellations metric
+            await prisma.MonthlyReport.update({
+                where: {
+                    id: monthlyreport.id,
+                },
+                data: {
+                    cancellations: monthlyreport.cancellations + 1,
+                }
+            });
         }
         
     }

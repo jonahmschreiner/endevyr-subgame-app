@@ -1422,7 +1422,7 @@
                         {/if}
                 {:else}
                     <div style="display: flex; background-color: white; z-index: 5; border-radius: 5px; {blur ? 'padding: 5px;' : ''}">
-                        <input style="z-index: 5;" id="currgametitleinput" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Insert reason title" bind:value={currgame.name}>
+                        <input style="z-index: 5;" id="currgametitleinput" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="{currgame.parentgameid == null ? 'What result do you want' : 'Insert reason title'}" bind:value={currgame.name}>
                         <button style="margin-left: 15px; z-index: 5;" on:click={submitTitleChanges}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M20 6 9 17l-5-5"/>
@@ -1512,8 +1512,8 @@
                         <rect x="5.44141" y="13.9072" width="1.2093" height="15.7209" transform="rotate(-90 5.44141 13.9072)" fill="white"/>
                     </svg>
                 </button>
-                <button disabled={copysharinglinkbuttontext == "Copied link"} style="margin-top: 120px; color: black; padding: 10px; font-size: 16px; font-weight: 600; letter-spacing: -0.01em;" on:click={copyShareLink}>{copysharinglinkbuttontext}</button>
-                <button disabled={deactivatetext == "Done"} style="color: red; padding: 10px; font-size: 16px; font-weight: 600; letter-spacing: -0.01em;" on:click={deactivateAll}>{deactivatetext}{#if deactivatetext != "Done"}&nbsp;{#if currgame.name != undefined && currgame.name != null}{"\"" + currgame.name + "\""}{:else}""{/if}&nbsp;{/if}{deactivatetext2}</button>
+                <button disabled={copysharinglinkbuttontext == "Copied link"} style="margin-top: 120px; color: black; padding: 10px; font-size: 16px; font-weight: 600; text-align: left; letter-spacing: -0.01em;" on:click={copyShareLink}>{copysharinglinkbuttontext}</button>
+                <button disabled={deactivatetext == "Done"} style="color: red; padding: 10px; font-size: 16px; font-weight: 600; letter-spacing: -0.01em; text-align: left;" on:click={deactivateAll}>{deactivatetext}{#if deactivatetext != "Done"}&nbsp;{#if currgame.name != undefined && currgame.name != null}{"\"" + currgame.name + "\""}{:else}""{/if}&nbsp;{/if}{deactivatetext2}</button>
             {/if}
         </div>
         {:else}

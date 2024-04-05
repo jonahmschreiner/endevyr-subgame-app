@@ -67,6 +67,63 @@ export const load = async (event) => {
           lastfinitegamebehaviorcountreset: today,
         },
       });
+
+      //analytics
+      //create new monthly report if necessary
+      let monthlyreport = await prisma.MonthlyReport.findFirst({
+        orderBy: {
+          id: 'desc'
+        },
+        include: {
+          activeusers: true,
+          newusers: true,
+        },
+      });
+      if (monthlyreport == undefined || monthlyreport == null || monthlyreport.periodend < new Date()) {
+        if (monthlyreport) {
+          let premiumsubscribercount = await prisma.User.count({
+            where: {
+              premiumsubscriber: 1
+            }
+          });
+          await prisma.MonthlyReport.update({
+            where: {
+              id: monthlyreport.id,
+            },
+            data: {
+              totalpremiumsubscriberscount: premiumsubscribercount,
+              activeusercount: activeusers.length,
+              newusercount: newusers.length,
+            }
+          });
+        }
+        const currentDate = new Date();
+        const nextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
+        const startOfNextMonth = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), 1);
+        monthlyreport = await prisma.MonthlyReport.create({
+          data: {
+            periodend: startOfNextMonth,
+            totalpremiumsubscriberscount: monthlyreport.totalpremiumsubscriberscount,
+          },
+          include: {
+            activeusers: true,
+            newusers: true,
+          },
+        });
+      }
+      //add new user to monthly report's newusers relation
+      await prisma.User.update({
+        where: {
+          id: existsresponse.id,
+        },
+        data: {
+          monthlyreportsincludedinnewusers: {
+            connect: [{ id: monthlyreport.id }],
+          },
+        },
+      });
+      //
+
       //send event to meta conversions api
       const email = userObj.email;
       const emailHashAlgo = crypto.createHash('sha256');
@@ -196,9 +253,130 @@ export const load = async (event) => {
                   lastaccessed: 'desc',
                 },
             },
+            dailyreportsincludedin: {
+              orderBy: {
+                id: 'desc'
+              },
+            },
+            monthlyreportsincludedinactiveusers: {
+              orderBy: {
+                id: 'desc'
+              },
+            },
+            monthlyreportsincludedinnewusers: {
+              orderBy: {
+                id: 'desc'
+              },
+            },
         },
     });
+
+
+    //analytics
+    //if monthly report for current period doesn't exist, create it
+    let monthlyreport = await prisma.MonthlyReport.findFirst({
+      orderBy: {
+        id: 'desc'
+      },
+      include: {
+        activeusers: true,
+        newusers: true,
+      },
+    });
+    if (monthlyreport == undefined || monthlyreport == null || monthlyreport.periodend < new Date()) {
+      if (monthlyreport) {
+        let premiumsubscribercount = await prisma.User.count({
+          where: {
+            premiumsubscriber: 1
+          }
+        });
+        await prisma.MonthlyReport.update({
+          where: {
+            id: monthlyreport.id,
+          },
+          data: {
+            totalpremiumsubscriberscount: premiumsubscribercount,
+            activeusercount: activeusers.length,
+            newusercount: newusers.length,
+          }
+        });
+      }
+      const currentDate = new Date();
+      const nextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
+      const startOfNextMonth = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), 1);
+      if (monthlyreport != null && monthlyreport != undefined) {
+        monthlyreport = await prisma.MonthlyReport.create({
+          data: {
+            periodend: startOfNextMonth,
+            totalpremiumsubscriberscount: monthlyreport.totalpremiumsubscriberscount,
+          },
+        });
+      } else {
+        monthlyreport = await prisma.MonthlyReport.create({
+          data: {
+            periodend: startOfNextMonth,
+            totalpremiumsubscriberscount: 0,
+          },
+          include: {
+            activeusers: true,
+            newusers: true,
+          },
+        });
+      }
+    }
+
+    // console.log(monthlyreport.newusers);
+    //   console.log('active:');
+    //   console.log(monthlyreport.activeusers);
+    //if user is not in the monthlyreport's activeusers, add it
+    if (response.monthlyreportsincludedinactiveusers.length == 0 || response.monthlyreportsincludedinactiveusers[0].id != monthlyreport.id) {
+      await prisma.User.update({
+        where: {
+          id: response.id,
+        },
+        data: {
+          monthlyreportsincludedinactiveusers: {
+            connect: [{ id: monthlyreport.id }],
+          },
+        },
+      });
+    }
     
+
+    //if daily report for today doesn't exist, create it
+    let dailyreport = await prisma.DailyReport.findFirst({
+      orderBy: {
+        id: 'desc'
+      },
+    });
+
+    if (dailyreport == undefined || dailyreport == null || dailyreport.periodend < new Date()) {
+      const currentDate = new Date();
+      const startOfNextDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1);
+      dailyreport = await prisma.DailyReport.create({
+        data: {
+          periodend: startOfNextDay,
+          monthlyreportid: monthlyreport.id,
+        },
+      });
+    }
+
+    //if user is not in the dailyreport's activeusers, add it
+    if (response.dailyreportsincludedin.length == 0 || response.dailyreportsincludedin[0].id != dailyreport.id) {
+      await prisma.User.update({
+        where: {
+          id: response.id,
+        },
+        data: {
+          dailyreportsincludedin: {
+            connect: [{ id: dailyreport.id }],
+          },
+        },
+      });
+    }
+
+    //end analytics
+
     let drillsdue = await prisma.Game.findMany({
         where: {
             AND: [

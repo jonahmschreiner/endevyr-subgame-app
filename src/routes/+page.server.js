@@ -325,9 +325,6 @@ export const load = async (event) => {
       }
     }
 
-    // console.log(monthlyreport.newusers);
-    //   console.log('active:');
-    //   console.log(monthlyreport.activeusers);
     //if user is not in the monthlyreport's activeusers, add it
     if (response.monthlyreportsincludedinactiveusers.length == 0 || response.monthlyreportsincludedinactiveusers[0].id != monthlyreport.id) {
       await prisma.User.update({

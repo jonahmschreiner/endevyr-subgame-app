@@ -454,7 +454,7 @@
     let editingTitle = false;
     async function toggleEditingTitle () {
         editingTitle = !editingTitle;
-        if (currgame.name == "Reason" || currgame.name == "New Category") {
+        if (currgame.name == "Result" || currgame.name == "New Category") {
             currgame.name = null;
         }
         await tick();
@@ -467,7 +467,7 @@
             if (currgame.parentgameid == null || currgame.parentgameid == undefined) {
                 currgame.name = "New Category";
             } else {
-                currgame.name = "Reason";
+                currgame.name = "Result";
             }  
         }
         editingTitle = false;
@@ -487,7 +487,7 @@
 
     let editingSubGameTitle = null;
     async function setEditingSubGameTitle (subgame, index) {
-        if (subgame.name == "Reason") {
+        if (subgame.name == "Result") {
             subgame.name = null;
         }
         editingSubGameTitle = subgame;
@@ -497,7 +497,7 @@
 
     async function submitSubGameTitleChanges () {
         if (editingSubGameTitle.name == null || editingSubGameTitle.name == undefined || editingSubGameTitle.name.trim() == ""){
-            editingSubGameTitle.name = "Reason";
+            editingSubGameTitle.name = "Result";
         }
         const gameIn = editingSubGameTitle;
         editingSubGameTitle = null;
@@ -1157,7 +1157,7 @@
                 </svg>
             </button>
         </div>
-        <p class="tooltip-modal-content" style="font-size: 16px; margin-bottom: 15px;">You've reached the reasons-added limit<br><br>Delete some to make space or upgrade to the standard version to remove the limit</p>
+        <p class="tooltip-modal-content" style="font-size: 16px; margin-bottom: 15px;">You've reached the results-added limit<br><br>Delete some to make space or upgrade to the standard version to remove the limit</p>
         <div style="width: 100%; display: flex; justify-content: center;">
             <button style="color: white; font-size: 16px; margin-bottom: 10px; margin-top: 0px; background-color: #3C80E5; letter-spacing: -0.01em; border-radius: 5px; padding: 5px; width: 100px;" on:click={goToStripe}>View Plan</button>
         </div>
@@ -1329,7 +1329,7 @@
                 </div>
             {:else}
                 <div style="display: flex; flex-direction: column; margin-right: 15px; width: -webkit-fill-available; align-items: flex-start;">
-                    <h1>{#if currgame.name != null}{currgame.name}{:else}Reason{/if}</h1>
+                    <h1>{#if currgame.name != null}{currgame.name}{:else}Result{/if}</h1>
                     {#if currgame.basecasetype == 0}
                         <div style="display: flex; justify-content: space-between; {viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 90%; max-width: 600px;'} margin-top: 20px;">
                             <h2 class="drill-input-title" style="margin-top: 0;">Drill set up</h2>
@@ -1392,7 +1392,7 @@
                         {/if}
                     {/if}
                     {#if processStage == 1}
-                        <button on:click={() => {deleteDrill(currgame);}} style="color: red; font-family: 'Inter'; font-size: 16px; letter-spacing: -0.01em; font-weight: 600; margin-top: 120px; padding: 10px;">Revert to Reason</button>
+                        <button on:click={() => {deleteDrill(currgame);}} style="color: red; font-family: 'Inter'; font-size: 16px; letter-spacing: -0.01em; font-weight: 600; margin-top: 120px; padding: 10px;">Revert to Result</button>
                     {/if}
                 </div>
             {/if}
@@ -1409,7 +1409,7 @@
             <div style="display: flex; width: 100%; max-width: 433px;">
                 {#if !editingTitle}
                         <button disabled={editingHierarchyStage == 0} on:click={() => {setAsNewParent(null);}} style="{editingHierarchyStage == 0 ? 'cursor: text;' : ''} max-width: {viewportWidth < 478 ? '90%' : '430px'};">
-                            <h1 style="margin: 0;">{#if currgame.name != null}{currgame.name}{:else}Reason{/if}</h1>
+                            <h1 style="margin: 0;">{#if currgame.name != null}{currgame.name}{:else}Result{/if}</h1>
                         </button>
                         {#if editingHierarchyStage == 0}
                             <button style="margin-left: 15px;" on:click={toggleEditingTitle}>
@@ -1422,7 +1422,7 @@
                         {/if}
                 {:else}
                     <div style="display: flex; background-color: white; z-index: 5; border-radius: 5px; {blur ? 'padding: 5px;' : ''}">
-                        <input style="z-index: 5;" id="currgametitleinput" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="{currgame.parentgameid == null ? 'What result do you want' : 'Insert reason title'}" bind:value={currgame.name}>
+                        <input style="z-index: 5;" id="currgametitleinput" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="{currgame.parentgameid == null ? 'Insert the result you want' : 'Insert result title'}" bind:value={currgame.name}>
                         <button style="margin-left: 15px; z-index: 5;" on:click={submitTitleChanges}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M20 6 9 17l-5-5"/>
@@ -1432,14 +1432,14 @@
                 {/if}
             </div>
             <div style="width: 100%; display: flex; justify-content: space-between; margin-top: 15px; max-width: 430px;">
-                <p style="font-size: 16px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em; max-width: 60%;">Top-level reasons the above wouldn't be true:</p>
+                <p style="font-size: 16px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em; max-width: 60%;">Top-level results needed for the above to be true:</p>
                 <button style="color: #3C80E5; font-size: 16px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em;" on:click={edithierarchyclicked}>{#if editingHierarchyStage == 0}Edit Hierarchy{:else if editingHierarchyStage == 1}Select Subgame to Move{:else if editingHierarchyStage == 2}Select New Parent Game (title moves it up a level){/if}</button>    
             </div>
             {#each currgame.subgames as subgame, index}
                 {#if editingHierarchyStage != 2 || (subgame.isbasecase == 0 && selectedsubgame.id != subgame.id)}
                     <div style="display: flex; margin-top: 15px;">
                         {#if editingSubGameTitle != null && editingSubGameTitle.id == subgame.id}
-                            <input id="subgamenameinput{index}" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Insert reason title" bind:value={subgame.name}>
+                            <input id="subgamenameinput{index}" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Insert result title" bind:value={subgame.name}>
                             <button style="padding-left: 15px;" on:click={submitSubGameTitleChanges}>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M20 6 9 17l-5-5"/>
@@ -1447,7 +1447,7 @@
                             </button>  
                         {:else}
                             <div style="{viewportWidth < 430 ? 'width: ' + (viewportWidth - 265) +'px; max-width: ' + (viewportWidth - 265) + 'px;' : 'width: 200px; max-width: 200px;'} display: flex; align-items: center;">
-                                <button style="max-width: 100%; font-weight: 700; font-size: 16px; color: black; text-align: left; letter-spacing: -0.01em; overflow-wrap: break-word;" on:click={() => {navigateToSubGame(subgame)}}>{#if subgame.name != null}{subgame.name}{:else}Reason{/if}</button>
+                                <button style="max-width: 100%; font-weight: 700; font-size: 16px; color: black; text-align: left; letter-spacing: -0.01em; overflow-wrap: break-word;" on:click={() => {navigateToSubGame(subgame)}}>{#if subgame.name != null}{subgame.name}{:else}Result{/if}</button>
                             </div>
                             {#if editingHierarchyStage == 0}
                                 <button style="margin-left: 15px;" on:click={() => {setEditingSubGameTitle(subgame, index)}}>

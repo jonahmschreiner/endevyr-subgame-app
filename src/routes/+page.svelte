@@ -463,6 +463,9 @@
 
     async function submitTitleChanges () {
         blur = false;
+        resultverificationmodalshowing = false;
+        submitTitleChangesButtonShowing = true;
+        resultverificationmodalbuttonsdisabled = true;
         if (currgame.name == null || currgame.name == undefined || currgame.name.trim() == ""){
             if (currgame.parentgameid == null || currgame.parentgameid == undefined) {
                 currgame.name = "Primary Result";
@@ -496,6 +499,9 @@
     }
 
     async function submitSubGameTitleChanges () {
+        subresultverificationmodalshowing = false;
+        submitSubTitleChangesButtonShowing = true;
+        subresultverificationmodalbuttonsdisabled = true;
         if (editingSubGameTitle.name == null || editingSubGameTitle.name == undefined || editingSubGameTitle.name.trim() == ""){
             editingSubGameTitle.name = "Result";
         }
@@ -1139,6 +1145,51 @@
             });
         }
     }
+    let submitTitleChangesButtonShowing = true;
+    let resultverificationmodalshowing = false;
+    let resultverificationmodalbuttonsdisabled = true;
+    function showResultVerificationModal () {
+        if (currgame.name != null) {
+            resultverificationmodalshowing = true;
+            submitTitleChangesButtonShowing = false;
+            setTimeout(async () => {
+                resultverificationmodalbuttonsdisabled = false;
+            }, 3000);
+        } else {
+            document.getElementById("currgametitleinput").focus();
+        }
+    }
+
+    async function goBackToEditingTitle () {
+        resultverificationmodalbuttonsdisabled = true;
+        resultverificationmodalshowing = false;
+        submitTitleChangesButtonShowing = true;
+        await tick();
+        document.getElementById("currgametitleinput").focus();
+    }
+
+    let subresultverificationmodalshowing = false;
+    let submitSubTitleChangesButtonShowing = true;
+    let subresultverificationmodalbuttonsdisabled = true;
+    function showSubResultVerificationModal () {
+        if (editingSubGameTitle.name != null) {
+            subresultverificationmodalshowing = true;
+            submitSubTitleChangesButtonShowing = false;
+            setTimeout(async () => {
+                subresultverificationmodalbuttonsdisabled = false;
+            }, 3000);
+        } else {
+            document.getElementById(`subgamenameinput${editingSubGameTitle.parentgamesubgamesindex}`).focus();
+        }
+    }
+
+    async function goBackToEditingSubGameTitle () {
+        subresultverificationmodalshowing = false;
+        submitSubTitleChangesButtonShowing = true;
+        subresultverificationmodalbuttonsdisabled = true;
+        await tick();
+        document.getElementById(`subgamenameinput${editingSubGameTitle.parentgamesubgamesindex}`).focus();
+    }
 </script>
 
 
@@ -1423,11 +1474,22 @@
                 {:else}
                     <div style="display: flex; background-color: white; z-index: 5; border-radius: 5px; {blur ? 'padding: 5px;' : ''}">
                         <input style="z-index: 5;" id="currgametitleinput" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="{currgame.parentgameid == null ? 'Insert the result you want' : 'Insert result title'}" bind:value={currgame.name}>
-                        <button style="margin-left: 15px; z-index: 5;" on:click={submitTitleChanges}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 6 9 17l-5-5"/>
-                            </svg>
-                        </button>
+                        {#if submitTitleChangesButtonShowing}
+                            <button style="margin-left: 15px; z-index: 5;" on:click={showResultVerificationModal}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20 6 9 17l-5-5"/>
+                                </svg>
+                            </button>
+                        {/if}
+                        {#if resultverificationmodalshowing}
+                            <div class="tooltip-modal">
+                                <p class="tooltip-modal-content" style="font-size: 16px; margin-bottom: 15px;">When asked "has {currgame.name} been completed or not", I can easily answer "yes" or "no" without there being any grey area.</p>
+                                <div style="width: 100%; display: flex; justify-content: center; gap: 15px;">
+                                    <button disabled={resultverificationmodalbuttonsdisabled} style="{resultverificationmodalbuttonsdisabled ? 'color: #FFFFFF4D; background-color: #0080004D;' : 'color: white; background-color: green;'} font-size: 16px; margin-bottom: 10px; margin-top: 0px; letter-spacing: -0.01em; border-radius: 5px; padding: 5px; width: 100px;" on:click={submitTitleChanges}>True</button>
+                                    <button disabled={resultverificationmodalbuttonsdisabled} style="{resultverificationmodalbuttonsdisabled ? 'color: #FFFFFF4D; background-color: #FF00004D;' : 'color: white; background-color: red;'} font-size: 16px; margin-bottom: 10px; margin-top: 0px; letter-spacing: -0.01em; border-radius: 5px; padding: 5px; width: 100px;" on:click={goBackToEditingTitle}>False</button>
+                                </div>
+                            </div>
+                        {/if}
                     </div>
                 {/if}
             </div>
@@ -1440,11 +1502,22 @@
                     <div style="display: flex; margin-top: 15px;">
                         {#if editingSubGameTitle != null && editingSubGameTitle.id == subgame.id}
                             <input id="subgamenameinput{index}" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Insert result title" bind:value={subgame.name}>
-                            <button style="padding-left: 15px;" on:click={submitSubGameTitleChanges}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M20 6 9 17l-5-5"/>
-                                </svg>
-                            </button>  
+                            {#if submitSubTitleChangesButtonShowing}
+                                <button style="padding-left: 15px;" on:click={showSubResultVerificationModal}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20 6 9 17l-5-5"/>
+                                    </svg>
+                                </button>
+                            {/if}
+                            {#if subresultverificationmodalshowing}
+                                <div class="tooltip-modal">
+                                    <p class="tooltip-modal-content" style="font-size: 16px; margin-bottom: 15px;">When asked "has {subgame.name} been completed or not", I can easily answer "yes" or "no" without there being any grey area.</p>
+                                    <div style="width: 100%; display: flex; justify-content: center; gap: 15px;">
+                                        <button disabled={subresultverificationmodalbuttonsdisabled} style="{subresultverificationmodalbuttonsdisabled ? 'color: #FFFFFF4D; background-color: #0080004D;' : 'color: white; background-color: green;'} font-size: 16px; margin-bottom: 10px; margin-top: 0px; letter-spacing: -0.01em; border-radius: 5px; padding: 5px; width: 100px;" on:click={submitSubGameTitleChanges}>True</button>
+                                        <button disabled={subresultverificationmodalbuttonsdisabled} style="{subresultverificationmodalbuttonsdisabled ? 'color: #FFFFFF4D; background-color: #FF00004D;' : 'color: white; background-color: red;'} font-size: 16px; margin-bottom: 10px; margin-top: 0px; letter-spacing: -0.01em; border-radius: 5px; padding: 5px; width: 100px;" on:click={goBackToEditingSubGameTitle}>False</button>
+                                    </div>
+                                </div>
+                            {/if}
                         {:else}
                             <div style="{viewportWidth < 430 ? 'width: ' + (viewportWidth - 265) +'px; max-width: ' + (viewportWidth - 265) + 'px;' : 'width: 200px; max-width: 200px;'} display: flex; align-items: center;">
                                 <button style="max-width: 100%; font-weight: 700; font-size: 16px; color: black; text-align: left; letter-spacing: -0.01em; overflow-wrap: break-word;" on:click={() => {navigateToSubGame(subgame)}}>{#if subgame.name != null}{subgame.name}{:else}Result{/if}</button>

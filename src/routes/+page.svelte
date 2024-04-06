@@ -283,7 +283,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ userid: user.id, name: "New Category" }),
+                    body: JSON.stringify({ userid: user.id, name: "Primary Result" }),
                 });
                 let responseJSON = await response.json();
                 primaryGames = [responseJSON.newgame, ...primaryGames];
@@ -374,7 +374,7 @@
         currgame = gameIn;
         ingame = true;
         if (updateLastAccessed) {
-            if (currgame.name == "New Category") {
+            if (currgame.name == "Primary Result") {
                 await tick();
                 toggleEditingTitle();
                 blur = true;
@@ -454,7 +454,7 @@
     let editingTitle = false;
     async function toggleEditingTitle () {
         editingTitle = !editingTitle;
-        if (currgame.name == "Result" || currgame.name == "New Category") {
+        if (currgame.name == "Result" || currgame.name == "Primary Result") {
             currgame.name = null;
         }
         await tick();
@@ -465,7 +465,7 @@
         blur = false;
         if (currgame.name == null || currgame.name == undefined || currgame.name.trim() == ""){
             if (currgame.parentgameid == null || currgame.parentgameid == undefined) {
-                currgame.name = "New Category";
+                currgame.name = "Primary Result";
             } else {
                 currgame.name = "Result";
             }  
@@ -1231,7 +1231,7 @@
                 </ul>
             {:else if user.onboardingstage == 6}
                 <h1 style="margin-bottom: 15px; margin-top: 15px;">How it works</h1>
-                <p class="onboarding-text" style="margin-bottom: 30px;">Add a new “game” (skill, task, project, area of life, etc.)</p>
+                <p class="onboarding-text" style="margin-bottom: 30px;">Add a new “result” (skill, task, project, area of life, etc.)</p>
                 <div style="width: 100%; display: flex; justify-content: center;">
                     <div style="border-style: solid; border-width: 4px; border-color: black; width: 100%; max-width: 400px; margin-bottom: 60px; position: relative;">
                         <video id="videoexample1" on:ended={() => {handleOnboardingVideoEnding(1)}} style="{onboardingVideoPlaying != 1 ? 'filter: opacity(10%);' : ''}" src="/EndevyrOnboardingWeightLossExampleAddGameCropped.mp4" width="100%" height="100%" muted playsinline />
@@ -1245,7 +1245,7 @@
                         {/if}
                     </div>
                 </div>
-                <p class="onboarding-text" style="margin-bottom: 30px;">Break the game down into the smaller “games” that make it up by asking "why wouldn't this be completed?"</p>
+                <p class="onboarding-text" style="margin-bottom: 30px;">Break the result down into the smaller “results” that make it up by asking "why wouldn't this be completed?"</p>
                 <div style="width: 100%; display: flex; justify-content: center;">
                     <div style="border-style: solid; border-width: 4px; border-color: black; width: 100%; max-width: 400px; margin-bottom: 60px; position: relative;">
                         <video id="videoexample2" on:ended={() => {handleOnboardingVideoEnding(2)}} style="{onboardingVideoPlaying != 2 ? 'filter: opacity(10%);' : ''}" src="/EndevyrOnboardingWeightLossExampleBreakGameDownCropped.mp4" width="100%" height="100%" muted playsinline></video>
@@ -1259,7 +1259,7 @@
                         {/if}
                     </div>
                 </div>
-                <p class="onboarding-text" style="margin-bottom: 30px;">Upon reaching a “game” that is more like an action, habit or solution than a game, select the flag.</p>
+                <p class="onboarding-text" style="margin-bottom: 30px;">Upon reaching a “result” that can be achieved through a visible action, new habit or by writing out the solution, select the flag.</p>
                 <div style="width: 100%; display: flex; justify-content: center;">
                     <div style="border-style: solid; border-width: 4px; border-color: black; width: 100%; max-width: 400px; margin-bottom: 60px; position: relative;">
                         <video id="videoexample3" on:ended={() => {handleOnboardingVideoEnding(3)}} style="{onboardingVideoPlaying != 3 ? 'filter: opacity(10%);' : ''}" src="/EndevyrOnboardingWeightLossExampleClickFlagCropped.mp4" width="100%" height="100%" muted playsinline></video>
@@ -1273,7 +1273,7 @@
                         {/if}
                     </div>
                 </div>
-                <p class="onboarding-text" style="margin-bottom: 30px;">Record habits' situation and desired new action</p>
+                <p class="onboarding-text" style="margin-bottom: 30px;">Either write out the solution, a description of the action, or a drill to practice the habit (like in this example)</p>
                 <div style="width: 100%; display: flex; justify-content: center;">
                     <div style="border-style: solid; border-width: 4px; border-color: black; width: 100%; max-width: 400px; margin-bottom: 60px; position: relative;">
                         <video id="videoexample4" on:ended={() => {handleOnboardingVideoEnding(4)}} style="{onboardingVideoPlaying != 4 ? 'filter: opacity(10%);' : ''}" src="/EndevyrOnboardingWeightLossExampleAddingDrillCropped.mp4" width="100%" height="100%" muted playsinline></video>
@@ -1556,7 +1556,7 @@
                 
             {:else if processStage == 1}
                 <div style="display: flex; width: 100%; ">
-                    <h1 style="{viewportWidth < 430 ? 'width: 80%; max-width: 80%;' : 'width: 360px; max-width: 360px; box-sizing: border-box;'}">Categories<!--({3 - user.todaynewfinitegamebehaviorcount})--></h1>
+                    <h1 style="{viewportWidth < 430 ? 'width: 80%; max-width: 80%;' : 'width: 360px; max-width: 360px; box-sizing: border-box;'}">Primary Results<!--({3 - user.todaynewfinitegamebehaviorcount})--></h1>
                     <div style="width: {viewportWidth < 430 ? '4' : '20'}px;"></div>
                     <button id="hamburger-menu-button" style="{viewportWidth < 430 ? 'width: 20%; max-width: 20%;' : ''} box-sizing: border-box;" on:click={toggleMainHamburgerMenu}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

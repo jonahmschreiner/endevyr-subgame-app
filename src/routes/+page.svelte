@@ -1734,31 +1734,32 @@
                     </button>
                 </div>
                 <h1 style="max-width: 600px;">Discovery</h1>
-                <p style="font-size: 16px; margin-top: 30px; margin-bottom: 15px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em; max-width: 600px; line-height: 1.4;">List annoyances you are consistently dealing with</p>
+                <p style="font-size: 16px; margin-top: 30px; margin-bottom: 15px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em; max-width: {viewportWidth < 620 ? '90%' : '600px'}; line-height: 1.4;">List annoyances you are consistently dealing with</p>
                 <textarea class="input" id="inputlistinputelement" type="text" spellcheck="false" autocomplete="off" placeholder="Type Here" on:input={() => {if (discoverystage == 1){discoverystage++;}}}/>
                 {#if discoverystage > 1}
-                    <p transition:fade={{ duration: 2000 }} style="font-size: 16px; margin-top: 30px; margin-bottom: 15px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em; max-width: 600px; line-height: 1.4;">Which one do you care about most?</p>
+                    <p transition:fade={{ duration: 2000 }} style="font-size: 16px; margin-top: 30px; margin-bottom: 15px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em; max-width: {viewportWidth < 620 ? '90%' : '600px'}; line-height: 1.4;">Which one do you care about most?</p>
                     <input transition:fade={{ duration: 2000 }} spellcheck="false" style="width: 90%; max-width: 600px; box-sizing: border-box;" autocomplete="off" class="title-input" type="text" placeholder="Type Here" on:input={() => {if (discoverystage == 2){discoverystage++;}}}>
                 {/if}
                 {#if discoverystage > 2}
-                    <p transition:fade={{ duration: 2000 }} style="font-size: 16px; margin-top: 30px; margin-bottom: 15px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em; max-width: 600px; line-height: 1.4;">Based on what you're currently doing, how long do you think it'll take to finish solving it? (if not doing anything, put four years)</p>
+                    <p transition:fade={{ duration: 2000 }} style="font-size: 16px; margin-top: 30px; margin-bottom: 15px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em; max-width: {viewportWidth < 620 ? '90%' : '600px'}; line-height: 1.4;">Based on what you're currently doing, how long do you think it'll take to finish solving it? (if not doing anything, put four years)</p>
                     <input transition:fade={{ duration: 2000 }} style="width: 90%; max-width: 600px; box-sizing: border-box;" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Type Here" on:input={() => {if (discoverystage == 3){discoverystage++;}}}>
                 {/if}
                 {#if discoverystage > 3}
-                    <p transition:fade={{ duration: 2000 }} style="font-size: 16px; margin-top: 30px; margin-bottom: 15px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em; max-width: 600px; line-height: 1.4;">Divide the time by four and write out the goal like the examples below</p>
-                    <p transition:fade={{ duration: 2000 }} style="font-size: 16px; margin-top: 0px; margin-bottom: 15px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em; max-width: 600px; line-height: 1.4;">Example 1 (current solution as result): Finish graduate school in one year</p>
-                    <p transition:fade={{ duration: 2000 }} style="font-size: 16px; margin-top: 0px; margin-bottom: 15px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em; max-width: 600px; line-height: 1.4;">Example 2 (solving problem as result): Lose 50 pounds in two months</p>
-                    <input transition:fade={{ duration: 2000 }} style="width: 90%; max-width: 600px; box-sizing: border-box;" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Type Here" bind:value={newprimarygametext} on:input={() => {if (discoverystage == 4){discoverystage++;}}}>
+                    <p transition:fade={{ duration: 2000 }} style="font-size: 16px; margin-top: 30px; margin-bottom: 15px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em; max-width: {viewportWidth < 620 ? '90%' : '600px'}; line-height: 1.4;">Divide the time by four and write out the goal like the examples below</p>
+                    <p transition:fade={{ duration: 2000 }} style="font-size: 16px; margin-top: 0px; margin-bottom: 15px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em; max-width: {viewportWidth < 620 ? '90%' : '600px'}; line-height: 1.4;">Example 1 (current solution as result):<br>Finish professional school in one year</p>
+                    <p transition:fade={{ duration: 2000 }} style="font-size: 16px; margin-top: 0px; margin-bottom: 15px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em; max-width: {viewportWidth < 620 ? '90%' : '600px'}; line-height: 1.4;">Example 2 (solving problem as result):<br>Lose 50 pounds in two months</p>
+                    <input transition:fade={{ duration: 2000 }} style="width: 90%; max-width: 600px; box-sizing: border-box;" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Type Here" bind:value={newprimarygametext} on:input={() => {if (discoverystage == 4){discoverystage++; window.scrollTo({top: document.documentElement.scrollHeight, behavior: 'smooth'});}}}>
                 {/if}
                 {#if discoverystage > 4}
-                    <button transition:fade={{ duration: 2000 }} style="margin-top: 30px;" on:click={async () => {navigator.clipboard.writeText(newprimarygametext); copynewprimarygametextext = "Done"; if (discoverystage == 5){discoverystage++;} setTimeout(async () => {copynewprimarygametextext = "Click here to copy goal";}, 2000)}}>
+                    <button transition:fade={{ duration: 2000 }} style="margin-top: 30px; color: #3C80E5;" on:click={async () => {navigator.clipboard.writeText(newprimarygametext); copynewprimarygametextext = "Done"; if (discoverystage == 5){discoverystage++; setTimeout(async () => {window.scrollTo({top: document.documentElement.scrollHeight, behavior: 'smooth'});}, 50);} setTimeout(async () => {copynewprimarygametextext = "Click here to copy goal";}, 2000);}}>
                         <p style="font-size: 16px; margin: 0; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em; max-width: 600px; line-height: 1.4;">{copynewprimarygametextext}</p>
                     </button>
                 {/if}
                 {#if discoverystage > 5}
-                    <p transition:fade={{ duration: 2000 }} style="font-size: 16px; margin-top: 30px; margin-bottom: 15px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em; max-width: 600px; line-height: 1.4;">Go back to the main page, add a new Primary Result, select it, and paste the goal into the input</p>
-                    <button transition:fade={{ duration: 2000 }} style="font-size: 16px; margin-top: 30px; margin-bottom: 15px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em; max-width: 600px; line-height: 1.4;" on:click={() => {processStage = 1; discoverystage = 1; copynewprimarygametextext = "Click here to copy goal"; newprimarygametext = null;}}>Back to Main Page</button>
+                    <p transition:fade={{ duration: 2000 }} style="font-size: 16px; margin-top: 30px; margin-bottom: 15px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em; max-width: {viewportWidth < 620 ? '90%' : '600px'}; line-height: 1.4;">Go back to the main page, add & select a new Primary Result, and paste the goal into the input</p>
+                    <button transition:fade={{ duration: 2000 }} style="color: #3C80E5; font-size: 16px; margin-top: 30px; margin-bottom: 15px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em; max-width: 600px; line-height: 1.4;" on:click={() => {processStage = 1; discoverystage = 1; copynewprimarygametextext = "Click here to copy goal"; newprimarygametext = null;}}>Back to main page</button>
                 {/if}
+                <div style="height: 50px;"></div>
             {/if}
         {/if}
     </div>

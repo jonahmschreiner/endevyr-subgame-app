@@ -1724,6 +1724,7 @@
                         <div style="{viewportWidth < 430 ? 'width: 20%; max-width: 20%;' : ''}"></div>
                     {/if}
                 </div>
+                <div style="height: 25px;"></div>
             {:else if processStage == 2}
                 <div style="display: flex; width: 100%; max-width: 600px; justify-content: flex-end; margin-top: 5px;">
                     <button style="margin-right: 5px;" on:click={() => {processStage = 1; discoverystage = 1; copynewprimarygametextext = "Click here to copy goal"; newprimarygametext = null;}}>

@@ -1715,8 +1715,14 @@
                         </button>
                     </div>
                 {/each}
-                <div style="display: flex; justify-content: center; width: 100%; max-width: 360px; {primaryGames.length > 0 ? 'margin-top: 35px;' : 'margin-top: 65px;'}">
-                    <button style="color: #3C80E5; font-weight: 600; font-size: 14px;" on:click={goToPrimaryResultGenerationGuidance}>Not sure what to add?</button>
+                <div style="display: flex; width: 100%; max-width: 100%; {primaryGames.length > 0 ? 'margin-top: 35px;' : 'margin-top: 65px;'}">
+                    <div style="{viewportWidth < 430 && primaryGames.length > 0 ? 'width: 80%; max-width: 80%;' : viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 360px; max-width: 360px;'}; display: flex; justify-content: center;">
+                        <button style="color: #3C80E5; font-weight: 600; font-size: 14px;" on:click={goToPrimaryResultGenerationGuidance}>Not sure what to add?</button>
+                    </div>
+                    {#if !(primaryGames.length == 0 && viewportWidth < 430)}
+                        <div style="width: {viewportWidth < 430 ? '15' : '20'}px;"></div>
+                        <div style="{viewportWidth < 430 ? 'width: 20%; max-width: 20%;' : ''}"></div>
+                    {/if}
                 </div>
             {:else if processStage == 2}
                 <div style="display: flex; width: 100%; max-width: 600px; justify-content: flex-end; margin-top: 5px;">

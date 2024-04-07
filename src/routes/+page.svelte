@@ -233,6 +233,7 @@
 <script>
     import { tick, onMount } from "svelte";
     import { goto } from '$app/navigation';
+    import { fade } from 'svelte/transition';
     import LogRocket from 'logrocket';
     import Onboardinggraphic1 from "../lib/onboardinggraphic1.svelte";
     export let data;
@@ -454,7 +455,7 @@
     let editingTitle = false;
     async function toggleEditingTitle () {
         editingTitle = !editingTitle;
-        if (currgame.name == "Result" || currgame.name == "Primary Result") {
+        if (currgame.name == "Problem" || currgame.name == "Primary Result") {
             currgame.name = null;
         }
         await tick();
@@ -470,7 +471,7 @@
             if (currgame.parentgameid == null || currgame.parentgameid == undefined) {
                 currgame.name = "Primary Result";
             } else {
-                currgame.name = "Result";
+                currgame.name = "Problem";
             }  
         }
         editingTitle = false;
@@ -490,7 +491,7 @@
 
     let editingSubGameTitle = null;
     async function setEditingSubGameTitle (subgame, index) {
-        if (subgame.name == "Result") {
+        if (subgame.name == "Problem") {
             subgame.name = null;
         }
         editingSubGameTitle = subgame;
@@ -503,7 +504,7 @@
         submitSubTitleChangesButtonShowing = true;
         subresultverificationmodalbuttonsdisabled = true;
         if (editingSubGameTitle.name == null || editingSubGameTitle.name == undefined || editingSubGameTitle.name.trim() == ""){
-            editingSubGameTitle.name = "Result";
+            editingSubGameTitle.name = "Problem";
         }
         const gameIn = editingSubGameTitle;
         editingSubGameTitle = null;
@@ -1154,7 +1155,7 @@
             submitTitleChangesButtonShowing = false;
             setTimeout(async () => {
                 resultverificationmodalbuttonsdisabled = false;
-            }, 3000);
+            }, 4000);
         } else {
             document.getElementById("currgametitleinput").focus();
         }
@@ -1177,7 +1178,7 @@
             submitSubTitleChangesButtonShowing = false;
             setTimeout(async () => {
                 subresultverificationmodalbuttonsdisabled = false;
-            }, 3000);
+            }, 4000);
         } else {
             document.getElementById(`subgamenameinput${editingSubGameTitle.parentgamesubgamesindex}`).focus();
         }
@@ -1190,6 +1191,14 @@
         await tick();
         document.getElementById(`subgamenameinput${editingSubGameTitle.parentgamesubgamesindex}`).focus();
     }
+
+    function goToPrimaryResultGenerationGuidance () {
+        processStage = 2;
+    }
+
+    let newprimarygametext = null;
+    let copynewprimarygametextext = "Click here to copy goal";
+    let discoverystage = 1;
 </script>
 
 
@@ -1360,7 +1369,7 @@
         </div>
     </div>
 {:else}
-    <div style="display: flex; flex-direction: column; {ingame || indrill ? 'margin-left: 15px; margin-right: 0px; margin-bottom: 15px; margin-top: 0;' : 'margin: 15px;'} align-items: flex-start;">
+    <div style="display: flex; flex-direction: column; {ingame || indrill || processStage == 2 ? 'margin-left: 15px; margin-right: 0px; margin-bottom: 15px; margin-top: 0;' : 'margin: 15px;'} align-items: flex-start;">
         {#if indrill}
             {#if !(indrilltypeselection && viewportWidth >= 430)}
                 <div style="display: flex; width: 100%; max-width: 603px; justify-content: flex-end; margin-top: 5px;">
@@ -1380,7 +1389,7 @@
                 </div>
             {:else}
                 <div style="display: flex; flex-direction: column; margin-right: 15px; width: -webkit-fill-available; align-items: flex-start;">
-                    <h1>{#if currgame.name != null}{currgame.name}{:else}Result{/if}</h1>
+                    <h1 style="max-width: 600px;">{#if currgame.name != null}{currgame.name}{:else}Problem{/if}</h1>
                     {#if currgame.basecasetype == 0}
                         <div style="display: flex; justify-content: space-between; {viewportWidth < 430 ? 'width: 100%; max-width: 100%;' : 'width: 90%; max-width: 600px;'} margin-top: 20px;">
                             <h2 class="drill-input-title" style="margin-top: 0;">Drill set up</h2>
@@ -1443,7 +1452,7 @@
                         {/if}
                     {/if}
                     {#if processStage == 1}
-                        <button on:click={() => {deleteDrill(currgame);}} style="color: red; font-family: 'Inter'; font-size: 16px; letter-spacing: -0.01em; font-weight: 600; margin-top: 120px; padding: 10px;">Revert to Result</button>
+                        <button on:click={() => {deleteDrill(currgame);}} style="color: red; font-family: 'Inter'; font-size: 16px; letter-spacing: -0.01em; font-weight: 600; margin-top: 120px; padding: 10px;">Revert to Problem</button>
                     {/if}
                 </div>
             {/if}
@@ -1460,7 +1469,7 @@
             <div style="display: flex; width: 100%; max-width: 433px;">
                 {#if !editingTitle}
                         <button disabled={editingHierarchyStage == 0} on:click={() => {setAsNewParent(null);}} style="{editingHierarchyStage == 0 ? 'cursor: text;' : ''} max-width: {viewportWidth < 478 ? '90%' : '430px'};">
-                            <h1 style="margin: 0;">{#if currgame.name != null}{currgame.name}{:else}Result{/if}</h1>
+                            <h1 style="margin: 0; max-width: 600px;">{#if currgame.name != null}{currgame.name}{:else}Problem{/if}</h1>
                         </button>
                         {#if editingHierarchyStage == 0}
                             <button style="margin-left: 15px;" on:click={toggleEditingTitle}>
@@ -1483,7 +1492,7 @@
                         {/if}
                         {#if resultverificationmodalshowing}
                             <div class="tooltip-modal">
-                                <p class="tooltip-modal-content" style="font-size: 16px; margin-bottom: 15px;">When asked "has {currgame.name} been completed or not", I can easily answer "yes" or "no" without there being any grey area.</p>
+                                <p class="tooltip-modal-content" style="font-size: 16px; margin-bottom: 15px;">{currgame.name}<br><br>When asked "is the above solved?",<br>I can easily answer "yes" or "no" without there being any grey area.<br><br>And, the above is a problem-to-solve<br>(does not reference a specific solution)</p>
                                 <div style="width: 100%; display: flex; justify-content: center; gap: 15px;">
                                     <button disabled={resultverificationmodalbuttonsdisabled} style="{resultverificationmodalbuttonsdisabled ? 'color: #FFFFFF4D; background-color: #0080004D;' : 'color: white; background-color: green;'} font-size: 16px; margin-bottom: 10px; margin-top: 0px; letter-spacing: -0.01em; border-radius: 5px; padding: 5px; width: 100px;" on:click={submitTitleChanges}>True</button>
                                     <button disabled={resultverificationmodalbuttonsdisabled} style="{resultverificationmodalbuttonsdisabled ? 'color: #FFFFFF4D; background-color: #FF00004D;' : 'color: white; background-color: red;'} font-size: 16px; margin-bottom: 10px; margin-top: 0px; letter-spacing: -0.01em; border-radius: 5px; padding: 5px; width: 100px;" on:click={goBackToEditingTitle}>False</button>
@@ -1494,7 +1503,7 @@
                 {/if}
             </div>
             <div style="width: 100%; display: flex; justify-content: space-between; margin-top: 15px; max-width: 430px;">
-                <p style="font-size: 16px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em; max-width: 60%;">Top-level results needed for the above to be true:</p>
+                <p style="font-size: 16px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em; max-width: 60%;">Problems that would make the above not complete:</p>
                 <button style="color: #3C80E5; font-size: 16px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em;" on:click={edithierarchyclicked}>{#if editingHierarchyStage == 0}Edit Hierarchy{:else if editingHierarchyStage == 1}Select Subgame to Move{:else if editingHierarchyStage == 2}Select New Parent Game (title moves it up a level){/if}</button>    
             </div>
             {#each currgame.subgames as subgame, index}
@@ -1511,7 +1520,7 @@
                             {/if}
                             {#if subresultverificationmodalshowing}
                                 <div class="tooltip-modal">
-                                    <p class="tooltip-modal-content" style="font-size: 16px; margin-bottom: 15px;">When asked "has {subgame.name} been completed or not", I can easily answer "yes" or "no" without there being any grey area.</p>
+                                    <p class="tooltip-modal-content" style="font-size: 16px; margin-bottom: 15px;">{subgame.name}<br><br>When asked "is the above solved?",<br>I can easily answer "yes" or "no" without there being any grey area.<br><br>And, the above is a problem-to-solve<br>(does not reference a specific solution)</p>
                                     <div style="width: 100%; display: flex; justify-content: center; gap: 15px;">
                                         <button disabled={subresultverificationmodalbuttonsdisabled} style="{subresultverificationmodalbuttonsdisabled ? 'color: #FFFFFF4D; background-color: #0080004D;' : 'color: white; background-color: green;'} font-size: 16px; margin-bottom: 10px; margin-top: 0px; letter-spacing: -0.01em; border-radius: 5px; padding: 5px; width: 100px;" on:click={submitSubGameTitleChanges}>True</button>
                                         <button disabled={subresultverificationmodalbuttonsdisabled} style="{subresultverificationmodalbuttonsdisabled ? 'color: #FFFFFF4D; background-color: #FF00004D;' : 'color: white; background-color: red;'} font-size: 16px; margin-bottom: 10px; margin-top: 0px; letter-spacing: -0.01em; border-radius: 5px; padding: 5px; width: 100px;" on:click={goBackToEditingSubGameTitle}>False</button>
@@ -1520,7 +1529,7 @@
                             {/if}
                         {:else}
                             <div style="{viewportWidth < 430 ? 'width: ' + (viewportWidth - 265) +'px; max-width: ' + (viewportWidth - 265) + 'px;' : 'width: 200px; max-width: 200px;'} display: flex; align-items: center;">
-                                <button style="max-width: 100%; font-weight: 700; font-size: 16px; color: black; text-align: left; letter-spacing: -0.01em; overflow-wrap: break-word;" on:click={() => {navigateToSubGame(subgame)}}>{#if subgame.name != null}{subgame.name}{:else}Result{/if}</button>
+                                <button style="max-width: 100%; font-weight: 700; font-size: 16px; color: black; text-align: left; letter-spacing: -0.01em; overflow-wrap: break-word;" on:click={() => {navigateToSubGame(subgame)}}>{#if subgame.name != null}{subgame.name}{:else}Problem{/if}</button>
                             </div>
                             {#if editingHierarchyStage == 0}
                                 <button style="margin-left: 15px;" on:click={() => {setEditingSubGameTitle(subgame, index)}}>
@@ -1639,7 +1648,7 @@
                         </svg>
                     </button>
                     {#if hamburgermenuopen}
-                        <div class="modal" id="hamburger-menu">
+                        <div class="modal" id="hamburger-menu" transition:fade={{ duration: 500 }}>
                             <button on:click={redoOnboarding}>
                                 <div class="modal-element">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1689,7 +1698,7 @@
                         </button>
                     </div>
                 </div>
-                {#each primaryGames as primaryGame}
+                {#each primaryGames as primaryGame (primaryGame.id)}
                     <div style="display: flex; width: 100%; max-width: 100%; margin-top: 30px;">
                         <button style="{viewportWidth < 430 ? 'width: 80%; max-width: 80%;' : 'width: 360px; max-width: 360px;'} overflow-wrap: break-word; border-radius: 5px; box-sizing: border-box; border-color: black; border-width: 2px; border-style: solid; padding: 15px; color: black;" on:click={() => {goToGame(primaryGame)}}>
                             <h2 style="font-size: 20px;">{truncateString(primaryGame.name, 20)}</h2>
@@ -1706,6 +1715,44 @@
                         </button>
                     </div>
                 {/each}
+                <div style="display: flex; justify-content: center; width: 100%; max-width: 360px; {primaryGames.length > 0 ? 'margin-top: 35px;' : 'margin-top: 65px;'}">
+                    <button style="color: #3C80E5; font-weight: 600; font-size: 14px;" on:click={goToPrimaryResultGenerationGuidance}>Not sure what to add?</button>
+                </div>
+            {:else if processStage == 2}
+                <div style="display: flex; width: 100%; max-width: 600px; justify-content: flex-end; margin-top: 5px;">
+                    <button style="margin-right: 5px;" on:click={() => {processStage = 1; discoverystage = 1; copynewprimarygametextext = "Click here to copy goal"; newprimarygametext = null;}}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="10" viewBox="0 0 11 11" fill="none">
+                            <line y1="-1" x2="11.5486" y2="-1" transform="matrix(0.692722 0.721204 -0.692722 0.721204 1 2)" stroke="black" stroke-width="2"/>
+                            <line y1="-1" x2="11.5486" y2="-1" transform="matrix(-0.692722 0.721204 0.692722 0.721204 10 2)" stroke="black" stroke-width="2"/>
+                        </svg>
+                    </button>
+                </div>
+                <h1 style="max-width: 600px;">Discovery</h1>
+                <p style="font-size: 16px; margin-top: 30px; margin-bottom: 15px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em; max-width: 600px; line-height: 1.4;">List annoyances you are consistently dealing with</p>
+                <textarea class="input" id="inputlistinputelement" type="text" spellcheck="false" autocomplete="off" placeholder="Type Here" on:input={() => {if (discoverystage == 1){discoverystage++;}}}/>
+                {#if discoverystage > 1}
+                    <p transition:fade={{ duration: 2000 }} style="font-size: 16px; margin-top: 30px; margin-bottom: 15px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em; max-width: 600px; line-height: 1.4;">Which one do you care about most?</p>
+                    <input transition:fade={{ duration: 2000 }} spellcheck="false" style="width: 90%; max-width: 600px; box-sizing: border-box;" autocomplete="off" class="title-input" type="text" placeholder="Type Here" on:input={() => {if (discoverystage == 2){discoverystage++;}}}>
+                {/if}
+                {#if discoverystage > 2}
+                    <p transition:fade={{ duration: 2000 }} style="font-size: 16px; margin-top: 30px; margin-bottom: 15px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em; max-width: 600px; line-height: 1.4;">Based on what you're currently doing, how long do you think it'll take to finish solving it? (if not doing anything, put four years)</p>
+                    <input transition:fade={{ duration: 2000 }} style="width: 90%; max-width: 600px; box-sizing: border-box;" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Type Here" on:input={() => {if (discoverystage == 3){discoverystage++;}}}>
+                {/if}
+                {#if discoverystage > 3}
+                    <p transition:fade={{ duration: 2000 }} style="font-size: 16px; margin-top: 30px; margin-bottom: 15px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em; max-width: 600px; line-height: 1.4;">Divide the time by four and write out the goal like the examples below</p>
+                    <p transition:fade={{ duration: 2000 }} style="font-size: 16px; margin-top: 0px; margin-bottom: 15px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em; max-width: 600px; line-height: 1.4;">Example 1 (current solution as result): Finish graduate school in one year</p>
+                    <p transition:fade={{ duration: 2000 }} style="font-size: 16px; margin-top: 0px; margin-bottom: 15px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em; max-width: 600px; line-height: 1.4;">Example 2 (solving problem as result): Lose 50 pounds in two months</p>
+                    <input transition:fade={{ duration: 2000 }} style="width: 90%; max-width: 600px; box-sizing: border-box;" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Type Here" bind:value={newprimarygametext} on:input={() => {if (discoverystage == 4){discoverystage++;}}}>
+                {/if}
+                {#if discoverystage > 4}
+                    <button transition:fade={{ duration: 2000 }} style="margin-top: 30px;" on:click={async () => {navigator.clipboard.writeText(newprimarygametext); copynewprimarygametextext = "Done"; if (discoverystage == 5){discoverystage++;} setTimeout(async () => {copynewprimarygametextext = "Click here to copy goal";}, 2000)}}>
+                        <p style="font-size: 16px; margin: 0; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em; max-width: 600px; line-height: 1.4;">{copynewprimarygametextext}</p>
+                    </button>
+                {/if}
+                {#if discoverystage > 5}
+                    <p transition:fade={{ duration: 2000 }} style="font-size: 16px; margin-top: 30px; margin-bottom: 15px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em; max-width: 600px; line-height: 1.4;">Go back to the main page, add a new Primary Result, select it, and paste the goal into the input</p>
+                    <button transition:fade={{ duration: 2000 }} style="font-size: 16px; margin-top: 30px; margin-bottom: 15px; font-family: 'Inter'; font-weight: 600; letter-spacing: -0.01em; max-width: 600px; line-height: 1.4;" on:click={() => {processStage = 1; discoverystage = 1; copynewprimarygametextext = "Click here to copy goal"; newprimarygametext = null;}}>Back to Main Page</button>
+                {/if}
             {/if}
         {/if}
     </div>

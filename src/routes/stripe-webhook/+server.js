@@ -13,8 +13,8 @@ if (baseURL == 'http://localhost:5173'){
 }
 export async function POST(event) {
     const {request} = event;
-    const clientIP = event.getClientAddress();
-    const userAgent = request.headers.get('user-agent');
+    // const clientIP = event.getClientAddress();
+    // const userAgent = request.headers.get('user-agent');
     const rawBody = await event.request.arrayBuffer();
     const buffer = Buffer.alloc(rawBody.byteLength);
 	const view = new Uint8Array(rawBody);
@@ -53,62 +53,66 @@ export async function POST(event) {
             });
 
             //send event to meta conversions api
-            const email = response.email;
-            const emailHashAlgo = crypto.createHash('sha256');
-            emailHashAlgo.update(email);
-            const emailHash = emailHashAlgo.digest('hex');
-
-            const [firstName, lastName] = response.name.split(" "); 
-            const firstNameHashAlgo = crypto.createHash('sha256');
-            firstNameHashAlgo.update(firstName);
-            const firstNameHash = firstNameHashAlgo.digest('hex');
-            
-            const lastNameHashAlgo = crypto.createHash('sha256');
-            lastNameHashAlgo.update(lastName);
-            const lastNameHash = lastNameHashAlgo.digest('hex');
-
-            const userid = response.id.toString();
-            const userIdHashAlgo = crypto.createHash('sha256');
-            userIdHashAlgo.update(userid);
-            const userIdHash = userIdHashAlgo.digest('hex');
-
-            let now = Math.floor(Date.now() / 1000);
-            let payload = [
-                {
-                    "event_name": "Purchase",
-                    "event_time": now,
-                    "action_source": "website",
-                    "event_source_url": baseURL,
-                    "user_data": {
-                        "em": [
-                            emailHash
-                        ],
-                        "fn": [
-                            firstNameHash
-                        ],
-                        "ln": [
-                            lastNameHash
-                        ],
-                        "external_id": [
-                            userIdHash
-                        ],
-                        "client_ip_address": clientIP,
-                        "client_user_agent": userAgent
-                    },
-                    "custom_data": {
-                        "currency": "USD",
-                        "value": "5.00"
-                    }
-                }
-            ];
-            await fetch(`https://graph.facebook.com/v19.0/1102168667702160/events?access_token=${conversionapitoken}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                mode: "cors",
-                body: JSON.stringify({data: payload}),
+            fbq('track', 'Subscribe', {
+                value: 5.00,
+                subscription_id: response.id,
             });
+            // const email = response.email;
+            // const emailHashAlgo = crypto.createHash('sha256');
+            // emailHashAlgo.update(email);
+            // const emailHash = emailHashAlgo.digest('hex');
+
+            // const [firstName, lastName] = response.name.split(" "); 
+            // const firstNameHashAlgo = crypto.createHash('sha256');
+            // firstNameHashAlgo.update(firstName);
+            // const firstNameHash = firstNameHashAlgo.digest('hex');
+            
+            // const lastNameHashAlgo = crypto.createHash('sha256');
+            // lastNameHashAlgo.update(lastName);
+            // const lastNameHash = lastNameHashAlgo.digest('hex');
+
+            // const userid = response.id.toString();
+            // const userIdHashAlgo = crypto.createHash('sha256');
+            // userIdHashAlgo.update(userid);
+            // const userIdHash = userIdHashAlgo.digest('hex');
+
+            // let now = Math.floor(Date.now() / 1000);
+            // let payload = [
+            //     {
+            //         "event_name": "Purchase",
+            //         "event_time": now,
+            //         "action_source": "website",
+            //         "event_source_url": baseURL,
+            //         "user_data": {
+            //             "em": [
+            //                 emailHash
+            //             ],
+            //             "fn": [
+            //                 firstNameHash
+            //             ],
+            //             "ln": [
+            //                 lastNameHash
+            //             ],
+            //             "external_id": [
+            //                 userIdHash
+            //             ],
+            //             "client_ip_address": clientIP,
+            //             "client_user_agent": userAgent
+            //         },
+            //         "custom_data": {
+            //             "currency": "USD",
+            //             "value": "5.00"
+            //         }
+            //     }
+            // ];
+            // await fetch(`https://graph.facebook.com/v19.0/1102168667702160/events?access_token=${conversionapitoken}`, {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //     },
+            //     mode: "cors",
+            //     body: JSON.stringify({data: payload}),
+            // });
         } else {
             await prisma.User.update({
                 where: {

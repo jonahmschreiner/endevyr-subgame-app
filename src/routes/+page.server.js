@@ -125,60 +125,61 @@ export const load = async (event) => {
       //
 
       //send event to meta conversions api
-      const email = userObj.email;
-      const emailHashAlgo = crypto.createHash('sha256');
-      emailHashAlgo.update(email);
-      const emailHash = emailHashAlgo.digest('hex');
+      fbq('track', 'CompleteRegistration');
+      // const email = userObj.email;
+      // const emailHashAlgo = crypto.createHash('sha256');
+      // emailHashAlgo.update(email);
+      // const emailHash = emailHashAlgo.digest('hex');
 
-      const firstName = userObj.firstName; 
-      const firstNameHashAlgo = crypto.createHash('sha256');
-      firstNameHashAlgo.update(firstName);
-      const firstNameHash = firstNameHashAlgo.digest('hex');
+      // const firstName = userObj.firstName; 
+      // const firstNameHashAlgo = crypto.createHash('sha256');
+      // firstNameHashAlgo.update(firstName);
+      // const firstNameHash = firstNameHashAlgo.digest('hex');
       
-      const lastName = userObj.lastName;
-      const lastNameHashAlgo = crypto.createHash('sha256');
-      lastNameHashAlgo.update(lastName);
-      const lastNameHash = lastNameHashAlgo.digest('hex');
+      // const lastName = userObj.lastName;
+      // const lastNameHashAlgo = crypto.createHash('sha256');
+      // lastNameHashAlgo.update(lastName);
+      // const lastNameHash = lastNameHashAlgo.digest('hex');
 
-      const userid = existsresponse.id.toString();
-      const userIdHashAlgo = crypto.createHash('sha256');
-      userIdHashAlgo.update(userid);
-      const userIdHash = userIdHashAlgo.digest('hex');
+      // const userid = existsresponse.id.toString();
+      // const userIdHashAlgo = crypto.createHash('sha256');
+      // userIdHashAlgo.update(userid);
+      // const userIdHash = userIdHashAlgo.digest('hex');
 
-      let now = Math.floor(Date.now() / 1000);
-      const baseURL = import.meta.env.VITE_APP_BASE_URL;
-      let payload = [
-        {
-            "event_name": "Lead",
-            "event_time": now,
-            "action_source": "website",
-            "event_source_url": baseURL,
-            "user_data": {
-                "em": [
-                    emailHash
-                ],
-                "fn": [
-                    firstNameHash
-                ],
-                "ln": [
-                    lastNameHash
-                ],
-                "external_id": [
-                    userIdHash
-                ],
-                "client_ip_address": clientIP,
-                "client_user_agent": userAgent
-            },
-        }
-      ];
-      await fetch(`https://graph.facebook.com/v19.0/1102168667702160/events?access_token=${conversionapitoken}`, {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-          },
-          mode: "cors",
-          body: JSON.stringify({data: payload}),
-      });
+      // let now = Math.floor(Date.now() / 1000);
+      // const baseURL = import.meta.env.VITE_APP_BASE_URL;
+      // let payload = [
+      //   {
+      //       "event_name": "Lead",
+      //       "event_time": now,
+      //       "action_source": "website",
+      //       "event_source_url": baseURL,
+      //       "user_data": {
+      //           "em": [
+      //               emailHash
+      //           ],
+      //           "fn": [
+      //               firstNameHash
+      //           ],
+      //           "ln": [
+      //               lastNameHash
+      //           ],
+      //           "external_id": [
+      //               userIdHash
+      //           ],
+      //           "client_ip_address": clientIP,
+      //           "client_user_agent": userAgent
+      //       },
+      //   }
+      // ];
+      // await fetch(`https://graph.facebook.com/v19.0/1102168667702160/events?access_token=${conversionapitoken}`, {
+      //     method: 'POST',
+      //     headers: {
+      //         'Content-Type': 'application/json',
+      //     },
+      //     mode: "cors",
+      //     body: JSON.stringify({data: payload}),
+      // });
     }
     const token = await new SignJWT({
       userid: existsresponse.id,

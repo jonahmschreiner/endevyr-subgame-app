@@ -925,56 +925,59 @@
             let responseJSON = await response.json();
             if (responseJSON.user.onboardingcomplete == 0) {
                 //send event to meta conversions api
-                const email = user.email;
-                const emailHashAlgo = crypto.createHash('sha256');
-                emailHashAlgo.update(email);
-                const emailHash = emailHashAlgo.digest('hex');
-
-                const [firstName, lastName] = user.name.split(" "); 
-                const firstNameHashAlgo = crypto.createHash('sha256');
-                firstNameHashAlgo.update(firstName);
-                const firstNameHash = firstNameHashAlgo.digest('hex');
-                
-                const lastNameHashAlgo = crypto.createHash('sha256');
-                lastNameHashAlgo.update(lastName);
-                const lastNameHash = lastNameHashAlgo.digest('hex');
-
-                const userid = user.id;
-                const userIdHashAlgo = crypto.createHash('sha256');
-                userIdHashAlgo.update(userid);
-                const userIdHash = userIdHashAlgo.digest('hex');
-
-                let now = Math.floor(Date.now() / 1000);
-                let payload = [
-                    {
-                        "event_name": "TutorialCompletion",
-                        "event_time": now,
-                        "action_source": "website",
-                        "event_source_url": window.location.href,
-                        "user_data": {
-                            "em": [
-                                emailHash
-                            ],
-                            "fn": [
-                                firstNameHash
-                            ],
-                            "ln": [
-                                lastNameHash
-                            ],
-                            "external_id": [
-                                userIdHash
-                            ]
-                        },
-                    }
-                ];
-                await fetch(`https://graph.facebook.com/v19.0/1102168667702160/events?access_token=${conversionapitoken}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    mode: "cors",
-                    body: JSON.stringify({data: payload}),
+                fbq('track', 'StartTrial', {
+                    subscription_id: responseJSON.user.id,
                 });
+                // const email = user.email;
+                // const emailHashAlgo = crypto.createHash('sha256');
+                // emailHashAlgo.update(email);
+                // const emailHash = emailHashAlgo.digest('hex');
+
+                // const [firstName, lastName] = user.name.split(" "); 
+                // const firstNameHashAlgo = crypto.createHash('sha256');
+                // firstNameHashAlgo.update(firstName);
+                // const firstNameHash = firstNameHashAlgo.digest('hex');
+                
+                // const lastNameHashAlgo = crypto.createHash('sha256');
+                // lastNameHashAlgo.update(lastName);
+                // const lastNameHash = lastNameHashAlgo.digest('hex');
+
+                // const userid = user.id;
+                // const userIdHashAlgo = crypto.createHash('sha256');
+                // userIdHashAlgo.update(userid);
+                // const userIdHash = userIdHashAlgo.digest('hex');
+
+                // let now = Math.floor(Date.now() / 1000);
+                // let payload = [
+                //     {
+                //         "event_name": "TutorialCompletion",
+                //         "event_time": now,
+                //         "action_source": "website",
+                //         "event_source_url": window.location.href,
+                //         "user_data": {
+                //             "em": [
+                //                 emailHash
+                //             ],
+                //             "fn": [
+                //                 firstNameHash
+                //             ],
+                //             "ln": [
+                //                 lastNameHash
+                //             ],
+                //             "external_id": [
+                //                 userIdHash
+                //             ]
+                //         },
+                //     }
+                // ];
+                // await fetch(`https://graph.facebook.com/v19.0/1102168667702160/events?access_token=${conversionapitoken}`, {
+                //     method: 'POST',
+                //     headers: {
+                //         'Content-Type': 'application/json',
+                //     },
+                //     mode: "cors",
+                //     body: JSON.stringify({data: payload}),
+                // });
             }
             await fetch('/api/updateUser', {
                 method: 'POST',
@@ -1125,7 +1128,7 @@
         }
     }
 
-    let copysharinglinkbuttontext = "Share a copy";
+    let copysharinglinkbuttontext = "Share a copy (including all sub-problems)";
     async function copyShareLink () {
         let href = window.location.href;
         href = href.replace(/#$/, '');
@@ -1133,7 +1136,7 @@
         navigator.clipboard.writeText(sharinglink);
         copysharinglinkbuttontext = "Copied link";
         setTimeout(async () => {
-            copysharinglinkbuttontext = "Share a copy";
+            copysharinglinkbuttontext = "Share a copy (including all sub-problems)";
         }, 1000);
         if (currgame.sharingenabled == 0) {
             currgame.sharingenabled = 1;

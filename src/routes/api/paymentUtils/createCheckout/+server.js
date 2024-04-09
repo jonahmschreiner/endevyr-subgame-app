@@ -1,9 +1,14 @@
 import Stripe from 'stripe';
-const stripesecretkey = import.meta.env.VITE_STRIPE_SECRET_KEY;
+let stripesecretkey;
+const baseURL = import.meta.env.VITE_APP_BASE_URL;
+if (baseURL == 'http://localhost:5173'){
+    stripesecretkey = import.meta.env.VITE_STRIPE_TEST_SECRET_KEY;
+} else {
+    stripesecretkey = import.meta.env.VITE_STRIPE_SECRET_KEY;
+}
 export async function POST({ request }) {
     const data = await request.json();
     let { userid } = data;
-    const baseURL = import.meta.env.VITE_APP_BASE_URL;
     let response = await fetch(`${baseURL}/api/getUser`, {
         method: 'POST',
         headers: {
@@ -40,7 +45,12 @@ export async function POST({ request }) {
       success_url: baseURL + "?session_id={CHECKOUT_SESSION_ID}",
       cancel_url: baseURL,
     };
-    sessionParams.customer_email = responseJSON.email;
+    if (responseJSON.user.stripecustomerid != null) {
+      sessionParams.customer = responseJSON.user.stripecustomerid;
+    } else {
+      sessionParams.customer_email = responseJSON.user.email;
+    }
+    
     const session = await stripe.checkout.sessions.create(sessionParams);
     return new Response(JSON.stringify({url: session.url, status: 200}));
 };

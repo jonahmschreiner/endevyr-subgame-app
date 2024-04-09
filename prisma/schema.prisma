@@ -56,6 +56,7 @@ model User {
   premiumsubscriberexpirationdate DateTime?
   lifetimespend     Decimal     @default(0)
   stripecustomerid    String?     @unique
+  stripelastpaidperiodenddate DateTime?
   onboardingcomplete  Int     @default(0)
   onboardingstage     Int     @default(1)
 

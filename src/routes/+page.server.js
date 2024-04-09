@@ -5,7 +5,13 @@ import { SignJWT, jwtVerify } from 'jose';
 import Stripe from 'stripe';
 const conversionapitoken = import.meta.env.VITE_APP_META_CONVERSIONS_API_ACCESS_TOKEN;
 import crypto from 'crypto';
-const stripesecretkey = import.meta.env.VITE_STRIPE_SECRET_KEY;
+const baseURL = import.meta.env.VITE_APP_BASE_URL;
+let stripesecretkey;
+if (baseURL == 'http://localhost:5173'){
+    stripesecretkey = import.meta.env.VITE_STRIPE_TEST_SECRET_KEY;
+} else {
+    stripesecretkey = import.meta.env.VITE_STRIPE_SECRET_KEY;
+}
 const workosapikey = import.meta.env.VITE_WORKOS_API_KEY;
 const workosclientid = import.meta.env.VITE_WORKOS_CLIENT_ID;
 const workossecretkey = import.meta.env.VITE_WORKOS_SECRET_KEY;
@@ -125,61 +131,59 @@ export const load = async (event) => {
       //
 
       //send event to meta conversions api
-      fbq('track', 'CompleteRegistration');
-      // const email = userObj.email;
-      // const emailHashAlgo = crypto.createHash('sha256');
-      // emailHashAlgo.update(email);
-      // const emailHash = emailHashAlgo.digest('hex');
+      const email = userObj.email;
+      const emailHashAlgo = crypto.createHash('sha256');
+      emailHashAlgo.update(email);
+      const emailHash = emailHashAlgo.digest('hex');
 
-      // const firstName = userObj.firstName; 
-      // const firstNameHashAlgo = crypto.createHash('sha256');
-      // firstNameHashAlgo.update(firstName);
-      // const firstNameHash = firstNameHashAlgo.digest('hex');
+      const firstName = userObj.firstName; 
+      const firstNameHashAlgo = crypto.createHash('sha256');
+      firstNameHashAlgo.update(firstName);
+      const firstNameHash = firstNameHashAlgo.digest('hex');
       
-      // const lastName = userObj.lastName;
-      // const lastNameHashAlgo = crypto.createHash('sha256');
-      // lastNameHashAlgo.update(lastName);
-      // const lastNameHash = lastNameHashAlgo.digest('hex');
+      const lastName = userObj.lastName;
+      const lastNameHashAlgo = crypto.createHash('sha256');
+      lastNameHashAlgo.update(lastName);
+      const lastNameHash = lastNameHashAlgo.digest('hex');
 
-      // const userid = existsresponse.id.toString();
-      // const userIdHashAlgo = crypto.createHash('sha256');
-      // userIdHashAlgo.update(userid);
-      // const userIdHash = userIdHashAlgo.digest('hex');
+      const userid = existsresponse.id.toString();
+      const userIdHashAlgo = crypto.createHash('sha256');
+      userIdHashAlgo.update(userid);
+      const userIdHash = userIdHashAlgo.digest('hex');
 
-      // let now = Math.floor(Date.now() / 1000);
-      // const baseURL = import.meta.env.VITE_APP_BASE_URL;
-      // let payload = [
-      //   {
-      //       "event_name": "Lead",
-      //       "event_time": now,
-      //       "action_source": "website",
-      //       "event_source_url": baseURL,
-      //       "user_data": {
-      //           "em": [
-      //               emailHash
-      //           ],
-      //           "fn": [
-      //               firstNameHash
-      //           ],
-      //           "ln": [
-      //               lastNameHash
-      //           ],
-      //           "external_id": [
-      //               userIdHash
-      //           ],
-      //           "client_ip_address": clientIP,
-      //           "client_user_agent": userAgent
-      //       },
-      //   }
-      // ];
-      // await fetch(`https://graph.facebook.com/v19.0/1102168667702160/events?access_token=${conversionapitoken}`, {
-      //     method: 'POST',
-      //     headers: {
-      //         'Content-Type': 'application/json',
-      //     },
-      //     mode: "cors",
-      //     body: JSON.stringify({data: payload}),
-      // });
+      let now = Math.floor(Date.now() / 1000);
+      let payload = [
+        {
+            "event_name": "CompleteRegistration",
+            "event_time": now,
+            "action_source": "website",
+            "event_source_url": baseURL,
+            "user_data": {
+                "em": [
+                    emailHash
+                ],
+                "fn": [
+                    firstNameHash
+                ],
+                "ln": [
+                    lastNameHash
+                ],
+                "external_id": [
+                    userIdHash
+                ],
+                "client_ip_address": clientIP,
+                "client_user_agent": userAgent
+            },
+        }
+      ];
+      await fetch(`https://graph.facebook.com/v19.0/1390799851611000/events?access_token=${conversionapitoken}`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          mode: "cors",
+          body: JSON.stringify({data: payload}),
+      });
     }
     const token = await new SignJWT({
       userid: existsresponse.id,
@@ -191,7 +195,6 @@ export const load = async (event) => {
     .sign(secret);
   
     cookies.set(`token=${token}; Path=/;`);
-    const baseURL = import.meta.env.VITE_APP_BASE_URL;
     throw redirect(307, baseURL);
   } else {
     userObj = verifiedToken.payload.userObj;
@@ -236,6 +239,7 @@ export const load = async (event) => {
           });
         }
       }
+      throw redirect(307, baseURL);
     }
   
     //
@@ -271,6 +275,21 @@ export const load = async (event) => {
             },
         },
     });
+
+    //expire premium subscription upon reaching end date
+    if (response.premiumsubscriberexpirationdate != null && response.premiumsubscriberexpirationdate < new Date()) {
+        response.premiumsubscriber = 0;
+        response.premiumsubscriberexpirationdate = null;
+        await prisma.User.update({
+          where: {
+            id: response.id,
+          },
+          data: {
+            premiumsubscriber: 0,
+            premiumsubscriberexpirationdate: null,
+          }
+        });
+    }
 
 
     //analytics
@@ -435,7 +454,6 @@ export const load = async (event) => {
 
         await createDeepClonesOfChildren(game.id, response.id, newgame.id, newgame.id);
 
-        const baseURL = import.meta.env.VITE_APP_BASE_URL;
         throw redirect(307, baseURL);
       }
     }
@@ -445,6 +463,8 @@ export const load = async (event) => {
     return {
         user: response,
         drillsdue,
+        clientIP,
+        userAgent,
     };
 };
 

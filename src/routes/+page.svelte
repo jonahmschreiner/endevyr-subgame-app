@@ -240,7 +240,7 @@
     const baseURL = import.meta.env.VITE_APP_BASE_URL;
     const conversionapitoken = import.meta.env.VITE_APP_META_CONVERSIONS_API_ACCESS_TOKEN;
     import crypto from 'node:crypto';
-    let { user, drillsdue } = data;
+    let { user, drillsdue, clientIP, userAgent } = data;
     if (user.email != "jonahmschreiner@gmail.com"){
         LogRocket.init('1ok2hy/endevyr-app');
         LogRocket.identify(user.id, {
@@ -795,7 +795,7 @@
 
     async function goToStripe () {
         hamburgermenuopen = false;
-        if (user.premiumsubscriber) {
+        if (user.premiumsubscriber == 1) {
             let response = await fetch('/api/paymentUtils/createBillingPortalSession', {
                 method: 'POST',
                 headers: {
@@ -925,59 +925,58 @@
             let responseJSON = await response.json();
             if (responseJSON.user.onboardingcomplete == 0) {
                 //send event to meta conversions api
-                fbq('track', 'StartTrial', {
-                    subscription_id: responseJSON.user.id,
-                });
-                // const email = user.email;
-                // const emailHashAlgo = crypto.createHash('sha256');
-                // emailHashAlgo.update(email);
-                // const emailHash = emailHashAlgo.digest('hex');
+                const email = user.email;
+                const emailHashAlgo = crypto.createHash('sha256');
+                emailHashAlgo.update(email);
+                const emailHash = emailHashAlgo.digest('hex');
 
-                // const [firstName, lastName] = user.name.split(" "); 
-                // const firstNameHashAlgo = crypto.createHash('sha256');
-                // firstNameHashAlgo.update(firstName);
-                // const firstNameHash = firstNameHashAlgo.digest('hex');
+                const [firstName, lastName] = user.name.split(" "); 
+                const firstNameHashAlgo = crypto.createHash('sha256');
+                firstNameHashAlgo.update(firstName);
+                const firstNameHash = firstNameHashAlgo.digest('hex');
                 
-                // const lastNameHashAlgo = crypto.createHash('sha256');
-                // lastNameHashAlgo.update(lastName);
-                // const lastNameHash = lastNameHashAlgo.digest('hex');
+                const lastNameHashAlgo = crypto.createHash('sha256');
+                lastNameHashAlgo.update(lastName);
+                const lastNameHash = lastNameHashAlgo.digest('hex');
 
-                // const userid = user.id;
-                // const userIdHashAlgo = crypto.createHash('sha256');
-                // userIdHashAlgo.update(userid);
-                // const userIdHash = userIdHashAlgo.digest('hex');
+                const userid = user.id;
+                const userIdHashAlgo = crypto.createHash('sha256');
+                userIdHashAlgo.update(userid);
+                const userIdHash = userIdHashAlgo.digest('hex');
 
-                // let now = Math.floor(Date.now() / 1000);
-                // let payload = [
-                //     {
-                //         "event_name": "TutorialCompletion",
-                //         "event_time": now,
-                //         "action_source": "website",
-                //         "event_source_url": window.location.href,
-                //         "user_data": {
-                //             "em": [
-                //                 emailHash
-                //             ],
-                //             "fn": [
-                //                 firstNameHash
-                //             ],
-                //             "ln": [
-                //                 lastNameHash
-                //             ],
-                //             "external_id": [
-                //                 userIdHash
-                //             ]
-                //         },
-                //     }
-                // ];
-                // await fetch(`https://graph.facebook.com/v19.0/1102168667702160/events?access_token=${conversionapitoken}`, {
-                //     method: 'POST',
-                //     headers: {
-                //         'Content-Type': 'application/json',
-                //     },
-                //     mode: "cors",
-                //     body: JSON.stringify({data: payload}),
-                // });
+                let now = Math.floor(Date.now() / 1000);
+                let payload = [
+                    {
+                        "event_name": "TutorialCompletion",
+                        "event_time": now,
+                        "action_source": "website",
+                        "event_source_url": window.location.href,
+                        "user_data": {
+                            "em": [
+                                emailHash
+                            ],
+                            "fn": [
+                                firstNameHash
+                            ],
+                            "ln": [
+                                lastNameHash
+                            ],
+                            "external_id": [
+                                userIdHash
+                            ],
+                            "client_ip_address": clientIP,
+                            "client_user_agent": userAgent,
+                        },
+                    }
+                ];
+                await fetch(`https://graph.facebook.com/v19.0/1390799851611000/events?access_token=${conversionapitoken}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    mode: "cors",
+                    body: JSON.stringify({data: payload}),
+                });
             }
             await fetch('/api/updateUser', {
                 method: 'POST',

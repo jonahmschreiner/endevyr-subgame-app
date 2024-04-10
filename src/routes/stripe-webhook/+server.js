@@ -40,7 +40,7 @@ export async function POST(event) {
 
         //then update the other stripe values with the values from this event
         if (canceledat == null && (response.stripelastpaidperiodenddate == null || (new Date (subscription.current_period_end * 1000) > response.stripelastpaidperiodenddate))){
-            let lifetimespend = parseFloat(response.lifetimespend) + 5;
+            let lifetimespend = parseFloat(response.lifetimespend) + 15;
             await prisma.User.update({
                 where: {
                     id: response.id,

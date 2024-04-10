@@ -34,7 +34,7 @@ export async function POST({ request }) {
                 name: "Endevyr Standard Plan",
                 images: ['https://app.endevyr.com/favicon.png'], //put publically-accessable endevyr logo here
             },
-            unit_amount: 500,
+            unit_amount: 1500,
             recurring: {
               interval: 'month',
             },

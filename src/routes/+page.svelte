@@ -1484,7 +1484,7 @@
                         {/if}
                 {:else}
                     <div style="display: flex; background-color: white; z-index: 5; border-radius: 5px; {blur ? 'padding: 5px;' : ''}">
-                        <input style="z-index: 5;" id="currgametitleinput" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="{currgame.parentgameid == null ? 'Insert the result you want' : 'Insert result title'}" bind:value={currgame.name}>
+                        <input style="z-index: 5;" id="currgametitleinput" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="{currgame.parentgameid == null ? 'Insert the result you want' : 'Insert problem title'}" bind:value={currgame.name}>
                         {#if submitTitleChangesButtonShowing}
                             <button style="margin-left: 15px; z-index: 5;" on:click={showResultVerificationModal}>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1512,7 +1512,7 @@
                 {#if editingHierarchyStage != 2 || (subgame.isbasecase == 0 && selectedsubgame.id != subgame.id)}
                     <div style="display: flex; margin-top: 15px;">
                         {#if editingSubGameTitle != null && editingSubGameTitle.id == subgame.id}
-                            <input id="subgamenameinput{index}" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Insert result title" bind:value={subgame.name}>
+                            <input id="subgamenameinput{index}" spellcheck="false" autocomplete="off" class="title-input" type="text" placeholder="Insert problem title" bind:value={subgame.name}>
                             {#if submitSubTitleChangesButtonShowing}
                                 <button style="padding-left: 15px;" on:click={showSubResultVerificationModal}>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

@@ -87,19 +87,101 @@ export const load = async (event) => {
       });
       if (monthlyreport == undefined || monthlyreport == null || monthlyreport.periodend < new Date()) {
         if (monthlyreport) {
+          //totalpremiumsubscribercount metric calculation
           let premiumsubscribercount = await prisma.User.count({
             where: {
               premiumsubscriber: 1
             }
           });
+
+          // averagelifetimevalue  Int?
+          const ltvqueryresult = await prisma.$queryRaw`
+            SELECT AVG(lifetimespend) AS average_lifetime_value
+            FROM User
+            WHERE lifetimespend > 0;
+          `;
+          let currentltv = Number(ltvqueryresult[0].average_lifetime_value);
+          if (currentltv == null) {
+              currentltv = 0;
+          } else {
+            currentltv = Math.round(currentltv);
+          }
+          // averagepaybackperiod  Int?
+          const paybackperiodresult = await prisma.$queryRaw`
+            SELECT AVG(TIMESTAMPDIFF(SECOND, joindate, firstpurchasedate)) AS average_difference
+            FROM User
+            WHERE firstpurchasedate IS NOT NULL;
+          `;
+          let currentaveragepaybackperiod = paybackperiodresult[0].average_difference;
+          if (currentaveragepaybackperiod == null || currentaveragepaybackperiod == undefined) {
+              currentaveragepaybackperiod = -1;
+          } else {
+              currentaveragepaybackperiod = Math.round(Number(currentaveragepaybackperiod) / (60 * 60 * 24));
+          }
+          // breakevencostpernewuser  Int?
+          let newuserswhosubscribed;
+          let newuserslength = monthlyreport.newusers.length;
+          if (newuserslength > 0) {
+              newuserswhosubscribed = monthlyreport.newusers.filter(obj => obj.firstpurchasedate != null).length;
+          } else {
+              newuserswhosubscribed = 0;
+          }
+          
+          let percentofnewuserswhopurchased = newuserswhosubscribed / newuserslength;
+          let breakevenmetacostperlead;
+          if (newuserslength > 0) {
+              breakevenmetacostperlead = Math.round(currentltv * percentofnewuserswhopurchased);
+          } else {
+              breakevenmetacostperlead = 0;
+          }
+          // onboardingcompletionpercentage  Int?
+          let newuserswhofinishedonboarding = monthlyreport.newusers.filter(obj => obj.onboardingcomplete == 1).length;
+          let newuserswhofinishedonboardingpercentage;
+          if (newuserslength > 0) {
+              newuserswhofinishedonboardingpercentage = Math.round((newuserswhofinishedonboarding / newuserslength) * 100);
+          } else {
+              newuserswhofinishedonboardingpercentage = 0;
+          }
+          // freeusagelimitereachedpercentage  Int?
+          let newuserswhoreachedfreeusagelimit = monthlyreport.newusers.filter(obj => obj.freeusagelimitreached == 1);
+          let newuserswhoreachedfreeusagelimitlength = newuserswhoreachedfreeusagelimit.length;
+          let newuserswhoreachedfreeusagelimitpercentage;
+          if (newuserslength > 0) {
+              newuserswhoreachedfreeusagelimitpercentage = Math.round((newuserswhoreachedfreeusagelimitlength / newuserslength) * 100);
+          } else {
+              newuserswhoreachedfreeusagelimitpercentage = 0;
+          }
+          // conversionpercentage  Int?
+          let newuserswhosubscribedpercentage;
+          if (newuserslength > 0) {
+              newuserswhosubscribedpercentage = Math.round((newuserswhosubscribed / newuserslength) * 100);
+          } else {
+              newuserswhosubscribedpercentage = 0;
+          }
+          // upgradeafterfreelimitreachedpercentage  Int?
+          let newuserswhoreachedfreelimitandsubscribedpercentage;
+          if (newuserswhoreachedfreeusagelimitlength > 0) {
+              let newuserswhoreachedfreelimitandsubscribed = newuserswhoreachedfreeusagelimit.filter(obj => obj.firstpurchasedate != null).length;
+              newuserswhoreachedfreelimitandsubscribedpercentage = Math.round((newuserswhoreachedfreelimitandsubscribed / newuserswhoreachedfreeusagelimitlength) * 100);
+          } else {
+              newuserswhoreachedfreelimitandsubscribedpercentage = 0;
+          }
+          //send metrics to db
           await prisma.MonthlyReport.update({
             where: {
               id: monthlyreport.id,
             },
             data: {
               totalpremiumsubscriberscount: premiumsubscribercount,
-              activeusercount: activeusers.length,
-              newusercount: newusers.length,
+              activeusercount: monthlyreport.activeusers.length,
+              newusercount: monthlyreport.newusers.length,
+              averagelifetimevalue: currentltv,
+              averagepaybackperiod: currentaveragepaybackperiod,
+              breakevencostpernewuser: breakevenmetacostperlead,
+              onboardingcompletionpercentage: newuserswhofinishedonboardingpercentage,
+              freeusagelimitereachedpercentage: newuserswhoreachedfreeusagelimitpercentage,
+              conversionpercentage: newuserswhosubscribedpercentage,
+              upgradeafterfreelimitreachedpercentage: newuserswhoreachedfreelimitandsubscribedpercentage,
             }
           });
         }
@@ -305,19 +387,101 @@ export const load = async (event) => {
     });
     if (monthlyreport == undefined || monthlyreport == null || monthlyreport.periodend < new Date()) {
       if (monthlyreport) {
+        //totalpremiumsubscribercount metric calculation
         let premiumsubscribercount = await prisma.User.count({
           where: {
             premiumsubscriber: 1
           }
         });
+
+        // averagelifetimevalue  Int?
+        const ltvqueryresult = await prisma.$queryRaw`
+          SELECT AVG(lifetimespend) AS average_lifetime_value
+          FROM User
+          WHERE lifetimespend > 0;
+        `;
+        let currentltv = Number(ltvqueryresult[0].average_lifetime_value);
+        if (currentltv == null) {
+            currentltv = 0;
+        } else {
+          currentltv = Math.round(currentltv);
+        }
+        // averagepaybackperiod  Int?
+        const paybackperiodresult = await prisma.$queryRaw`
+          SELECT AVG(TIMESTAMPDIFF(SECOND, joindate, firstpurchasedate)) AS average_difference
+          FROM User
+          WHERE firstpurchasedate IS NOT NULL;
+        `;
+        let currentaveragepaybackperiod = paybackperiodresult[0].average_difference;
+        if (currentaveragepaybackperiod == null || currentaveragepaybackperiod == undefined) {
+            currentaveragepaybackperiod = -1;
+        } else {
+            currentaveragepaybackperiod = Math.round(Number(currentaveragepaybackperiod) / (60 * 60 * 24));
+        }
+        // breakevencostpernewuser  Int?
+        let newuserswhosubscribed;
+        let newuserslength = monthlyreport.newusers.length;
+        if (newuserslength > 0) {
+            newuserswhosubscribed = monthlyreport.newusers.filter(obj => obj.firstpurchasedate != null).length;
+        } else {
+            newuserswhosubscribed = 0;
+        }
+        
+        let percentofnewuserswhopurchased = newuserswhosubscribed / newuserslength;
+        let breakevenmetacostperlead;
+        if (newuserslength > 0) {
+            breakevenmetacostperlead = Math.round(currentltv * percentofnewuserswhopurchased);
+        } else {
+            breakevenmetacostperlead = 0;
+        }
+        // onboardingcompletionpercentage  Int?
+        let newuserswhofinishedonboarding = monthlyreport.newusers.filter(obj => obj.onboardingcomplete == 1).length;
+        let newuserswhofinishedonboardingpercentage;
+        if (newuserslength > 0) {
+            newuserswhofinishedonboardingpercentage = Math.round((newuserswhofinishedonboarding / newuserslength) * 100);
+        } else {
+            newuserswhofinishedonboardingpercentage = 0;
+        }
+        // freeusagelimitereachedpercentage  Int?
+        let newuserswhoreachedfreeusagelimit = monthlyreport.newusers.filter(obj => obj.freeusagelimitreached == 1);
+        let newuserswhoreachedfreeusagelimitlength = newuserswhoreachedfreeusagelimit.length;
+        let newuserswhoreachedfreeusagelimitpercentage;
+        if (newuserslength > 0) {
+            newuserswhoreachedfreeusagelimitpercentage = Math.round((newuserswhoreachedfreeusagelimitlength / newuserslength) * 100);
+        } else {
+            newuserswhoreachedfreeusagelimitpercentage = 0;
+        }
+        // conversionpercentage  Int?
+        let newuserswhosubscribedpercentage;
+        if (newuserslength > 0) {
+            newuserswhosubscribedpercentage = Math.round((newuserswhosubscribed / newuserslength) * 100);
+        } else {
+            newuserswhosubscribedpercentage = 0;
+        }
+        // upgradeafterfreelimitreachedpercentage  Int?
+        let newuserswhoreachedfreelimitandsubscribedpercentage;
+        if (newuserswhoreachedfreeusagelimitlength > 0) {
+            let newuserswhoreachedfreelimitandsubscribed = newuserswhoreachedfreeusagelimit.filter(obj => obj.firstpurchasedate != null).length;
+            newuserswhoreachedfreelimitandsubscribedpercentage = Math.round((newuserswhoreachedfreelimitandsubscribed / newuserswhoreachedfreeusagelimitlength) * 100);
+        } else {
+            newuserswhoreachedfreelimitandsubscribedpercentage = 0;
+        }
+        //send metrics to db
         await prisma.MonthlyReport.update({
           where: {
             id: monthlyreport.id,
           },
           data: {
             totalpremiumsubscriberscount: premiumsubscribercount,
-            activeusercount: activeusers.length,
-            newusercount: newusers.length,
+            activeusercount: monthlyreport.activeusers.length,
+            newusercount: monthlyreport.newusers.length,
+            averagelifetimevalue: currentltv,
+            averagepaybackperiod: currentaveragepaybackperiod,
+            breakevencostpernewuser: breakevenmetacostperlead,
+            onboardingcompletionpercentage: newuserswhofinishedonboardingpercentage,
+            freeusagelimitereachedpercentage: newuserswhoreachedfreeusagelimitpercentage,
+            conversionpercentage: newuserswhosubscribedpercentage,
+            upgradeafterfreelimitreachedpercentage: newuserswhoreachedfreelimitandsubscribedpercentage,
           }
         });
       }

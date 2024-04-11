@@ -332,8 +332,18 @@
     }
 
     let freelimitreachedmodalshowing = false;
-    function showFreeLimitReachedModal () {
+    let freelimitreachedmodal;
+    async function showFreeLimitReachedModal () {
         freelimitreachedmodalshowing = true;
+        if (user.freeusagelimitreached == 0) {
+            await fetch('/api/updateUser', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userid: user.id, type: "freeusagelimitreached", value: 1}),
+            });
+        }
     }
 
     function hideFreeLimitReachedModal () {
@@ -1210,7 +1220,7 @@
     <div style="position: fixed; top: 0px; left: 0; width: 100%; height: 100%; background-color: #00000099; z-index: 3;"></div>
 {/if}
 {#if freelimitreachedmodalshowing}
-    <div class="tooltip-modal" bind:this={freelimitreachedmodalshowing}>
+    <div class="tooltip-modal" style="{viewportWidth >= 430 ? 'left: 15px;' : 'max-width: 700px; width: 95%;'}" bind:this={freelimitreachedmodal}>
         <div class="navigationSection">
             <button on:click={hideFreeLimitReachedModal}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="11" height="10" viewBox="0 0 11 10" fill="none">

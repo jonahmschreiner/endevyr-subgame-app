@@ -55,6 +55,8 @@ model User {
   premiumsubscriber Int   @default(0)
   premiumsubscriberexpirationdate DateTime?
   lifetimespend     Decimal     @default(0)
+  firstpurchasedate DateTime?
+  freeusagelimitreached Int    @default(0)
   stripecustomerid    String?     @unique
   stripelastpaidperiodenddate DateTime?
   onboardingcomplete  Int     @default(0)
@@ -83,6 +85,13 @@ model MonthlyReport {
   activeusercount Int         @default(0)
   totalpremiumsubscriberscount Int
   cancellations   Int         @default(0)
+  averagelifetimevalue  Int?
+  averagepaybackperiod  Int?
+  breakevencostpernewuser  Int?
+  onboardingcompletionpercentage  Int?
+  freeusagelimitereachedpercentage  Int?
+  conversionpercentage  Int?
+  upgradeafterfreelimitreachedpercentage  Int?
   newusers      User[]        @relation("monthlynewusers")
   newusercount    Int         @default(0)
 }

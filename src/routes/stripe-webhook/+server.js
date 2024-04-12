@@ -18,7 +18,7 @@ if (baseURL == 'http://localhost:5173'){
 }
 export async function POST(event) {
     const {request} = event;
-    const clientIP = event.getClientAddress();
+    const clientIP = request.headers.get("x-forwarded-for") || event.getClientAddress();
     const userAgent = request.headers.get('user-agent');
     const payload = await event.request.text();
     const stripe = new Stripe(stripesecretkey, {

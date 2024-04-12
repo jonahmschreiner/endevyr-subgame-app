@@ -19,7 +19,7 @@ const workosredirecturi = import.meta.env.VITE_WORKOS_REDIRECT_URI;
 const secret = new Uint8Array(Buffer.from(workossecretkey, 'base64'),);
 export const load = async (event) => {
   const {url, cookies, request} = event;
-  const clientIP = event.getClientAddress();
+  const clientIP = request.headers.get("x-forwarded-for") || event.getClientAddress();
   const userAgent = request.headers.get('user-agent');
 //start auth
   //check if the user is logging out

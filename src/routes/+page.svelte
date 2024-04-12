@@ -1670,7 +1670,7 @@
                                     <p class="modal-text">Redo Onboarding</p>
                                 </div>
                             </button>
-                            <button on:click={goToStripe}>
+                            <button style="{user.premiumsubscriber == 0 && user.freeusagelimitreached == 0 ? 'cursor: default;' : ''}" disabled={user.premiumsubscriber == 0 && user.freeusagelimitreached == 0} on:click={goToStripe}>
                                 <div class="modal-element">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         {#if user.premiumsubscriber == 1}
@@ -1688,12 +1688,15 @@
                                             <path d="m3.34 17 1.73-1"/>
                                             <path d="m17 3.34-1 1.73"/>
                                             <path d="m11 13.73-4 6.93"/>
-                                        {:else}
+                                        {:else if user.freeusagelimitreached == 1}
                                             <path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/>
                                             <path d="M5 21h14"/>
+                                        {:else}
+                                            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+                                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                                         {/if}
                                     </svg>
-                                    <p class="modal-text">{#if user.premiumsubscriber == 1}Manage Plan{:else}View Standard Plan{/if}</p>
+                                    <p class="modal-text">{#if user.premiumsubscriber == 1}Manage Plan{:else if user.freeusagelimitreached == 1}View Standard Plan{:else}Locked{/if}</p>
                                 </div>
                             </button>
                         </div>

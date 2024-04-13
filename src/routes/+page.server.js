@@ -16,6 +16,8 @@ const workosapikey = import.meta.env.VITE_WORKOS_API_KEY;
 const workosclientid = import.meta.env.VITE_WORKOS_CLIENT_ID;
 const workossecretkey = import.meta.env.VITE_WORKOS_SECRET_KEY;
 const workosredirecturi = import.meta.env.VITE_WORKOS_REDIRECT_URI;
+const verify = import.meta.env.VITE_APP_API_KEY;
+const verify2 = verify;
 const secret = new Uint8Array(Buffer.from(workossecretkey, 'base64'),);
 export const load = async (event) => {
   const {url, cookies, request} = event;
@@ -629,6 +631,7 @@ export const load = async (event) => {
         drillsdue,
         clientIP,
         userAgent,
+        verify: verify2,
     };
 };
 

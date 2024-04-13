@@ -240,7 +240,7 @@
     const baseURL = import.meta.env.VITE_APP_BASE_URL;
     const conversionapitoken = import.meta.env.VITE_APP_META_CONVERSIONS_API_ACCESS_TOKEN;
     import crypto from 'node:crypto';
-    let { user, drillsdue, clientIP, userAgent } = data;
+    let { user, drillsdue, clientIP, userAgent, verify } = data;
     if (user.email != "jonahmschreiner@gmail.com"){
         LogRocket.init('1ok2hy/endevyr-app');
         LogRocket.identify(user.id, {
@@ -284,7 +284,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ userid: user.id, name: "Primary Result" }),
+                    body: JSON.stringify({ userid: user.id, name: "Primary Result", verify }),
                 });
                 let responseJSON = await response.json();
                 primaryGames = [responseJSON.newgame, ...primaryGames];
@@ -315,7 +315,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ userid: user.id, parentgameid: currgame.id, parentgamesubgameslength: currgame.subgames.length, superparentgameidin: superparentgameid }),
+                    body: JSON.stringify({ userid: user.id, parentgameid: currgame.id, parentgamesubgameslength: currgame.subgames.length, superparentgameidin: superparentgameid, verify }),
                 });
                 let responseJSON = await response.json();
                 user.games.push(responseJSON.newgame);
@@ -341,7 +341,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ userid: user.id, type: "freeusagelimitreached", value: 1}),
+                body: JSON.stringify({ userid: user.id, type: "freeusagelimitreached", value: 1, verify}),
             });
         }
     }
@@ -375,7 +375,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ userid: user.id, parentgameid: gameIn.id, parentgamesubgameslength: 0, superparentgameidin: superparentgameid}),
+                body: JSON.stringify({ userid: user.id, parentgameid: gameIn.id, parentgamesubgameslength: 0, superparentgameidin: superparentgameid, verify}),
             });
             let responseJSON = await response.json();
             user.games.push(responseJSON.newgame);
@@ -400,7 +400,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ gameid: gameInConst.id, type: "lastaccessed", value: new Date() }),
+                body: JSON.stringify({ gameid: gameInConst.id, type: "lastaccessed", value: new Date(), verify }),
             });
         }
     }
@@ -420,7 +420,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ gameid: currgame.id, type: "isbasecase", value: 1 }),
+                body: JSON.stringify({ gameid: currgame.id, type: "isbasecase", value: 1, verify }),
             });
             let oldestdate = new Date(0);
             await fetch('/api/updateGame', {
@@ -428,7 +428,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ gameid: currgame.id, type: "basecaselastcompleted", value: oldestdate }),
+                body: JSON.stringify({ gameid: currgame.id, type: "basecaselastcompleted", value: oldestdate, verify }),
             });
         }
     }
@@ -495,7 +495,7 @@
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ gameid: currgame.id, type: "name", value: currgame.name }),
+            body: JSON.stringify({ gameid: currgame.id, type: "name", value: currgame.name, verify }),
         });
     }
 
@@ -523,7 +523,7 @@
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ gameid: gameIn.id, type: "name", value: gameIn.name }),
+            body: JSON.stringify({ gameid: gameIn.id, type: "name", value: gameIn.name, verify }),
         });
     }
 
@@ -541,7 +541,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ gameid: movingGame.id, type: "parentgamesubgamesindex", value: index + 1}),
+                body: JSON.stringify({ gameid: movingGame.id, type: "parentgamesubgamesindex", value: index + 1, verify}),
             });
 
             await fetch('/api/updateGame', {
@@ -549,7 +549,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ gameid: currgame.subgames[index].id, type: "parentgamesubgamesindex", value: index}),
+                body: JSON.stringify({ gameid: currgame.subgames[index].id, type: "parentgamesubgamesindex", value: index, verify}),
             });
         }
     }
@@ -568,7 +568,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ gameid: movingGame.id, type: "parentgamesubgamesindex", value: index - 1}),
+                body: JSON.stringify({ gameid: movingGame.id, type: "parentgamesubgamesindex", value: index - 1, verify}),
             });
 
             await fetch('/api/updateGame', {
@@ -576,7 +576,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ gameid: currgame.subgames[index].id, type: "parentgamesubgamesindex", value: index}),
+                body: JSON.stringify({ gameid: currgame.subgames[index].id, type: "parentgamesubgamesindex", value: index, verify}),
             });
         }
     }
@@ -607,7 +607,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ gameid: currgame.id, type: "basecasedrillsetup", value: newsetuptext}),
+                body: JSON.stringify({ gameid: currgame.id, type: "basecasedrillsetup", value: newsetuptext, verify}),
             });
 
             await fetch('/api/updateGame', {
@@ -615,7 +615,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ gameid: currgame.id, type: "basecasedrillexecution", value: newexecutiontext}),
+                body: JSON.stringify({ gameid: currgame.id, type: "basecasedrillexecution", value: newexecutiontext, verify}),
             });
         }, 500);
     }
@@ -662,21 +662,21 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ gameid: storedcurrgame.id, type: "basecaselastcompleted", value: storedcurrgame.basecaselastcompleted}),
+                body: JSON.stringify({ gameid: storedcurrgame.id, type: "basecaselastcompleted", value: storedcurrgame.basecaselastcompleted, verify}),
             });
             await fetch('/api/updateGame', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ gameid: storedcurrgame.id, type: "basecasenextcompletiondate", value: storedcurrgame.basecasenextcompletiondate}),
+                body: JSON.stringify({ gameid: storedcurrgame.id, type: "basecasenextcompletiondate", value: storedcurrgame.basecasenextcompletiondate, verify}),
             });
             await fetch('/api/updateGame', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ gameid: storedcurrgame.id, type: "basecaserepetitions", value: storedcurrgame.basecaserepetitions}),
+                body: JSON.stringify({ gameid: storedcurrgame.id, type: "basecaserepetitions", value: storedcurrgame.basecaserepetitions, verify}),
             });
         } else {
             //local
@@ -701,7 +701,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ gameid: currgame.id, type: "basecasedrillactivated", value: currgame.basecasedrillactivated}),
+                body: JSON.stringify({ gameid: currgame.id, type: "basecasedrillactivated", value: currgame.basecasedrillactivated, verify}),
             });
 
             await fetch('/api/updateGame', {
@@ -709,7 +709,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ gameid: currgame.id, type: "basecasenextcompletiondate", value: currgame.basecasenextcompletiondate}),
+                body: JSON.stringify({ gameid: currgame.id, type: "basecasenextcompletiondate", value: currgame.basecasenextcompletiondate, verify}),
             });
 
             await fetch('/api/updateUser', {
@@ -717,7 +717,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ userid: user.id, type: "todaynewfinitegamebehaviorcount", value: user.todaynewfinitegamebehaviorcount}),
+                body: JSON.stringify({ userid: user.id, type: "todaynewfinitegamebehaviorcount", value: user.todaynewfinitegamebehaviorcount, verify}),
             });
 
             if (user.todaynewfinitegamebehaviorcount == 3) {
@@ -726,7 +726,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ userid: user.id }),
+                    body: JSON.stringify({ userid: user.id, verify }),
                 });
                 let responseJSON = await response.json();
                 drillsdue = responseJSON.drillsdue;
@@ -763,7 +763,7 @@
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ gameid: subgameIn.id }),
+            body: JSON.stringify({ gameid: subgameIn.id, verify }),
         });
     }
 
@@ -777,7 +777,7 @@
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ gameid: primaryGameIn.id }),
+            body: JSON.stringify({ gameid: primaryGameIn.id, verify }),
         });
     }
 
@@ -811,7 +811,7 @@
                 headers: {
                     'Content-Type': 'application/json', 
                 },
-                body: JSON.stringify({ userid: user.id }),
+                body: JSON.stringify({ userid: user.id, verify }),
             });
             let responseJSON = await response.json();
             goto(responseJSON.url);
@@ -821,7 +821,7 @@
                 headers: {
                     'Content-Type': 'application/json', 
                 },
-                body: JSON.stringify({ userid: user.id }),
+                body: JSON.stringify({ userid: user.id, verify }),
             });
             let responseJSON = await response.json();
             goto(responseJSON.url);
@@ -843,7 +843,7 @@
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ gameids: deactivatedDrillIds, type: "basecasedrillactivated", value: 0}),
+            body: JSON.stringify({ gameids: deactivatedDrillIds, type: "basecasedrillactivated", value: 0, verify}),
         });
         deactivatetext = "Done";
         deactivatetext2 = "";
@@ -884,7 +884,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ gameid: selectedsubgame.id, type: "parentgameid", value: currgame.parentgameid }),
+                body: JSON.stringify({ gameid: selectedsubgame.id, type: "parentgameid", value: currgame.parentgameid, verify }),
             });
         } else {
             selectedsubgame.parentgameid = gameIn.id;
@@ -895,7 +895,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ gameid: selectedsubgame.id, type: "parentgameid", value: gameIn.id }),
+                body: JSON.stringify({ gameid: selectedsubgame.id, type: "parentgameid", value: gameIn.id, verify }),
             });
         }
         selectedsubgame = null;
@@ -920,7 +920,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ userid: user.id, type: "onboardingstage", value: user.onboardingstage}),
+                body: JSON.stringify({ userid: user.id, type: "onboardingstage", value: user.onboardingstage, verify}),
             });
         } else {
             user.onboardingcomplete = 1;
@@ -930,7 +930,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ userid: user.id }),
+                body: JSON.stringify({ userid: user.id, verify }),
             });
             let responseJSON = await response.json();
             if (responseJSON.user.onboardingcomplete == 0) {
@@ -993,7 +993,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ userid: user.id, type: "onboardingcomplete", value: 1}),
+                body: JSON.stringify({ userid: user.id, type: "onboardingcomplete", value: 1, verify}),
             });
         }
     }
@@ -1028,49 +1028,49 @@
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ gameid: subgame.id, type: "isbasecase", value: 0 }),
+            body: JSON.stringify({ gameid: subgame.id, type: "isbasecase", value: 0, verify }),
         });
         await fetch('/api/updateGame', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ gameid: subgame.id, type: "basecasedrillexecution", value: null }),
+            body: JSON.stringify({ gameid: subgame.id, type: "basecasedrillexecution", value: null, verify }),
         });
         await fetch('/api/updateGame', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ gameid: subgame.id, type: "basecasedrillsetup", value: null }),
+            body: JSON.stringify({ gameid: subgame.id, type: "basecasedrillsetup", value: null, verify }),
         });
         await fetch('/api/updateGame', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ gameid: subgame.id, type: "basecaserepetitions", value: 0 }),
+            body: JSON.stringify({ gameid: subgame.id, type: "basecaserepetitions", value: 0, verify }),
         });
         await fetch('/api/updateGame', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ gameid: subgame.id, type: "basecasenextcompletiondate", value: null }),
+            body: JSON.stringify({ gameid: subgame.id, type: "basecasenextcompletiondate", value: null, verify }),
         });
         await fetch('/api/updateGame', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ gameid: subgame.id, type: "basecaselastcompleted", value: null }),
+            body: JSON.stringify({ gameid: subgame.id, type: "basecaselastcompleted", value: null, verify }),
         });
         await fetch('/api/updateGame', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ gameid: subgame.id, type: "basecasetype", value: 0 }),
+            body: JSON.stringify({ gameid: subgame.id, type: "basecasetype", value: 0, verify }),
         });  
     }
 
@@ -1095,7 +1095,7 @@
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ gameid: currgame.id, type: "basecasetype", value: typeIn }),
+            body: JSON.stringify({ gameid: currgame.id, type: "basecasetype", value: typeIn, verify }),
         });  
     }
 
@@ -1154,7 +1154,7 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ gameid: currgame.id, type: "sharingenabled", value: 1 }),
+                body: JSON.stringify({ gameid: currgame.id, type: "sharingenabled", value: 1, verify }),
             });
         }
     }

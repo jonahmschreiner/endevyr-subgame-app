@@ -1,6 +1,7 @@
 import Stripe from 'stripe';
 let stripesecretkey;
 const baseURL = import.meta.env.VITE_APP_BASE_URL;
+const verifyCode = import.meta.env.VITE_APP_API_KEY;
 if (baseURL == 'http://localhost:5173'){
     stripesecretkey = import.meta.env.VITE_STRIPE_TEST_SECRET_KEY;
 } else {
@@ -8,13 +9,18 @@ if (baseURL == 'http://localhost:5173'){
 }
 export async function POST({ request }) {
     const data = await request.json();
-    let { userid } = data;
+    let { userid, verify } = data;
+    if (verify != verifyCode) {
+      return new Response(JSON.stringify({
+          status: 500,
+      }));
+    }
     let response = await fetch(`${baseURL}/api/getUser`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userid: userid}),
+        body: JSON.stringify({ userid: userid, verify}),
     });
     let responseJSON = await response.json();
     
